@@ -7,12 +7,12 @@ var logger = require("morgan");
 if (process.env.NODE_ENV === "development") {
   require("dotenv").config();
 }
-
+//meep
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
 const testsRouter = require("./routes/tests/index");
 
-//cannot check for development environment here
+//Had it here, and it was set to undefined
 
 var app = express();
 
