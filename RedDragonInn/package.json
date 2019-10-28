@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "SET \"NODE_ENV=development\" & node ./bin/www",
+    "start": "SET \"NODE_ENV=development\" & node bin/www",
     "start:dev": "SET \"NODE_ENV=development\" SET DEBUG=reddragoninn:* & nodemon ./bin/www",
     "db:create:migration": "sequelize migration:generate --name ",
     "db:migrate": "sequelize db:migrate",
