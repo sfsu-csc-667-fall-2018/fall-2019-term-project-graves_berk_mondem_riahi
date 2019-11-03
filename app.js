@@ -10,6 +10,7 @@ if (process.env.NODE_ENV === "development") {
 //meep
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
+const loginRouter = require("./routes/login/index");
 const testsRouter = require("./routes/tests/index");
 
 //Had it here, and it was set to undefined
@@ -29,6 +30,7 @@ app.use(express.static(path.join(__dirname, "public")));
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/tests", testsRouter);
+app.use("/login", loginRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
