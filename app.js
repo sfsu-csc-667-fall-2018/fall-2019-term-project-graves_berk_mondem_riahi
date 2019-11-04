@@ -12,6 +12,7 @@ const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const loginRouter = require("./routes/login/index");
 const testsRouter = require("./routes/tests/index");
+const registrerRouter = require("./routes/register/index");
 
 //Had it here, and it was set to undefined
 
@@ -31,6 +32,7 @@ app.use("/", indexRouter);
 app.use("/users", usersRouter);
 app.use("/tests", testsRouter);
 app.use("/login", loginRouter);
+app.use("/register", registrerRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
