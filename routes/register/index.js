@@ -8,10 +8,6 @@ router.get("/", function(req, res) {
 
 //not sure why this should be "/"
 router.post("/", function(request, response) {
-  console.log("registration request recieved");
-  console.log(request.body.username);
-  console.log(request.body.password);
-
   db.any(
     `INSERT INTO users (username,password) VALUES ('${request.body.username}','${request.body.password}')`
   )
