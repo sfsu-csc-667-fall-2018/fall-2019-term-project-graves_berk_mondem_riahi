@@ -12,8 +12,10 @@ router.post("/", function(request, response) {
   console.log(request.body.username);
   console.log(request.body.password);
 
-  db.any(`INSERT INTO users ("username") VALUES ('${request.body.username}')`)
-    .then(_ => db.any(`SELECT username FROM users`))
+  db.any(
+    `INSERT INTO users (username,password) VALUES ('${request.body.username}','${request.body.password}')`
+  )
+    .then(_ => db.any(`SELECT username,password FROM users`))
     .then(results => response.json(results))
     .catch(error => {
       console.log(error);
