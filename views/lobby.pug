@@ -1,0 +1,12 @@
+extends layout 
+
+block content
+    ul(id = "messages")
+
+    form(method='POST' action='/lobby')
+        div.form-group
+
+          button.btn.btn-primary(type='submit') SEND
+          input#pw.form-control(type='message' name='message')
+        
+                

@@ -1,10 +1,13 @@
 const express = require("express");
 const router = express.Router();
 
-/* GET users listing. */
-//todo : delete this bitch lmao
+/* GET home page. */
 router.get("/", function(req, res, next) {
-  res.send("respond with a resource");
+  res.render("lobby");
+});
+
+router.post("/", function(request, response) {
+  console.log(request.body.message);
 });
 
 module.exports = router;
