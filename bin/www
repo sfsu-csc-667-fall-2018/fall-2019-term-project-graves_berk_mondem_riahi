@@ -18,8 +18,9 @@ app.set("port", port);
 /**
  * Create HTTP server.
  */
-
+const socketIO = require("socket.io");
 const server = http.createServer(app);
+const io = socketIO(server);
 
 /**
  * Listen on provided port, on all network interfaces.
@@ -84,3 +85,11 @@ function onListening() {
   var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
   debug("Listening on " + bind);
 }
+
+//testing if this works, might need to be in app.js
+io.on("connection", function(socket) {
+  console.log("a user connected");
+  socket.on("disconnect", function() {
+    console.log("user disconnected");
+  });
+});
