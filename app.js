@@ -3,8 +3,10 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-const io = require("socket.io");
-const app = express();
+
+// c\onst socketIO = require("socket.io");
+
+// const io = socketIO(app);
 
 if (process.env.NODE_ENV === "development") {
   require("dotenv").config();
@@ -18,7 +20,7 @@ const testsRouter = require("./routes/tests/index");
 const registrerRouter = require("./routes/register/index");
 const lobbyRouter = require("./routes/lobby/index");
 //Had it here, and it was set to undefined
-
+const app = express();
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
