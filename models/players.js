@@ -1,12 +1,12 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
-  const player = sequelize.define('player', {
+  const players = sequelize.define('players', {
     player_id: DataTypes.INTEGER,
     user_id: DataTypes.INTEGER,
     game_id: DataTypes.INTEGER
   }, {});
-  player.associate = function(models) {
+  players.associate = function(models) {
     // associations can be defined here
   };
-  return player;
+  return players;
 };
