@@ -2,26 +2,28 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('discards', {
-      id: {
+      discard_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      game_id: {
+      room_id: {
+        allowNull: false,
         type: Sequelize.INTEGER
       },
       card_id: {
+        allowNull: false,
         type: Sequelize.INTEGER
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
       }
+    },
+    {
+      indexes: [
+        {
+          unique: true,
+          fields: ['room_id', 'card_id']
+        }
+      ]
     });
   },
   down: (queryInterface, Sequelize) => {

@@ -2,29 +2,32 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('handcards', {
-      id: {
+      hardcards_id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER
       },
       player_id: {
+        allowNull: false,
         type: Sequelize.INTEGER
       },
-      game_id: {
+      room_id: {
+        allowNull: false,
         type: Sequelize.INTEGER
       },
       card_id: {
+        allowNull: false,
         type: Sequelize.INTEGER
-      },
-      createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE
-      },
-      updatedAt: {
-        allowNull: false,
-        type: Sequelize.DATE
       }
+    },
+    {
+      indexes: [
+        {
+          unique: true,
+          fields: ['player_id', 'game_id', 'card_id']
+        }
+      ]
     });
   },
   down: (queryInterface, Sequelize) => {

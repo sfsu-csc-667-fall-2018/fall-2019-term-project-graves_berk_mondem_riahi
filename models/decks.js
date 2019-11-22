@@ -1,9 +1,23 @@
 'use strict';
 module.exports = (sequelize, DataTypes) => {
   const decks = sequelize.define('decks', {
-    game_id: DataTypes.INTEGER,
-    card_id: DataTypes.INTEGER
-  }, {});
+    deck_id: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER
+    },
+    room_id: {
+      allowNull: false,
+      type: DataTypes.INTEGER
+    },
+    card_id: {
+      allowNull: false,
+      type: DataTypes.INTEGER
+    },
+  }, {
+    timestamps: false
+  });
   decks.associate = function(models) {
     // associations can be defined here
   };
