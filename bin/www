@@ -8,8 +8,6 @@ var app = require("../app");
 var debug = require("debug")("ginrummy:server");
 var http = require("http");
 
-const socket = require("../socket/index");
-
 var models = require("../models");
 
 /**
@@ -23,10 +21,8 @@ app.set("port", port);
  * Create HTTP server.
  */
 const socketIO = require("socket.io");
-
 const server = http.createServer(app);
 const io = socketIO(server);
-// socket.init(app, server);
 
 models.sequelize.sync().then(function() {
   /**

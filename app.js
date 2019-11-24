@@ -15,10 +15,10 @@ if (process.env.NODE_ENV === "development") {
 //routes
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
-const loginRouter = require("./routes/login/index");
-const testsRouter = require("./routes/tests/index");
-const registrerRouter = require("./routes/register/index");
-const lobbyRouter = require("./routes/lobby/index");
+const loginRouter = require("./routes/login");
+// const testsRouter = require("./routes/tests/index");
+const registrerRouter = require("./routes/register");
+const lobbyRouter = require("./routes/lobby");
 //Had it here, and it was set to undefined
 const app = express();
 // view engine setup
@@ -33,7 +33,7 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-app.use("/tests", testsRouter);
+// app.use("/tests", testsRouter);
 app.use("/login", loginRouter);
 app.use("/register", registrerRouter);
 app.use("/lobby", lobbyRouter);

@@ -2,19 +2,12 @@ extends layout
 
 block content
   h1 Basic Chat App
+      
+      // register form
+      form(method='POST' action='/lobby')
 
-  #chat-area
-    .row
-      .messages.col-lg-6.well.well-sm
-    .row
-      .col-lg-6
-        .input-group
-          input.form-control(type='text', placeholder='Message...')
-          span.input-group-btn
-            button.btn.btn-default(type='button') Send
+        div.form-group
 
-  form.form-inline#initial-form
-    .form-group
-      label(for='who-are-you') Who are you?
-      input#who-are-you.form-control(type='text', placeholder='Anonymous')
-    button.btn.btn-primary(type='submit') Start Chatting
+          label(for='message') Chat:
+          input#pw.form-control(type='message' name='message')
+        button.btn.btn-primary(type='submit') Send
