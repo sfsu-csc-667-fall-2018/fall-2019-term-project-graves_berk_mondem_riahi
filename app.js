@@ -4,20 +4,23 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 
+// c\onst socketIO = require("socket.io");
+
+// const io = socketIO(app);
+
 if (process.env.NODE_ENV === "development") {
   require("dotenv").config();
 }
-//meep
+
+//routes
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const loginRouter = require("./routes/login/index");
 const testsRouter = require("./routes/tests/index");
 const registrerRouter = require("./routes/register/index");
-
+const lobbyRouter = require("./routes/lobby/index");
 //Had it here, and it was set to undefined
-
 const app = express();
-
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
@@ -33,6 +36,7 @@ app.use("/users", usersRouter);
 app.use("/tests", testsRouter);
 app.use("/login", loginRouter);
 app.use("/register", registrerRouter);
+app.use("/lobby", lobbyRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -51,3 +55,4 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
+//tes

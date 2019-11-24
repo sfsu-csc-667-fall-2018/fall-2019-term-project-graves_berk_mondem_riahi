@@ -1,5 +1,12 @@
-extends layout
+html
+  title My Site
+  head 
+    script(src="/socket.io/socket.io.js")
+     script.
+      var socket = io();
+  body
+    h1 Gin Rummy
+    img(src="https://cdn.discordapp.com/attachments/398749387422957569/642851160906137601/83c.png", alt="")
 
-block content
-  h1 Gin Rummy
-  img(src="https://cdn.discordapp.com/attachments/398749387422957569/642851160906137601/83c.png", alt="")
+
+  script(src='/socket.io/socket.io.js')
