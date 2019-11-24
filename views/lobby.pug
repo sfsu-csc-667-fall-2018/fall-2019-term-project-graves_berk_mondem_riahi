@@ -3,11 +3,17 @@ extends layout
 block content
   h1 Basic Chat App
       
-      // register form
-      form(method='POST' action='/lobby')
+      ul(id = "messages")
 
-        div.form-group
+      form(action = "")
+        input(id = "m" autocomplete = "off")
+        button Send
 
-          label(for='message') Chat:
-          input#pw.form-control(type='message' name='message')
-        button.btn.btn-primary(type='submit') Send
+
+  script( src="https://cdn.socket.io/socket.io-1.2.0.js")
+  script( src="https://code.jquery.com/jquery-1.11.1.js")
+  script(src='/javascripts/chatPost.js')
+
+ 
+
+     

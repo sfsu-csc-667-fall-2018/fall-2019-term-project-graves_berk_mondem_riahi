@@ -24,7 +24,7 @@ const socketIO = require("socket.io");
 const server = http.createServer(app);
 const io = socketIO(server);
 
-models.sequelize.sync().then(function() {
+models.sequelize.sync().then(function () {
   /**
    * Listen on provided port, on all network interfaces.
    */
@@ -35,6 +35,12 @@ models.sequelize.sync().then(function() {
   //this may need to be outside the sequelize sync
   io.on("connection", socket => {
     console.log("connected");
+
+    socket.on('chat message', function (msg) {
+      console.log(msg)
+      io.emit('chat message', msg);
+    });
+
   });
 });
 
