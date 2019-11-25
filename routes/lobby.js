@@ -1,5 +1,7 @@
 const express = require("express");
 const router = express.Router();
+const db = require("./db/index");
+
 
 /* GET home page. */
 router.get("/", function (req, res, next) {
@@ -9,17 +11,10 @@ router.get("/", function (req, res, next) {
 //not sure why this should be "/"
 
 //todo : pickup here
-router.post("", function (request, response) {
-  console.log("inserting into db");
-  db.any(
-    `INSERT INTO messages VALUES (0,0,0,0)`
-  )
-    .then($('#messages').append($('<li>').text(request.body.message)))
-    .catch(error => {
-      console.log(error);
-      response.json({ error });
-    });
-});
+// router.post("", function (request, response) {
+//   console.log("inserting into db");
+
+// });
 
 
 module.exports = router;

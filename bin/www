@@ -7,6 +7,9 @@
 var app = require("../app");
 var debug = require("debug")("ginrummy:server");
 var http = require("http");
+//probably a little too much responsibility for www but for now its ok
+const db = require("../routes/db/index");
+
 
 var models = require("../models");
 
@@ -37,7 +40,21 @@ models.sequelize.sync().then(function () {
     console.log("connected");
 
     socket.on('chat message', function (msg) {
-      console.log(msg)
+      console.log("sending out message into db")
+
+      //this doesnt insert timestamp yet, needs new migration to actually put message in, plus the key should auto 
+      //increment once that's working but for now this is a good prototype on how inserts work to the db
+
+      db.any(
+        `INSERT INTO messages(room_id,user_id) VALUES (0,18)`
+      )
+        .catch(error => {
+          console.log(error);
+        });
+
+
+
+
       io.emit('chat message', msg);
     });
 
