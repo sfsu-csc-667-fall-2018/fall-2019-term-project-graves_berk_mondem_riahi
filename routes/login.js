@@ -2,11 +2,11 @@ const express = require("express");
 const router = express.Router();
 const db = require("./db/index");
 
-router.get("/", function(req, res) {
+router.get("/", function (req, res) {
   res.render("login");
 });
 
-router.post("/", function(request, response) {
+router.post("/", function (request, response) {
   db.any(
     `SELECT * FROM users WHERE users.username = '${request.body.username}' AND users.password = '${request.body.password}'`
   )

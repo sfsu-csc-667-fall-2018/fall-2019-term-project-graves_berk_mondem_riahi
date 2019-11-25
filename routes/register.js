@@ -2,12 +2,12 @@ const express = require("express");
 const router = express.Router();
 const db = require("./db/index");
 
-router.get("/", function(req, res) {
+router.get("/", function (req, res) {
   res.render("register");
 });
 
 //not sure why this should be "/"
-router.post("/", function(request, response) {
+router.post("/", function (request, response) {
   db.any(
     `INSERT INTO users (username,password) VALUES ('${request.body.username}','${request.body.password}')`
   )
