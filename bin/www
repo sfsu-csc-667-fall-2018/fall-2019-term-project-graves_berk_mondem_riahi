@@ -39,24 +39,23 @@ models.sequelize.sync().then(function () {
   io.on("connection", socket => {
     console.log("connected");
 
-    db.any('SELECT * FROM messages', [true])
+    db.any('SELECT message_text FROM messages WHERE room_id = 0', [true])
       .then(function (data) {
         for (let i = 0; i < data.length; i++) {
-          io.emit('chat message', "chat message #" + i);
+          io.emit('chat message', data[i].message_text);
         }
       })
       .catch(function (error) {
-        // error;
+        console.log(error);
       });
 
     socket.on('chat message', function (msg) {
-      console.log("sending out message into db")
+      //console.log("sending out message into db")
 
-      //this doesnt insert timestamp yet, needs new migration to actually put message in, plus the key should auto 
-      //increment once that's working but for now this is a good prototype on how inserts work to the db
+      //todo: ADD TIMESTAMP formatter function?
 
       db.any(
-        `INSERT INTO messages(room_id,user_id) VALUES (0,18)`
+        `INSERT INTO messages (message_text,room_id,user_id,time_stamp) VALUES ('${msg}',0,18,'2017-08-19 14:22:11.802755+02')`
       )
         .catch(error => {
           console.log(error);
