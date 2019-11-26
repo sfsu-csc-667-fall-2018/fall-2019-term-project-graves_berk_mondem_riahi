@@ -39,6 +39,16 @@ models.sequelize.sync().then(function () {
   io.on("connection", socket => {
     console.log("connected");
 
+    db.any('SELECT * FROM messages', [true])
+      .then(function (data) {
+        for (let i = 0; i < data.length; i++) {
+          io.emit('chat message', "chat message #" + i);
+        }
+      })
+      .catch(function (error) {
+        // error;
+      });
+
     socket.on('chat message', function (msg) {
       console.log("sending out message into db")
 
@@ -51,7 +61,6 @@ models.sequelize.sync().then(function () {
         .catch(error => {
           console.log(error);
         });
-
 
 
 
