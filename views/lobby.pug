@@ -2,19 +2,18 @@ extends layout
 
 block content
   h1 Basic Chat App
+      
+      ul(id = "messages")
 
-  #chat-area
-    .row
-      .messages.col-lg-6.well.well-sm
-    .row
-      .col-lg-6
-        .input-group
-          input.form-control(type='text', placeholder='Message...')
-          span.input-group-btn
-            button.btn.btn-default(type='button') Send
+      form(method='POST' action='/lobby' )
+        input(id = "m" autocomplete = "off" maxlength="50")
+        button Send
 
-  form.form-inline#initial-form
-    .form-group
-      label(for='who-are-you') Who are you?
-      input#who-are-you.form-control(type='text', placeholder='Anonymous')
-    button.btn.btn-primary(type='submit') Start Chatting
+
+  script( src="https://cdn.socket.io/socket.io-1.2.0.js")
+  script( src="https://code.jquery.com/jquery-1.11.1.js")
+  script(src='/javascripts/chatPost.js')
+
+ 
+
+     

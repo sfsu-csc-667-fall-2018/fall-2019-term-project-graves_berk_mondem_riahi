@@ -7,8 +7,9 @@
 var app = require("../app");
 var debug = require("debug")("ginrummy:server");
 var http = require("http");
+//probably a little too much responsibility for www but for now its ok
+const db = require("../routes/db/index");
 
-const socket = require("../socket/index");
 
 var models = require("../models");
 
@@ -23,12 +24,10 @@ app.set("port", port);
  * Create HTTP server.
  */
 const socketIO = require("socket.io");
-
 const server = http.createServer(app);
 const io = socketIO(server);
-// socket.init(app, server);
 
-models.sequelize.sync().then(function() {
+models.sequelize.sync().then(function () {
   /**
    * Listen on provided port, on all network interfaces.
    */
@@ -39,6 +38,35 @@ models.sequelize.sync().then(function() {
   //this may need to be outside the sequelize sync
   io.on("connection", socket => {
     console.log("connected");
+
+    db.any('SELECT * FROM messages', [true])
+      .then(function (data) {
+        for (let i = 0; i < data.length; i++) {
+          io.emit('chat message', "chat message #" + i);
+        }
+      })
+      .catch(function (error) {
+        // error;
+      });
+
+    socket.on('chat message', function (msg) {
+      console.log("sending out message into db")
+
+      //this doesnt insert timestamp yet, needs new migration to actually put message in, plus the key should auto 
+      //increment once that's working but for now this is a good prototype on how inserts work to the db
+
+      db.any(
+        `INSERT INTO messages(room_id,user_id) VALUES (0,18)`
+      )
+        .catch(error => {
+          console.log(error);
+        });
+
+
+
+      io.emit('chat message', msg);
+    });
+
   });
 });
 
