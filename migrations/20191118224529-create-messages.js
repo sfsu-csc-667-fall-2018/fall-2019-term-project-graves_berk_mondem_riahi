@@ -8,6 +8,10 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
+      message_text: {
+        allowNull: false,
+        type: Sequelize.STRING
+      },
       room_id: {
         allowNull: false,
         type: Sequelize.INTEGER
