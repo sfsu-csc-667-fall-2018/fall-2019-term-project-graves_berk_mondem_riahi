@@ -7,6 +7,10 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
       type: DataTypes.INTEGER
     },
+    message_text: {
+      allowNull: false,
+      type: DataTypes.STRING
+    },
     room_id: {
       allowNull: false,
       type: DataTypes.INTEGER
