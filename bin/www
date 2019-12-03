@@ -39,10 +39,10 @@ models.sequelize.sync().then(function () {
   io.on("connection", socket => {
     console.log("connected");
 
-    db.any('SELECT message_text FROM messages WHERE room_id = 0', [true])
+    db.any('SELECT message_text,time_stamp FROM messages WHERE room_id = 0', [true])
       .then(function (data) {
         for (let i = 0; i < data.length; i++) {
-          io.emit('chat message', data[i].message_text);
+          io.emit('chat message', data[i].message_text, data[i].time_stamp);
         }
       })
       .catch(function (error) {
@@ -61,7 +61,7 @@ models.sequelize.sync().then(function () {
 
     socket.on('chat message', function (msg) {
       db.any(
-        `INSERT INTO messages (message_text,room_id,user_id,time_stamp) VALUES ('${msg}',0,18,'2017-08-19 14:22:11.802755+02')`
+        `INSERT INTO messages (message_text,room_id,user_id,time_stamp) VALUES ('${msg}',0,18,'NOW()')`
       )
         .catch(error => {
           console.log(error);
