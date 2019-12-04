@@ -1,7 +1,8 @@
-body {
-  background-color: red;
+button {
+  color: blue;
+  margin: 10px;
 }
 
-.button {
-  color: blue;
+ul {
+  list-style-type: none;
 }
