@@ -10,7 +10,6 @@ var http = require("http");
 //probably a little too much responsibility for www but for now its ok
 const db = require("../routes/db/index");
 
-
 var models = require("../models");
 
 /**
@@ -27,7 +26,7 @@ const socketIO = require("socket.io");
 const server = http.createServer(app);
 const io = socketIO(server);
 
-models.sequelize.sync().then(function () {
+models.sequelize.sync().then(function() {
   /**
    * Listen on provided port, on all network interfaces.
    */
@@ -39,33 +38,34 @@ models.sequelize.sync().then(function () {
   io.on("connection", socket => {
     console.log("connected");
 
-    db.any('SELECT message_text FROM messages WHERE room_id = 0', [true])
-      .then(function (data) {
+    //initialize the page with messages from chat
+    db.any("SELECT message_text,time_stamp FROM messages WHERE room_id = 0", [
+      true
+    ])
+      .then(function(data) {
         for (let i = 0; i < data.length; i++) {
-          io.emit('chat message', data[i].message_text);
+          io.emit("chat message", data[i].message_text, data[i].time_stamp);
         }
       })
-      .catch(function (error) {
+      .catch(function(error) {
         console.log(error);
       });
 
-    socket.on('chat message', function (msg) {
-      //console.log("sending out message into db")
+    //this should only be run if the room is the lobby
+    //todo: figure out a way to get this in the routes
+    db.any("SELECT room_name,password FROM rooms")
+      .then(function(data) {
+        for (let i = 0; i < data.length; i++) {
+          io.emit("create room", data[i].room_name, data[i].password);
+        }
+      })
+      .catch(function(error) {
+        console.log(error);
+      });
 
-      //todo: ADD TIMESTAMP formatter function?
-
-      db.any(
-        `INSERT INTO messages (message_text,room_id,user_id,time_stamp) VALUES ('${msg}',0,18,'2017-08-19 14:22:11.802755+02')`
-      )
-        .catch(error => {
-          console.log(error);
-        });
-
-
-
-      io.emit('chat message', msg);
-    });
-
+    require("../sockets/chatSocket")(socket, io);
+    require("../sockets/roomsSocket")(socket, io);
+    //this needs alot of its responsibilities moved, but it's tricky with how io works
   });
 });
 

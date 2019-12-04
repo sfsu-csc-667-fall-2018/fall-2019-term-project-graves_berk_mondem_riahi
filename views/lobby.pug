@@ -1,19 +1,35 @@
 extends layout
 
-block content
-  h1 Basic Chat App
-      
-      ul(id = "messages")
-
-      form(method='POST' action='/lobby' )
-        input(id = "m" autocomplete = "off" maxlength="50")
-        button Send
-
-
-  script( src="https://cdn.socket.io/socket.io-1.2.0.js")
-  script( src="https://code.jquery.com/jquery-1.11.1.js")
+block scripts 
   script(src='/javascripts/chatPost.js')
 
+block stylesheets
+  link(rel='stylesheet', href='/stylesheets/lobby.css')
+      
+block content
+  ul(id = "roomList")
+
+  form(name = "createRoomForm" method = 'POST' action = '/lobby')
+    input(id = "room" autocomplete = "off" maxlength="50" placeholder = "Room Name") 
+  
+    input(id = "password" autocomplete = "off" maxlength="50" placeholder = "Password")
+    button Create Room
+  
+
+
+  ul(id = "messages")
+
+  form(name = "messageForm" method='POST' action='/lobby'  )
+    input(id = "message" autocomplete = "off" maxlength="50")
+    button Send
+
+
+  
+
+
+
+  
+  
  
 
      
