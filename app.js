@@ -3,10 +3,16 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
+const passport = require("passport");
+const Strategy = require("passport-local").Strategy;
 
-// c\onst socketIO = require("socket.io");
-
-// const io = socketIO(app);
+//when logout implemented
+// passport.deserializeUser(function(id, cb) {
+//   db.users.findById(id, function (err, user) {
+//     if (err) { return cb(err); }
+//     cb(null, user);
+//   });
+// });
 
 if (process.env.NODE_ENV === "development") {
   require("dotenv").config();
@@ -16,6 +22,7 @@ if (process.env.NODE_ENV === "development") {
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const loginRouter = require("./routes/login");
+const databaseRouter = require("./routes/db/index");
 // const testsRouter = require("./routes/tests/index");
 const registrerRouter = require("./routes/register");
 const lobbyRouter = require("./routes/lobby");
@@ -53,6 +60,33 @@ app.use(function(err, req, res, next) {
   res.status(err.status || 500);
   res.render("error");
 });
+
+//passport stuff
+//passport
+passport.use(
+  new Strategy(function(username, password, done) {
+    databaseRouter
+      .any(
+        `SELECT * FROM users WHERE users.username = '${username}' AND users.password = '${password}'`
+      )
+      .then(results => {
+        if (results.length == 0) {
+          return done(null, false);
+        } else {
+          return done(null, username);
+        }
+      })
+      .catch(error => {
+        console.log(error);
+        return done(null, false);
+      });
+  })
+);
+
+//todo: look at managing a logged in state for the user
+// passport.serializeUser(function(username, done) {
+//   done(null, username);
+// });
 
 module.exports = app;
 //tes
