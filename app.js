@@ -5,6 +5,7 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const passport = require("passport");
 const Strategy = require("passport-local").Strategy;
+const session = require('express-sessions');
 
 //when logout implemented
 // passport.deserializeUser(function(id, cb) {
@@ -22,7 +23,7 @@ if (process.env.NODE_ENV === "development") {
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const loginRouter = require("./routes/login");
-const databaseRouter = require("./routes/db/index");
+const databaseRouter = require("./routes/db/connection");
 // const testsRouter = require("./routes/tests/index");
 const registrerRouter = require("./routes/register");
 const lobbyRouter = require("./routes/lobby");
@@ -46,12 +47,12 @@ app.use("/register", registrerRouter);
 app.use("/lobby", lobbyRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
@@ -61,10 +62,24 @@ app.use(function(err, req, res, next) {
   res.render("error");
 });
 
+//session stuff 
+// app.use(
+//   session({
+//     secret: process.env.COOKIE_SECRET,
+//     resave: true,
+//     saveUninitialized: true
+//   })
+// );
+
+//initialize the passport session
+app.use(passport.initialize());
+app.use(passport.session());
+
+
 //passport stuff
 //passport
 passport.use(
-  new Strategy(function(username, password, done) {
+  new Strategy(function (username, password, done) {
     databaseRouter
       .any(
         `SELECT * FROM users WHERE users.username = '${username}' AND users.password = '${password}'`

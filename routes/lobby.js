@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
-const db = require("./db/index");
+const db = require("./db/connection");
 
 /* GET home page. */
-router.get("/", function(req, res, next) {
+router.get("/", function (req, res, next) {
   res.render("lobby");
 });
 
