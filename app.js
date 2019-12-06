@@ -35,6 +35,7 @@ app.use(
   session({
     secret: process.env.COOKIE_SECRET,
     resave: true,
+    //this makes it so that the user stays logged in when refreshed, see why?
     saveUninitialized: true
   })
 );

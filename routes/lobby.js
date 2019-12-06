@@ -1,10 +1,10 @@
 const express = require("express");
 const router = express.Router();
-const db = require("./db/connection");
+const isLoggedIn = require("../auth/middleware/isLoggedIn");
 
 /* GET home page. */
-router.get("/", function (req, res, next) {
-  res.render("lobby");
+router.get("/", isLoggedIn, function(_, response) {
+  response.render("lobby", { title: "Gin Rummy" });
 });
 
 module.exports = router;
