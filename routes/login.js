@@ -1,9 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const db = require("./db/connection");
-const passport = require("passport");
+const passport = require("../auth");
 
-router.get("/", function (req, res) {
+router.get("/", function(req, res) {
   res.render("login");
 });
 
@@ -26,10 +25,10 @@ router.get("/", function (req, res) {
 
 router.post(
   "/",
-  passport.authenticate("local", { failureRedirect: "/lobby" }),
-  function (req, res) {
-    res.redirect("/lobby");
-  }
+  passport.authenticate("local", {
+    failureRedirect: "/login",
+    successRedirect: "/lobby"
+  })
 );
 
 module.exports = router;

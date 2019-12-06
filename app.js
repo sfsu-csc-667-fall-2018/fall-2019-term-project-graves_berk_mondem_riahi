@@ -5,15 +5,7 @@ const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 const passport = require("passport");
 const Strategy = require("passport-local").Strategy;
-const session = require('express-sessions');
-
-//when logout implemented
-// passport.deserializeUser(function(id, cb) {
-//   db.users.findById(id, function (err, user) {
-//     if (err) { return cb(err); }
-//     cb(null, user);
-//   });
-// });
+const session = require("express-session");
 
 if (process.env.NODE_ENV === "development") {
   require("dotenv").config();
@@ -37,6 +29,18 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+//session stuff
+app.use(
+  session({
+    secret: process.env.COOKIE_SECRET,
+    resave: true,
+    saveUninitialized: true
+  })
+);
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
@@ -47,12 +51,12 @@ app.use("/register", registrerRouter);
 app.use("/lobby", lobbyRouter);
 
 // catch 404 and forward to error handler
-app.use(function (req, res, next) {
+app.use(function(req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function (err, req, res, next) {
+app.use(function(err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};
@@ -62,41 +66,8 @@ app.use(function (err, req, res, next) {
   res.render("error");
 });
 
-//session stuff 
-// app.use(
-//   session({
-//     secret: process.env.COOKIE_SECRET,
-//     resave: true,
-//     saveUninitialized: true
-//   })
-// );
-
-//initialize the passport session
-app.use(passport.initialize());
-app.use(passport.session());
-
-
 //passport stuff
 //passport
-passport.use(
-  new Strategy(function (username, password, done) {
-    databaseRouter
-      .any(
-        `SELECT * FROM users WHERE users.username = '${username}' AND users.password = '${password}'`
-      )
-      .then(results => {
-        if (results.length == 0) {
-          return done(null, false);
-        } else {
-          return done(null, username);
-        }
-      })
-      .catch(error => {
-        console.log(error);
-        return done(null, false);
-      });
-  })
-);
 
 //todo: look at managing a logged in state for the user
 // passport.serializeUser(function(username, done) {

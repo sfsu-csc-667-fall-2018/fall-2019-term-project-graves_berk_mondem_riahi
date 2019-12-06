@@ -1,4 +1,4 @@
-const db = require("../routes/db/index");
+const db = require("../routes/db/connection");
 
 module.exports = function(socket, io) {
   socket.on("create room", function(room, password) {
