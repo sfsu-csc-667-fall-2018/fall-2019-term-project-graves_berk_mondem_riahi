@@ -1,12 +1,27 @@
 // const server = require("../bin/www");
 const socketIO = require("socket.io");
 const db = require("../routes/db/connection");
+var session = require("express-session");
+const app = require("../app");
+const gamesRouter = require("../routes/games");
+
+let sessionMiddleWare = session({
+  secret: process.env.COOKIE_SECRET,
+  resave: true,
+  //this makes it so that the user stays logged in when refreshed, see why?
+  saveUninitialized: true
+});
+
 module.exports = function(server) {
   const io = socketIO(server);
-  io.on("connection", socket => {
-    //console.log("connected");
 
+  io.use(function(socket, next) {
+    sessionMiddleWare(socket.request, socket.request.res, next);
+  });
+
+  io.on("connection", socket => {
     //initialize the page with messages from chat
+
     db.any("SELECT message_text,time_stamp FROM messages WHERE room_id = 0", [
       true
     ])

@@ -20,6 +20,6 @@ $(function() {
   });
 
   socket.on("create room", function(room, password) {
-    $("#roomList").append("<li > " + "Room Name: " + room + "<button> Join");
+    $("#roomList").append("<li > " + "Room Name: " + room + "<button > Join");
   });
 });

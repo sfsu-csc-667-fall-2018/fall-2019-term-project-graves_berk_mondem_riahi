@@ -8,7 +8,6 @@ var app = require("../app");
 var debug = require("debug")("ginrummy:server");
 var http = require("http");
 //probably a little too much responsibility for www but for now its ok
-const db = require("../routes/db/connection");
 
 var models = require("../models");
 

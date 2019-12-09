@@ -1,13 +1,13 @@
 extends layout
 
-block scripts 
-  script(src='/javascripts/chatPost.js')
 
 block stylesheets
   link(rel='stylesheet', href='/stylesheets/lobby.css')
       
 block content
+
   ul(id = "roomList")
+    
 
   form(name = "createRoomForm" method = 'POST' action = '/lobby')
     input(id = "room" autocomplete = "off" maxlength="50" placeholder = "Room Name") 
@@ -21,10 +21,13 @@ block content
 
   form(name = "messageForm" method='POST' action='/lobby'  )
     input(id = "message" autocomplete = "off" maxlength="50")
-    button Send
+    button(id) Send
 
 
-  
+block scripts 
+  script(src='/javascripts/chatPost.js')
+
+
 
 
 
