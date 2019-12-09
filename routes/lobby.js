@@ -3,8 +3,8 @@ const router = express.Router();
 const isLoggedIn = require("../auth/middleware/isLoggedIn");
 
 /* GET home page. */
-router.get("/", isLoggedIn, function(_, response) {
-  response.render("lobby", { title: "Gin Rummy" });
+router.get("/", isLoggedIn, function(request, response) {
+  response.render("lobby", { username: request.user.username });
 });
 
 module.exports = router;

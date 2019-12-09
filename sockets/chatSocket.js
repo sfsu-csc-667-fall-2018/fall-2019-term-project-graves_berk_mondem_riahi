@@ -1,6 +1,8 @@
 const db = require("../routes/db/connection");
 
 module.exports = function(socket, io) {
+  // let clients = io.sockets.clients();
+  // console.log(clients);
   socket.on("chat message", function(msg) {
     db.any(
       `INSERT INTO messages (message_text,room_id,user_id,time_stamp) VALUES ('${msg}',0,18,'NOW()')`
