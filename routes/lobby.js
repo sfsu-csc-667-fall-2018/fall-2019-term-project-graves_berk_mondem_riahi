@@ -5,7 +5,6 @@ const isLoggedIn = require("../auth/middleware/isLoggedIn");
 /* GET home page. */
 router.get("/", isLoggedIn, function(request, response) {
   response.render("lobby", { username: request.user.password });
-  console.log(username);
 });
 
 module.exports = router;

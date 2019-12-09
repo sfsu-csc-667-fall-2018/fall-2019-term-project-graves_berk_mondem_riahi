@@ -55,24 +55,17 @@ app.use("/register", registrerRouter);
 app.use("/lobby", lobbyRouter);
 app.use("/games", gamesRouter);
 
-//todo : why is this not working
-db.any("SELECT room_id FROM rooms")
-  .then(function(data) {
-    for (let i = 0; i < data.length; i++) {
-      // app.get("/games" + data[i].room_id, function(request, response) {
-      //   console.log("game" + data[i].room_id);
-      //   response.render("game" + data[i].room_id);
-      // });
-      let gRoute = "/games" + data[i].room_id;
-      app.use(gRoute, gamesRouter);
-    }
-  })
-  .catch(function(error) {
-    console.log("oh no");
-  });
-
-app.get("/games2", function(request, response) {
-  response.render("game");
+//game room routing
+app.get("/game*", function(request, response) {
+  let roomNum = request.url.slice(5);
+  let query = "SELECT * FROM rooms WHERE room_id = " + roomNum;
+  db.one(query, [true])
+    .then(function(data) {
+      response.render("game");
+    })
+    .catch(function(error) {
+      response.render("lobby");
+    });
 });
 
 //get all the games from the list of game rooms, needs to be updated somehow (maybe via a socket?)
