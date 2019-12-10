@@ -1,11 +1,11 @@
 //todo : remove all these repsonsibilities and defer them somewhere else
 
-$(function() {
-  var socket = io();
+//move this back in once lobby get can actually pull this shit
+//this is commented and currently in chatpost, othweise everytime a new socket joins it duplicates the db calls
 
-  socket.on("create room", function(room) {
-    let buttonTag =
-      "<button onClick = 'joinRoom(" + '"' + room + '"' + ")' > Join";
-    $("#roomList").append(" <li> Room: <a href => " + room);
-  });
+$(function() {
+  // var socket = io();
+  // socket.on("create room", function(room) {
+  //   $("#roomList").append(" <li> Room: <a href = > " + room);
+  // });
 });

@@ -25,7 +25,7 @@ const server = http.createServer(app);
 
 
 //this just makes the io object and sets all the socket stuff up
-const io = require("../sockets/Socket")(server);
+require("../sockets/Socket")(server);
 
 models.sequelize.sync().then(function () {
   /**

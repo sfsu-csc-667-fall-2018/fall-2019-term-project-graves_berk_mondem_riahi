@@ -25,7 +25,7 @@ module.exports = function(server) {
     ])
       .then(function(data) {
         for (let i = 0; i < data.length; i++) {
-          io.emit("chat message", data[i].message_text, data[i].time_stamp);
+          io.emit("chat message", data[i].message_text);
         }
       })
       .catch(function(error) {

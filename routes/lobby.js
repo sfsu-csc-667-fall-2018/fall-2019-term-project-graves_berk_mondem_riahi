@@ -49,12 +49,21 @@ router.post("/chatMessage", function(request, response) {
 
 router.post("/createRoom", function(request, response) {
   let io = request.app.get("io");
+  //room id should not be specified here, need to figure out a good way to grab it as it auto increments or something
   db.any(
-    `INSERT INTO rooms (room_name,password) VALUES ('${request.body.roomName}','${request.body.roomPassword}')`
-  ).catch(error => {
-    console.log(error);
-  });
-  io.emit("create room", request.body.roomName, request.body.roomPassword);
+    `INSERT INTO rooms (room_id,room_name,password) VALUES ('${request.body.roomId}','${request.body.roomName}','${request.body.roomPassword}')`
+  )
+    .then(_ => {
+      io.emit(
+        "create room",
+        request.body.roomName,
+        request.body.roomId
+        // request.body.roomPassword
+      );
+    })
+    .catch(error => {
+      console.log(error);
+    });
 
   return;
 });
