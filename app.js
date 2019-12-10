@@ -14,11 +14,10 @@ if (process.env.NODE_ENV === "development") {
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const loginRouter = require("./routes/login");
-//const databaseRouter = require("./routes/db/connection");
-// const testsRouter = require("./routes/tests/index");
 const registrerRouter = require("./routes/register");
 const lobbyRouter = require("./routes/lobby");
 const gamesRouter = require("./routes/games");
+
 //Had it here, and it was set to undefined
 const app = express();
 const db = require("./routes/db/connection");
@@ -49,21 +48,20 @@ app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-// app.use("/tests", testsRouter);
 app.use("/login", loginRouter);
 app.use("/register", registrerRouter);
 app.use("/lobby", lobbyRouter);
 app.use("/games", gamesRouter);
 
 //game room routing
-app.get("/game*", function(request, response) {
+app.get("/game*", function (request, response) {
   let roomNum = request.url.slice(5);
   let query = "SELECT * FROM rooms WHERE room_id = " + roomNum;
   db.one(query, [true])
-    .then(function(data) {
+    .then(function (data) {
       response.render("game");
     })
-    .catch(function(error) {
+    .catch(function (error) {
       response.render("lobby");
     });
 });
@@ -71,12 +69,12 @@ app.get("/game*", function(request, response) {
 //get all the games from the list of game rooms, needs to be updated somehow (maybe via a socket?)
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};

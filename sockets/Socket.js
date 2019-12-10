@@ -12,12 +12,13 @@ let sessionMiddleWare = session({
   saveUninitialized: true
 });
 
-module.exports = function(server) {
+module.exports = function (server) {
   const io = socketIO(server);
+  app.set("io", io);
 
-  io.use(function(socket, next) {
-    sessionMiddleWare(socket.request, socket.request.res, next);
-  });
+  // io.use(function(socket, next) {
+  //   sessionMiddleWare(socket.request, socket.request.res, next);
+  // });
 
   io.on("connection", socket => {
     //initialize the page with messages from chat
@@ -25,24 +26,24 @@ module.exports = function(server) {
     db.any("SELECT message_text,time_stamp FROM messages WHERE room_id = 0", [
       true
     ])
-      .then(function(data) {
+      .then(function (data) {
         for (let i = 0; i < data.length; i++) {
           io.emit("chat message", data[i].message_text, data[i].time_stamp);
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
       });
 
     //this should only be run if the room is the lobby
     //todo: figure out a way to get this in the routes
     db.any("SELECT room_name,password FROM rooms")
-      .then(function(data) {
+      .then(function (data) {
         for (let i = 0; i < data.length; i++) {
           io.emit("create room", data[i].room_name, data[i].password);
         }
       })
-      .catch(function(error) {
+      .catch(function (error) {
         console.log(error);
       });
 
