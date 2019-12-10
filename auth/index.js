@@ -6,18 +6,16 @@ const User = require("../db/users/index");
 //stores the variables into the session
 passport.serializeUser((user, done) => {
   //this is where you add the info to the session
-  done(null, user.username);
+  done(null, user.id);
 });
 
 //gets the id back as a variable from the session
-passport.deserializeUser((username, done) => {
-  User.findByUserName(username).then(({ username }) =>
-    done(null, { username })
-  );
+passport.deserializeUser((id, done) => {
+  User.findById(id).then(({ id }) => done(null, { id }));
 });
 
 passport.use(
-  new LocalStrategy(function (username, password, done) {
+  new LocalStrategy(function(username, password, done) {
     //update this to grab the user_id as well
     databaseRouter
       .one(
@@ -27,7 +25,7 @@ passport.use(
         if (results.length == 0) {
           return done(null, false);
         } else {
-          return done(null, { username: username });
+          return done(null, { id: results["id"] });
         }
       })
       .catch(error => {

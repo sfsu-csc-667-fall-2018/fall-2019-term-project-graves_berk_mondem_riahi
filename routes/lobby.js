@@ -7,6 +7,9 @@ const app = require("../app");
 /* GET lobby page. */
 router.get("/", isLoggedIn, function(request, response) {
   let io = request.app.get("io");
+
+  console.log("Hello " + request.user.id);
+
   //no fucking idea why this wont work, tried alot of stuff
 
   // messages = db
@@ -29,19 +32,31 @@ router.get("/", isLoggedIn, function(request, response) {
   // db.any("SELECT * FROM rooms").then(rooms =>
   //   io.emit("create room", rooms, rooms[1].password)
   // );
+
   response.render("lobby");
 });
 
-// router.post("/", function (request, response) {
-//   db.any(
-//     `INSERT INTO users (username,password) VALUES ('${request.body.username}','${request.body.password}')`
-//   )
-//     // .then(_ => db.any(`SELECT username,password FROM users`))
-//     .then(results => response.render("login"))
-//     .catch(error => {
-//       console.log(error);
-//       // response.json({ error });
-//     });
-// });
+router.post("/chatMessage", function(request, response) {
+  let io = request.app.get("io");
+  db.any(
+    `INSERT INTO messages (message_text,room_id,user_id) VALUES ('${request.body.message}',0,'${request.user.id}')`
+  ).catch(error => {
+    console.log(error);
+  });
+  io.emit("chat message", request.body.message);
+  return;
+});
+
+router.post("/createRoom", function(request, response) {
+  let io = request.app.get("io");
+  db.any(
+    `INSERT INTO rooms (room_name,password) VALUES ('${request.body.roomName}','${request.body.roomPassword}')`
+  ).catch(error => {
+    console.log(error);
+  });
+  io.emit("create room", request.body.roomName, request.body.roomPassword);
+
+  return;
+});
 
 module.exports = router;

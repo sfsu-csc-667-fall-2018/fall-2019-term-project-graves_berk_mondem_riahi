@@ -46,8 +46,6 @@ module.exports = function(server) {
 
     console.log("connected");
 
-    require("./chatSocket")(socket, io);
-    require("./roomsSocket")(socket, io);
     //this needs alot of its responsibilities moved, but it's tricky with how io works
   });
 };
