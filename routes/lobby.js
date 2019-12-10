@@ -6,12 +6,12 @@ const app = require("../app")
 
 /* GET lobby page. */
 router.get("/", isLoggedIn, function (request, response) {
-
+  response.render("lobby");
   db.any("SELECT message_text,time_stamp FROM messages WHERE room_id = 0", [
     true
   ])
     .then(function (data) {
-      response.render("lobby");
+
       //console.log(request.app.get("io"));
       for (let i = 0; i < data.length; i++) {
         console.log("io emit")
