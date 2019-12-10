@@ -1,8 +1,324 @@
 extends layout
 
-block scripts 
-  script(src='/javascripts/game.js')
+block scripts
+    script(src="/socket.io/socket.io.js")
+    script.
+        const socket = io();
+block stylesheets
+    link( rel='stylesheet', href='/stylesheets/GameView.css')
 
-
+       
 block content
-    p this is a game
+
+    #wrapper(style='height: auto !important;')
+        #board-wrapper(style='height: auto !important;')
+            #left-column(style='height: auto !important;')
+                label space
+                #left-content(style='height: 600px;')
+                    label content
+            #board-and-header
+                #header
+                    #title
+                        h1 GIN RUMMY
+                    #menucontainer.hide-mobile
+                        ul#menu
+                            li
+                                a(title='new game', href='#newgame') New Game
+                            li
+                                | |
+                                a(title='Rules', href='#rules') Rules
+                            li
+                                | |
+                                a(title='About', href='#about') About
+                            li
+                                | |
+                                a(title='Options', href='#options') Options
+                            li.stats-link
+                                | |
+                                a(title='statistics') Statistics
+                #board.board.ginrummy(style='height: 600px;')
+                    #play-page.inner-page(style='height: 600px;')
+                        #top-player.avatar
+                            .face
+                            small.top-player-name Computer
+                            #top-player-bubble.bubble
+                                p
+                                    span
+                        #bottom-player.avatar
+                            .face
+                            small You
+                            #bottom-player-bubble.bubble
+                                p
+                                    span
+                        #messageBox(style='top: 365px;')
+                            p Click Deal to start the game.
+                        #deal
+                            button.big Deal
+                        #pass
+                            button PASS
+                        #player-buttons(style='display: block;')
+                            button#knock
+                                span#no-knock KNOCK
+                                span#yes-knock(style='display: none;') KNOCK
+                            button#sortHand Sort
+                        #show-scorecard
+                            a(href='#show-scorecard') Click here to show the scorecard again
+                        #inline-score-wrapper
+                            #inline-score
+                                table
+                                    tbody
+                                        tr
+                                            th(colspan='4') Total game score
+                                        tr.names-row
+                                            th.bottom-player-name You
+                                            th.top-player-name Bill
+                                        tr
+                                            td#bottom-inline-score 0
+                                            td#top-inline-score 0
+                        #best-move.hide-restart.show-after-deal(style='top: 532px;')
+                            #melds-container
+                                | Melds:
+                                span.melds
+                            #deadwood-container
+                                | Deadwood:
+                                span.deadwood-count
+                                span.deadwood
+                        #result-box.dialog.results
+                            h3 X wins this round with Big Gin
+                            .trophy.hide-restart
+                            span#gr-top-player-win.ginrummy-winner-img.face-small.face-top-player.hide-restart.hair-2
+                            span#gr-bottom-player-win.ginrummy-winner-img.face-small.face-bottom-player.hide-restart.hair-0
+                            .trophy.hide-restart
+                            #gr-result-table-wrapper
+                                table#gr-result-table
+                                    tbody
+                                        tr
+                                            td.sep
+                                            td.sep(colspan='3')
+                                                .result-bottom-player.face-thumb.face-bottom-player
+                                            td.sep(colspan='3')
+                                                .result-top-player.face-thumb.face-top-player
+                                            td
+                                        tr
+                                            th.sep Round
+                                            th Score
+                                            th Bonus
+                                            th.sep Total
+                                            th Score
+                                            th Bonus
+                                            th.sep Total
+                                            th.header-result Result
+                                        tr#total-row.result-row
+                                            td(colspan='3') Total Score
+                                            td#bottom-player-total.sep
+                                            td
+                                            td
+                                            td#top-player-total.sep
+                                            td
+                                        tr#game-bonus-row.result-row.hide-restart
+                                            td(colspan='3') Game Bonus
+                                            td#bottom-player-game-bonus.sep 0
+                                            td
+                                            td
+                                            td#top-player-game-bonus.sep 0
+                                            td
+                                        tr#line-bonus-row.hide-restart
+                                            td(colspan='3') Line Bonus
+                                            td#bottom-player-line-bonus.sep 0
+                                            td
+                                            td
+                                            td#top-player-line-bonus.sep 0
+                                            td
+                                        tr#shutout-bonus-row.hide-restart
+                                            td(colspan='3') Shutout Bonus
+                                            td#bottom-player-shutout-bonus.sep 0
+                                            td
+                                            td
+                                            td#top-player-shutout-bonus.sep 0
+                                            td
+                                        tr#grand-total-row.result-row.hide-restart
+                                            td(colspan='3') Grand Total
+                                            td#bottom-player-grand-total.sep
+                                            td
+                                            td
+                                            td#top-player-grand-total.sep
+                                            td
+                            #hide-scorecard.hide-restart
+                                a(href='#hide-scorecard') Hide scorecard and show cards
+                            .button-panel
+                                button#start-new-game Play next round
+                        .card.h1(style='left: 260.3px; top: 253px; z-index: 2; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.h2(style='left: 260.3px; top: 253px; z-index: 3; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.h3(style='left: 260.3px; top: 253px; z-index: 4; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.h4(style='left: 260.3px; top: 253px; z-index: 5; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.h5(style='left: 260.3px; top: 253px; z-index: 6; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.h6(style='left: 258.3px; top: 251px; z-index: 7; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.h7(style='left: 258.3px; top: 251px; z-index: 8; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.h8(style='left: 258.3px; top: 251px; z-index: 9; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.h9(style='left: 258.3px; top: 251px; z-index: 10; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.h10(style='left: 258.3px; top: 251px; z-index: 11; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.h11(style='left: 258.3px; top: 251px; z-index: 12; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.h12(style='left: 256.3px; top: 249px; z-index: 13; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.h13(style='left: 256.3px; top: 249px; z-index: 14; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c1(style='left: 256.3px; top: 249px; z-index: 15; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c2(style='left: 256.3px; top: 249px; z-index: 16; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c3(style='left: 256.3px; top: 249px; z-index: 17; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c4(style='left: 256.3px; top: 249px; z-index: 18; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c5(style='left: 254.3px; top: 247px; z-index: 19; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c6(style='left: 254.3px; top: 247px; z-index: 20; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c7(style='left: 254.3px; top: 247px; z-index: 21; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c8(style='left: 254.3px; top: 247px; z-index: 22; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c9(style='left: 254.3px; top: 247px; z-index: 23; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c10(style='left: 254.3px; top: 247px; z-index: 24; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c11(style='left: 252.3px; top: 245px; z-index: 25; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c12(style='left: 252.3px; top: 245px; z-index: 26; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.c13(style='left: 252.3px; top: 245px; z-index: 27; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d1(style='left: 252.3px; top: 245px; z-index: 28; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d2(style='left: 252.3px; top: 245px; z-index: 29; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d3(style='left: 252.3px; top: 245px; z-index: 30; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d4(style='left: 250.3px; top: 243px; z-index: 31; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d5(style='left: 250.3px; top: 243px; z-index: 32; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d6(style='left: 250.3px; top: 243px; z-index: 33; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d7(style='left: 250.3px; top: 243px; z-index: 34; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d8(style='left: 250.3px; top: 243px; z-index: 35; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d9(style='left: 250.3px; top: 243px; z-index: 36; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d10(style='left: 248.3px; top: 241px; z-index: 37; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d11(style='left: 248.3px; top: 241px; z-index: 38; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d12(style='left: 248.3px; top: 241px; z-index: 39; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.d13(style='left: 248.3px; top: 241px; z-index: 40; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s1(style='left: 248.3px; top: 241px; z-index: 41; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s2(style='left: 248.3px; top: 241px; z-index: 42; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s3(style='left: 246.3px; top: 239px; z-index: 43; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s4(style='left: 246.3px; top: 239px; z-index: 44; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s5(style='left: 246.3px; top: 239px; z-index: 45; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s6(style='left: 246.3px; top: 239px; z-index: 46; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s7(style='left: 246.3px; top: 239px; z-index: 47; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s8(style='left: 246.3px; top: 239px; z-index: 48; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s9(style='left: 244.3px; top: 237px; z-index: 49; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s10(style='left: 244.3px; top: 237px; z-index: 50; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s11(style='left: 244.3px; top: 237px; z-index: 51; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s12(style='left: 244.3px; top: 237px; z-index: 52; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+                        .card.s13(style='left: 244.3px; top: 237px; z-index: 53; width: 69px; height: 94px;')
+                            .facedown
+                            .faceup
+            #login-button.hide-mobile
+                ul#buttons
+                    li
+                        a(title='profile', href='#profile') Profile
+                    li |
+                    li
+                        a(title='login', href='#login') Login
+            #right-column(style='height: auto !important;')
+                label chatbox
+                #right-content(style='height: 600px;')
+                    label chat
+            div(style='clear:both')
+        //- #textcontent(style='height: auto !important;')
+        //-     #about.appmode-hide
+        //-         h2 About Gin Rummy
+        //-         p
+        //-             | This is online version of Gin Rummy. this is a project for SFSU CSC 667 class
+
+    script(src='/socket.io/socket.io.js')
