@@ -17,8 +17,6 @@ const loginRouter = require("./routes/login");
 const registrerRouter = require("./routes/register");
 const lobbyRouter = require("./routes/lobby");
 const gamesRouter = require("./routes/games");
-
-//Had it here, and it was set to undefined
 const app = express();
 const db = require("./routes/db/connection");
 
@@ -26,21 +24,23 @@ const db = require("./routes/db/connection");
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
+
 app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 
+//session stuff
 let sessionMiddleWare = session({
   secret: process.env.COOKIE_SECRET,
   resave: true,
   //this makes it so that the user stays logged in when refreshed, see why?
   saveUninitialized: true
 });
-//session stuff
 
 app.use(sessionMiddleWare);
 
+//initializing passport for auth
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -53,20 +53,21 @@ app.use("/register", registrerRouter);
 app.use("/lobby", lobbyRouter);
 app.use("/games", gamesRouter);
 
-//game room routing
-app.get("/game*", function (request, response) {
-  let roomNum = request.url.slice(5);
-  let query = "SELECT * FROM rooms WHERE room_id = " + roomNum;
-  db.one(query, [true])
-    .then(function (data) {
-      response.render("game");
-    })
-    .catch(function (error) {
-      response.render("lobby");
-    });
-});
 
-//get all the games from the list of game rooms, needs to be updated somehow (maybe via a socket?)
+
+//game room routing
+// app.get("/game*", function (request, response) {
+//   let roomNum = request.url.slice(5);
+//   let query = "SELECT * FROM rooms WHERE room_id = " + roomNum;
+//   db.one(query, [true])
+//     .then(function (data) {
+//       response.render("game");
+//     })
+//     .catch(function (error) {
+//       response.render("lobby");
+//     });
+// });
+
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
@@ -85,4 +86,4 @@ app.use(function (err, req, res, next) {
 });
 
 module.exports = app;
-//tes
+

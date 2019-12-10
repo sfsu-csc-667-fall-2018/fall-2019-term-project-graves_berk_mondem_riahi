@@ -6,8 +6,12 @@ const isLoggedIn = require("../auth/middleware/isLoggedIn");
 router.get("/:id", isLoggedIn, function (request, response) {
   //id is just whatever it parses after /game_
   //params stores the id after game_
+
+  //if we can get these we're golden
   const { id: roomId } = request.params;
   const { id: userId } = request.user;
+
+
 
   response.render("game");
 });
