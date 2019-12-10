@@ -15,4 +15,11 @@ $(function() {
     document.getElementById("roomPassword").value = "";
     document.getElementById("roomId").value = "";
   });
+
+  socket.on("join lobby", function(messages) {
+    for (let i = 0; i < messages.length; i++) {
+      console.log("JOINING LOBBY");
+      $("#messages").append($("<li>").text(messages[i]));
+    }
+  });
 });
