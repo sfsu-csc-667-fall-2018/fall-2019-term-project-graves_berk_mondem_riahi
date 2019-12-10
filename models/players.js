@@ -20,6 +20,8 @@ module.exports = (sequelize, DataTypes) => {
   });
   players.associate = function(models) {
     // associations can be defined here
+    players.belongsTo(models.users);
+    players.belongsTo(models.rooms);
   };
   return players;
 };
