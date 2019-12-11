@@ -1,34 +1,40 @@
 extends layout
 
-block scripts 
-  script(src='/javascripts/chatPost.js')
+
+
+
+
 
 block stylesheets
   link(rel='stylesheet', href='/stylesheets/lobby.css')
-      
-block content
-  ul(id = "roomList")
 
-  form(name = "createRoomForm" method = 'POST' action = '/lobby')
-    input(id = "room" autocomplete = "off" maxlength="50" placeholder = "Room Name") 
-  
-    input(id = "password" autocomplete = "off" maxlength="50" placeholder = "Password")
+
+block content
+
+  ul(id = "roomList")
+    
+
+  form(name = "createRoomForm" method = 'POST' action = '/lobby/createRoom')
+    input(id = "roomName" name = "roomName" autocomplete = "off" maxlength="50" placeholder = "Room Name") 
+    input(id = "roomPassword" name = "roomPassword" autocomplete = "off" maxlength="50" placeholder = "Password")
+    input(id = "roomId" name = "roomId" autocomplete = "off" maxlength="50" placeholder = "Unique Room Id")
     button Create Room
   
 
 
   ul(id = "messages")
 
-  form(name = "messageForm" method='POST' action='/lobby'  )
-    input(id = "message" autocomplete = "off" maxlength="50")
+  form(name = "messageForm" method='POST' action='/lobby/chatMessage'  )
+    input( id ="message" type = "message" name = "message" autocomplete = "off" maxlength="50")
     button Send
 
 
-  
 
+block scripts 
+  script(src='/javascripts/chatPost.js')
+  script(src='/javascripts/roomPost.js')
+  script(src='/javascripts/joinLobby.js')
 
-
-  
   
  
 

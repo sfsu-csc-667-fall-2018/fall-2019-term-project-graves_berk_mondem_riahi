@@ -2,24 +2,24 @@
 
 $(function() {
   var socket = io();
-  $('form[name="messageForm"]').submit(function() {
-    socket.emit("chat message", $("#message").val());
-    $("#message").val("");
-    return false;
-  });
-  socket.on("chat message", function(msg, time) {
-    $("#messages").append($("<li>").text(time + " - " + msg));
+
+  socket.on("chat message", function(msg) {
+    $("#messages").append($("<li>").text(msg));
     window.scrollTo(0, document.body.scrollHeight);
+    document.getElementById("message").value = "";
   });
 
-  $('form[name="createRoomForm"]').submit(function() {
-    socket.emit("create room", $("#room").val(), $("#password").val());
-    $("#room").val("");
-    $("#password").val("");
-    return false;
+  socket.on("create room", function(room, id) {
+    $("#roomList").append(" <li> Room: <a href = games/" + id + "> " + room);
+    document.getElementById("roomName").value = "";
+    document.getElementById("roomPassword").value = "";
+    document.getElementById("roomId").value = "";
   });
 
-  socket.on("create room", function(room, password) {
-    $("#roomList").append("<li > " + "Room Name: " + room + "<button> Join");
+  socket.on("join lobby", function(messages) {
+    for (let i = 0; i < messages.length; i++) {
+      console.log("JOINING LOBBY");
+      $("#messages").append($("<li>").text(messages[i]));
+    }
   });
 });

@@ -1,0 +1,271 @@
+h1 {
+  padding: 0;
+  margin: 0;
+  touch-action: manipulation;
+  text-align: center;
+  font-size: 50px;
+  font-family: "Comic Sans MS", "roboto";
+  height: 71px;
+  margin-top: 0;
+  white-space: nowrap;
+  color: #000000;
+  text-shadow: none;
+}
+
+#title h1 {
+  height: 71px;
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+ul #menu {
+  font-family: Arial, sans-serif;
+  color: #333;
+  touch-action: manipulation;
+  font-size: 18px;
+  line-height: 23px;
+  padding: 2px;
+  position: relative;
+  margin: auto;
+  text-align: center;
+}
+
+li {
+  display: inline;
+  margin-bottom: 5px;
+}
+
+#play-page {
+  text-align: center;
+  position: relative;
+  height: 600px;
+  margin: auto;
+  width: 700px;
+}
+
+#menu {
+  padding: 2px;
+  position: relative;
+  margin: auto;
+  text-align: center;
+}
+
+div #menucontainer {
+  margin-bottom: 3px;
+  margin-top: -10px;
+}
+
+#board-wrapper {
+  width: 100%;
+  padding: 0;
+  margin: 0;
+}
+
+#wrapper {
+  display: block;
+  width: 1330px;
+  margin: 0 auto;
+  box-sizing: border-box;
+  padding: 0;
+}
+
+body {
+  background-color: white;
+  font-family: Arial, sans-serif;
+  color: #333;
+  padding-bottom: 5px;
+  display: block;
+}
+
+#left-column {
+  display: block;
+}
+
+#left-column {
+  float: left;
+  width: 160px;
+  border: solid 3px black;
+  margin-right: 75px;
+  margin-top: 117px;
+}
+
+#left-column {
+  height: 600px;
+  display: block;
+}
+
+#right-column {
+  float: left;
+  width: 250px;
+  border: solid 3px black;
+  margin-left: 75px;
+  margin-top: 117px;
+}
+
+#board {
+  background-color: purple;
+  border: solid 3px#fff;
+  border-radius: 30px;
+  color: #fff;
+  padding: 5px;
+  box-shadow: #000 0 0 5px;
+  margin-bottom: 15px;
+  z-index: 1;
+}
+
+#top-player {
+  top: 2px;
+  left: 50%;
+}
+
+#bottom-player {
+  bottom: 2px;
+  left: 50%;
+}
+
+#bottom-player,
+#top-player {
+  margin-left: -25px;
+}
+
+.avatar {
+  position: absolute;
+  height: 70px;
+}
+
+#board-and-header {
+  width: 716px;
+  float: left;
+}
+
+#messageBox {
+  position: absolute;
+  width: 100%;
+  top: 365px;
+  left: 0;
+  padding: 0;
+}
+
+#messageBox p {
+  width: 50%;
+  height: 35px;
+  font-size: 12px;
+  font-family: CardSuits, Arial, sans-serif;
+  line-height: 16px;
+  margin: 0 auto;
+  text-align: left;
+  padding: 3px 6px;
+  color: #333;
+  background-color: #edf35a;
+  border-radius: 4px;
+  text-shadow: none;
+}
+
+#deal {
+  position: absolute;
+  width: 170px;
+  left: 360px;
+  top: 260px;
+}
+
+#pass {
+  display: none;
+  position: absolute;
+  top: 290px;
+  left: 430px;
+}
+
+#player-buttons {
+  position: absolute;
+  bottom: 40px;
+  left: 390px;
+  display: none;
+}
+
+#show-scorecard {
+  position: absolute;
+  width: 100%;
+  text-align: center;
+  top: 290px;
+  display: none;
+}
+
+#inline-score-wrapper {
+  bottom: 24px;
+  right: 5px;
+  width: auto;
+}
+#inline-score-wrapper {
+  box-sizing: border-box;
+  position: absolute;
+  right: 0;
+  padding-left: 23px;
+  bottom: 14px;
+  width: 50%;
+  text-align: center;
+}
+
+.card {
+  display: block;
+}
+
+.card {
+  border: 1px solid #000;
+  width: 69px;
+  height: 94px;
+  position: absolute;
+  cursor: pointer;
+  overflow: hidden;
+  -ms-touch-action: manipulation;
+  touch-action: manipulation;
+}
+
+#board-and-header,
+#textcontent {
+  width: 716px;
+}
+
+#textcontent {
+  padding-top: 20px;
+  border-radius: 15px;
+  background-color: rgba(255, 255, 255, 0.8);
+}
+#textcontent {
+  margin-left: 235px;
+}
+
+#about {
+  margin-top: 20px;
+}
+
+#inline-score-wrapper {
+  bottom: 24px;
+  right: 5px;
+  width: auto;
+}
+
+#inline-score {
+  display: inline-block;
+}
+
+#best-move {
+  font-size: 12px;
+  line-height: 22px;
+  color: #fff;
+  width: 310px;
+  height: 70px;
+  padding: 3px;
+  border-radius: 3px;
+  position: absolute;
+  top: 532px;
+  left: 10px;
+}
+
+#result-box {
+  width: 340px;
+  display: none;
+  text-align: center;
+  min-width: 310px;
+  max-width: 96%;
+  position: relative;
+}

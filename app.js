@@ -3,10 +3,8 @@ const express = require("express");
 const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
-
-// c\onst socketIO = require("socket.io");
-
-// const io = socketIO(app);
+const passport = require("passport");
+const session = require("express-session");
 
 if (process.env.NODE_ENV === "development") {
   require("dotenv").config();
@@ -16,11 +14,12 @@ if (process.env.NODE_ENV === "development") {
 const indexRouter = require("./routes/index");
 const usersRouter = require("./routes/users");
 const loginRouter = require("./routes/login");
-// const testsRouter = require("./routes/tests/index");
 const registrerRouter = require("./routes/register");
 const lobbyRouter = require("./routes/lobby");
-//Had it here, and it was set to undefined
+const gamesRouter = require("./routes/games");
 const app = express();
+const db = require("./routes/db/connection");
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
@@ -29,14 +28,29 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
+//session stuff
+let sessionMiddleWare = session({
+  secret: process.env.COOKIE_SECRET,
+  resave: true,
+  //this makes it so that the user stays logged in when refreshed, see why?
+  saveUninitialized: true
+});
+
+app.use(sessionMiddleWare);
+
+//initializing passport for auth
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.static(path.join(__dirname, "public")));
 
 app.use("/", indexRouter);
 app.use("/users", usersRouter);
-// app.use("/tests", testsRouter);
 app.use("/login", loginRouter);
 app.use("/register", registrerRouter);
 app.use("/lobby", lobbyRouter);
+app.use("/games", gamesRouter);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -55,4 +69,3 @@ app.use(function(err, req, res, next) {
 });
 
 module.exports = app;
-//tes
