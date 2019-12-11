@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const isLoggedIn = require("../auth/middleware/isLoggedIn");
 const db = require("./db/connection");
-const app = require("../app");
 
 /* GET lobby page. */
 router.get("/", isLoggedIn, function(request, response) {
@@ -32,10 +31,14 @@ router.post("/chatMessage", function(request, response) {
   let io = request.app.get("io");
   db.any(
     `INSERT INTO messages (message_text,room_id,user_id) VALUES ('${request.body.message}',0,'${request.user.id}')`
-  ).catch(error => {
-    console.log(error);
-  });
-  io.emit("chat message", request.body.message);
+  )
+    .then(_ => {
+      io.emit("chat message", request.body.message);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+
   return;
 });
 

@@ -52,19 +52,6 @@ app.use("/register", registrerRouter);
 app.use("/lobby", lobbyRouter);
 app.use("/games", gamesRouter);
 
-//game room routing
-// app.get("/game*", function (request, response) {
-//   let roomNum = request.url.slice(5);
-//   let query = "SELECT * FROM rooms WHERE room_id = " + roomNum;
-//   db.one(query, [true])
-//     .then(function (data) {
-//       response.render("game");
-//     })
-//     .catch(function (error) {
-//       response.render("lobby");
-//     });
-// });
-
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
