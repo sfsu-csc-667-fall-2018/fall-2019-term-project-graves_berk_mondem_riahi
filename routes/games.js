@@ -23,4 +23,31 @@ router.get("/:id", isLoggedIn, function(request, response) {
     });
 });
 
+//drawing a card from the deck
+//   // //psuedo code
+// room.post("/drawCard", function(request,response){
+
+//   // //gets you the socket info so you can emit stuff to the frontend
+//   // let io = request.app.get("io");
+//   // //orderNumber keeps track of the shuffled db
+//   // //something like this
+//   // let cardDrawn;
+//   // db.one("SELECT * FROM deck MIN(deck.order_num)" ).then(card => {
+//   //   cardDrawn = card.card_id
+//   //   //add that card_id to the hand table
+//   //   //remove the card_id from the deck table
+
+//   // })
+
+//   // //all the db bullshit is done
+//   // //socket emmision
+//   // io.to('namespace').emit(
+//   //   "draw card",
+//   //   request.body.roomName,
+//   //   request.body.roomId
+//   //   // request.body.roomPassword
+//   // );
+
+// })
+
 module.exports = router;

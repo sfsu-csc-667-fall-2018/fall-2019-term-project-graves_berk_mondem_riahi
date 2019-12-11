@@ -34,10 +34,10 @@ module.exports = function(server) {
 
     //this should only be run if the room is the lobby
     //todo: figure out a way to get this in the routes
-    db.any("SELECT room_name,password FROM rooms")
+    db.any("SELECT room_name,room_id FROM rooms")
       .then(function(data) {
         for (let i = 0; i < data.length; i++) {
-          io.emit("create room", data[i].room_name, data[i].password);
+          io.emit("create room", data[i].room_name, data[i].room_id);
         }
       })
       .catch(function(error) {
