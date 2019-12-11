@@ -1,16 +1,7 @@
 // const server = require("../bin/www");
 const socketIO = require("socket.io");
 const db = require("../routes/db/connection");
-var session = require("express-session");
 const app = require("../app");
-const gamesRouter = require("../routes/games");
-
-let sessionMiddleWare = session({
-  secret: process.env.COOKIE_SECRET,
-  resave: true,
-  //this makes it so that the user stays logged in when refreshed, see why?
-  saveUninitialized: true
-});
 
 module.exports = function(server) {
   //double check this is working later
