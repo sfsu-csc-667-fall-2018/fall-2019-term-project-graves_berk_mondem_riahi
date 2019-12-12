@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     host_id: {
+      allowNull: false,
       type: DataTypes.INTEGER
     },
     guest_id: {
