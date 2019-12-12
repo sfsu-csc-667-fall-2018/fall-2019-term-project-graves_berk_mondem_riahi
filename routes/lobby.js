@@ -71,14 +71,28 @@ router.post("/chatMessage", function(request, response) {
 router.post("/createRoom", function(request, response) {
   let io = request.app.get("io");
   //room id should not be specified here, need to figure out a good way to grab it as it auto increments or something
+  
+  // hash the room name and password to build a room ID. 
+  // this is the javascript implementation of the javas string hashcode method
+  let hashString = request.body.roomName + request.body.roomPassword;
+  let hash = 0, index, chr;
+  if(!(hashString.length === 0))
+  {
+    for(index = 0; index < hashString.length; index++)
+    {
+      chr = hashString.charCodeAt(index);
+      hash = ((hash << 5) - hash) + chr;
+      hash |= 0; // convert to 32 bit int because that's what postgres can store
+    }
+  }
   db.any(
-    `INSERT INTO rooms (room_id,room_name,password) VALUES ('${request.body.roomId}','${request.body.roomName}','${request.body.roomPassword}')`
+    `INSERT INTO rooms (room_id,room_name,password) VALUES ('${hash}','${request.body.roomName}','${request.body.roomPassword}')`
   )
     .then(_ => {
       io.emit(
         "create room",
         request.body.roomName,
-        request.body.roomId
+        hash
         // request.body.roomPassword
       );
     })
