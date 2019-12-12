@@ -3,6 +3,30 @@ const router = express.Router();
 const isLoggedIn = require("../auth/middleware/isLoggedIn");
 const db = require("./db/connection");
 
+//get all the active games for fetching
+
+router.get("/getMessages", isLoggedIn, function(request, response) {
+  db.any("SELECT message_text,time_stamp FROM messages WHERE room_id = 0", [
+    true
+  ])
+    .then(function(data) {
+      response.json(data);
+    })
+    .catch(function(error) {
+      console.log(error);
+    });
+});
+
+router.get("/getRooms", isLoggedIn, function(request, response) {
+  db.any("SELECT * FROM rooms")
+    .then(function(data) {
+      response.json(data);
+    })
+    .catch(function(error) {
+      console.log(error);
+    });
+});
+
 /* GET lobby page. */
 router.get("/", isLoggedIn, function(request, response) {
   let io = request.app.get("io");
@@ -24,7 +48,7 @@ router.get("/", isLoggedIn, function(request, response) {
   //     console.log(error);
   //   });
 
-  response.render("lobby");
+  response.render("lobby", { test: "tes" });
 });
 
 router.post("/chatMessage", function(request, response) {
