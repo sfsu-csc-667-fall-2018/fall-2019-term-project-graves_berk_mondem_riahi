@@ -68,4 +68,7 @@ app.use(function(err, req, res, next) {
   res.render("error");
 });
 
+//initialize lobby room
+db.any(`INSERT INTO rooms (room_id , room_name) VALUES ('0','lobby')`);
+
 module.exports = app;
