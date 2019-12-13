@@ -10,17 +10,31 @@ var deadWoodCardCount = 1337;//exist here so other player can get them after mel
 // have to always get it from database.
 var thePlayerHand = [];
 
+const sortArray = require('array-sort')//needed so can sort array in generateRandomDeck.
+//todo 12-12 need to make sure you modify the sort code to handle new format
+//  while could try the other sort library that may do what you want, its coding style would still require some changes
+//   and unsure if it would work how I want it to.
+
 function getHand() {
     //will use playerId(or whatever client sends to verify they are them) to deal with grab all values in hand table from database
 
     //todo fill this in properly with client and server and database communication.
-
     //todo then sort the array before returning it
+    //so the value gotten from database will fill a temp variable which will replaced thePlayerHand in current setup.
 
-    thePlayerHand.sort(function (a, b) { //todo DELETE THIS LATER. Was lazy and just slapped it ehre for debugging
+    /* //old code that won't work for node.js implementation
+    thePlayerHand.sort(function (a, b) {
         return a - b
     });
-    return thePlayerHand;
+
+     */
+    //sortArray(new Deck().deck,function(a,b){return 0.5 - Math.random()});
+    let theHand = sortArray(thePlayerHand,function (a, b) {
+        return a - b
+    });
+    //todo 12-12  not to biggy since will need to make a variable anyway to hold values returned from database, will just need a second one
+    //   that will be sorted hand version which we will send to client. -----------------------
+    return theHand;
 }
 
 //todo delete this later, used it for debugging because lazy
@@ -106,6 +120,7 @@ function formDeckAndDeal10Cards() {
 
 
 function sorted(listToSort) {
+    /* //code that won't work in node.js
     listToSort.sort(function (a, b) {
         if ((a % 13) - (b % 13) === 0) {//same face value but different suite  //todo check on since wanted ===
             return a - b;
@@ -113,6 +128,17 @@ function sorted(listToSort) {
             return (a % 13) - (b % 13);
         }
     });
+
+     */
+    let newlySorted = sortArray(listToSort, function (a, b) {
+        if ((a % 13) - (b % 13) === 0) {//same face value but different suite  //todo check on since wanted ===
+            return a - b;
+        } else {
+            return (a % 13) - (b % 13);
+        }
+    });
+    //todo 12-12  will need to return new array. Also have to create a new array variable to return.--------------------------
+    return newlySorted;
 }
 
 function isInSet(changedHand, cardId) {
@@ -129,12 +155,11 @@ function isInSet(changedHand, cardId) {
         return true;
     } else if (counter > 4) {
         System.out.println("error in isInSet for " + changedHand + "  and " + cardId);
-        System.exit(0);
     }
     return false;
 }
 
-function isInRun(changedHand, cardId) {  //todo unsure if contains exist
+function isInRun(changedHand, cardId) {
     let reduceCardValue = cardId % 13;
     if (reduceCardValue >= 11) { //Queens and Kings
         if (reduceCardValue == 11) {//Queens
@@ -185,26 +210,31 @@ function formMelds(theHand) {
     meldRecursion(theHand.slice(0), [], [], []);
 }
 
+//todo 12-12 HOPEFULLY can modify array changedHand that was passed into this method since don't need to sort it, otherwise will need mroe editing done
+//need to modify array that was passed into this method so can't overwrite runsTemp
 function deadWoodToRuns(changedHand, runsTemp) {
-    runsTemp.sort(function (a, b) {
+    //sortArray(new Deck().deck,function(a,b){return 0.5 - Math.random()});
+
+    let currentRuns = sortArray(runsTemp,function (a, b) {
         return a - b
-    });
+    });//todo 12-12  need to create a variable based on runsTemp (like did in meldRecursion) and return the edited array
+    //      since can't modify original array using this sort and didn't want to write own sorting function.--------------------
     let indexLeftCardOfRun = 0;
     let indexRightCardOfRun = -1;
 
-    if (runsTemp.length == 0 || changedHand.length == 0) {
+    if (currentRuns.length == 0 || changedHand.length == 0) {
         return;
     }
 
-    //since runsTemp is a 1D array with all found runs, need to find where one ends and another begins (or just ends).
-    while (changedHand.length != 0 && indexLeftCardOfRun < runsTemp.length && indexRightCardOfRun < runsTemp.length) {
+    //since currentRuns is a 1D array with all found runs, need to find where one ends and another begins (or just ends).
+    while (changedHand.length != 0 && indexLeftCardOfRun < currentRuns.length && indexRightCardOfRun < currentRuns.length) {
         // used to find the end of run currently looking at.
-        for (let index = indexLeftCardOfRun; index < runsTemp.length; index++) {
-            if (index + 1 == runsTemp.length) {//at end of list
+        for (let index = indexLeftCardOfRun; index < currentRuns.length; index++) {
+            if (index + 1 == currentRuns.length) {//at end of list
                 indexRightCardOfRun = index;
                 break;
             }
-            if (runsTemp[index] + 1 == runsTemp[index + 1] && sameSuite(runsTemp[index], runsTemp[index + 1])) {
+            if (currentRuns[index] + 1 == currentRuns[index + 1] && sameSuite(currentRuns[index], currentRuns[index + 1])) {
                 continue;
             } else {
                 indexRightCardOfRun = index;//index of last card in run currently looking at.
@@ -218,9 +248,9 @@ function deadWoodToRuns(changedHand, runsTemp) {
 
         //now to check left side, have to loop
         while (true) {
-            if (changedHand.includes(runsTemp[indexLeftCardOfRun] - 1) && sameSuite(runsTemp[indexLeftCardOfRun], runsTemp[indexLeftCardOfRun] - 1)) {//checks if card that fits left side of current run is in changedHand.
-                let foundCard = runsTemp[indexLeftCardOfRun] - 1;
-                runsTemp.splice(indexLeftCardOfRun, 0, foundCard); //TODO MAKE SURE THIS WORKS
+            if (changedHand.includes(currentRuns[indexLeftCardOfRun] - 1) && sameSuite(currentRuns[indexLeftCardOfRun], currentRuns[indexLeftCardOfRun] - 1)) {//checks if card that fits left side of current run is in changedHand.
+                let foundCard = currentRuns[indexLeftCardOfRun] - 1;
+                currentRuns.splice(indexLeftCardOfRun, 0, foundCard); //TODO MAKE SURE THIS WORKS
                 changedHand.splice(changedHand.indexOf(foundCard), 1);//TODO CHECK IF THIS WORKS
                 //leftCardOfRun would remain the value it started as since a new card is being put in that spot.
                 //we do however need to update indexRightCardOfRun
@@ -234,13 +264,13 @@ function deadWoodToRuns(changedHand, runsTemp) {
         }
 
         //now to check right side
-        while (indexRightCardOfRun < runsTemp.length) {
-            if (changedHand.includes(runsTemp[indexRightCardOfRun] + 1) && sameSuite(runsTemp[indexRightCardOfRun], runsTemp[indexRightCardOfRun] + 1)) {
-                let foundCard = runsTemp[indexRightCardOfRun] + 1;
-                if (indexRightCardOfRun + 1 == runsTemp.length) {//at end of runsTemp list
-                    runsTemp.push(foundCard);
+        while (indexRightCardOfRun < currentRuns.length) {
+            if (changedHand.includes(currentRuns[indexRightCardOfRun] + 1) && sameSuite(currentRuns[indexRightCardOfRun], currentRuns[indexRightCardOfRun] + 1)) {
+                let foundCard = currentRuns[indexRightCardOfRun] + 1;
+                if (indexRightCardOfRun + 1 == currentRuns.length) {//at end of currentRuns list
+                    currentRuns.push(foundCard);
                 } else {
-                    runsTemp.splice(indexRightCardOfRun + 1, 0, foundCard);
+                    currentRuns.splice(indexRightCardOfRun + 1, 0, foundCard);
                 }
                 changedHand.splice(changedHand.indexOf(foundCard), 1);//TODO CHECK IF THIS WORKS
                 indexRightCardOfRun++;
@@ -268,7 +298,7 @@ function deadWoodToSets(changedHand, setsTemp) {
     }
 }
 
-//todo this RELIES ON theArray being sorted in my suite ordering format, or else it won't work.
+//todo this RELIES ON theArray being sorted in my suite ordering format, or else it won't work. theArray has to be sorted before this method.
 // When sending clients runs and sets, they will be in form of a 2D array, so need to convert 1D array been using during meld formations to a organized 2D
 function setsTo2D(theArray) {
     let new2DArray = [[]];
@@ -288,7 +318,7 @@ function setsTo2D(theArray) {
     return new2DArray;
 }
 
-//todo this RELIES ON theArray being sorted, or else it won't work.
+//todo this RELIES ON theArray being sorted, or else it won't work. theArray must be sorted before this method.
 // When sending clients runs and sets, they will be in form of a 2D array, so need to convert 1D array been using during meld formations to a organized 2D
 function runsTo2D(theArray) {
     let new2DArray = [[]];
@@ -312,31 +342,46 @@ function runsTo2D(theArray) {
 }
 
 function updateMeldsCheck(tempHand, tempRuns, tempSets) {
-    deadWoodToRuns(tempHand, tempRuns);
-    deadWoodToSets(tempHand, tempSets);
+    // todo  12-12 create a new variable like do in meldRecursion, based on where this function is used
+    //   no reason to modify original values since they are discarded after this function call
+    let updatedTempRuns = deadWoodToRuns(tempHand, tempRuns);//todo 12-12  since we need to sort tempRuns in deadWoodToRuns, need updated tempRuns to be returned since
+    //  it will have new values in it. Don't need it for sets since can modify array that was passed in.
+    deadWoodToSets(tempHand, tempSets);//don't sort in here
     let deadWoodCount = deadWoodCalculator(tempHand);
     //all remaining cards in tempHand are deadwood.
     if (deadWoodCount < smallestDeadwoodValue) {
-        tempRuns.sort(function (a, b) {
+        let sortedTempRuns = sortArray(updatedTempRuns,function (a, b) {
             return a - b
         });
-        sorted(tempSets);
-        sorted(tempHand);
-        alert("HERE WE ARE");
-        alert(tempRuns);
+        /*
+        tempRuns.sort(function (a, b) {
+            return a - b
+        });//todo 12-12  must update tempRuns with new array sorting approach due to node.js being the way it is.-------------------------
+
+         */
+        tempSets = sorted(tempSets);// todo 12-12  update tempSets
+        tempHand = sorted(tempHand);// todo 12-12 update tempHand
+        //alert("HERE WE ARE");
+        alert(sortedTempRuns);
         alert(tempSets);
-        runs = runsTo2D(tempRuns).slice(0);
+        runs = runsTo2D(sortedTempRuns).slice(0);
         sets = setsTo2D(tempSets).slice(0);
         smallestDeadwoodValue = deadWoodCount;
         deadwoodList = tempHand.slice(0);
         deadWoodCardCount = tempHand.length;
     } else if (deadWoodCount == smallestDeadwoodValue && deadWoodCardCount > tempHand.length) {////equal deadwood value but new combination provides fewer deadwood cards. (easier to get rid of)
-        tempRuns.sort(function (a, b) {
+        let sortedTempRuns = sortArray(updatedTempRuns,function (a, b) {
             return a - b
         });
-        sorted(tempSets);
-        sorted(tempHand);
-        runs = runsTo2D(tempRuns).slice(0);
+        /*
+        tempRuns.sort(function (a, b) {
+            return a - b
+        });//todo 12-12  must update tempRuns with new array sorting approach due to node.js being the way it is.-------------------------
+
+         */
+        tempSets = sorted(tempSets);// todo 12-12  update tempSets
+        tempHand = sorted(tempHand);// todo 12-12 update tempHand
+        runs = runsTo2D(sortedTempRuns).slice(0);
         sets = setsTo2D(tempSets).slice(0);
         smallestDeadwoodValue = deadWoodCount;
         deadwoodList = tempHand.slice(0);
@@ -371,7 +416,11 @@ function meldRecursion(changedHand, theRuns, theSets, skippedCards) {
         return;
     }
 
-    sorted(tempHand);
+    //sorted(tempHand);// todo 12-12  will need to re-assign tempHands. no worries since due to what i due at start of method, don't care about modifying
+    // todo   PREVIOUS VALUE. so its good to just re--assigned tempHand ---------------
+    tempHand = sorted(tempHand);
+
+
     //Have to search for conflcit card. Going from right to left (higher value to lower)
     for (let index = tempHand.length - 1; index > -1; index--) {
         let cardValue = tempHand[index];
@@ -642,9 +691,17 @@ function cleaningSets(changedHand, theSets) {
 function cleaningRuns(changedHand, theRuns) {
     let handForIterating = changedHand.slice(0);//NEED this since can't alter a list your iterating through without consequences
     let ignoreCards = [];
-    theRuns.sort(function (a, b) {
+
+    //todo MAJOR NOTE, just realized, I actually don't need theRuns sorted SINCE  I sort them in deadWoodToRuns and meld recursion check anyway.
+    //     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    /*
+    theRuns.sort(function (a, b) {//todo  12-12  NEED to reconfigure method so return theRuns SINCE don't have an array sort that modifies original array
+        // todo  and you need this sorted for this method BUT you also need to change original array. SO best solution curently is
+        //  to return the outcome of theRuns and replace tempruns with new value.
         return a - b
     });//Need list to be ordered 0-51 to most efficiently perform this methods purpose.
+
+     */
 
     for (let value of handForIterating) {
         if (isInRun(changedHand, value) && !(isInSet(changedHand, value))) {

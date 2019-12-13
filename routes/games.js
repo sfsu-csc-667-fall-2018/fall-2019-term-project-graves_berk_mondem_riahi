@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 const isLoggedIn = require("../auth/middleware/isLoggedIn");
 const db = require("./db/connection");
-// const deck = require("../gameLogic/deck");
+const deck = require("../gameLogic/deck");
 
 /* GET home page. */
 router.get("/:id", isLoggedIn, function(request, response) {
@@ -24,6 +24,20 @@ router.get("/:id", isLoggedIn, function(request, response) {
       console.log(error);
       response.redirect("/lobby");
     });
+
+  var holder = deck.generateRandomDeck(); //todo  maybe rename deck.js file due to one already existing in models.
+  for (let index = 0; index < holder.length; index++) {
+    db.none("INSERT INTO decks(room_id,card_id) VALUES($1,$2)", [
+      roomId,
+      holder[index]
+    ])
+      .then(() => {
+        //success
+      })
+      .catch(error => {
+        //error
+      });
+  }
 });
 
 router.get("/:id/getHost", isLoggedIn, function(request, response) {
