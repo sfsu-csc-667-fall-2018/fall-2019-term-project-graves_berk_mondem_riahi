@@ -31,19 +31,17 @@ router.get("/getRooms", isLoggedIn, function(request, response) {
 router.get("/", isLoggedIn, function(request, response) {
   let io = request.app.get("io");
 
-  console.log("Hello " + request.user.id);
-
   response.render("lobby", { test: "tes" });
 });
 
 router.post("/chatMessage", function(request, response) {
   let io = request.app.get("io");
 
-  console.log("hello " + request.user.id);
   db.any(
     `INSERT INTO messages (message_text,room_id,user_id) VALUES ('${request.body.message}',0,'${request.user.id}')`
   )
     .then(_ => {
+      console.log("emmiting");
       io.emit("chat message", request.body.message);
     })
     .catch(error => {

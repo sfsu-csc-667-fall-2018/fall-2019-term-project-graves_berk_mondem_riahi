@@ -9,8 +9,11 @@ router.get("/:id", isLoggedIn, function(request, response) {
   //id is just whatever it parses after /game_
   //params stores the id after game_
   //if we can get these we're golden
+  let io = request.app.get("io");
+
   const roomId = request.params["id"];
   const userId = request.user.id;
+  io.sockets.emit("test");
 
   //check if the user is supposed to be in the lobby, or if it has two users already
   db.one("SELECT * FROM rooms WHERE room_id = $1", roomId)
@@ -38,6 +41,8 @@ router.get("/:id", isLoggedIn, function(request, response) {
         //error
       });
   }
+
+  //socket shit
 });
 
 router.post("/:id/deal", isLoggedIn, function(request, response) {
@@ -58,6 +63,8 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
     .catch(error => {
       console.log(error);
     });
+
+  return;
 });
 
 router.get("/:id/getHost", isLoggedIn, function(request, response) {
