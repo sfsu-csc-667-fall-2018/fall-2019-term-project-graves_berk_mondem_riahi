@@ -33,21 +33,6 @@ router.get("/", isLoggedIn, function(request, response) {
 
   console.log("Hello " + request.user.id);
 
-  //guess this doesnt work because of synchronization, will have to look into fetch or something
-  // db.any("SELECT message_text,time_stamp FROM messages WHERE room_id = 0", [
-  //   true
-  // ])
-  //   .then(function(data) {
-  //     // for (let i = 0; i < data.length; i++) {
-  //     //   io.emit("chat message", data[i].message_text);
-  //     // }
-
-  //     io.emit("join lobby", data[2]);
-  //   })
-  //   .catch(function(error) {
-  //     console.log(error);
-  //   });
-
   response.render("lobby", { test: "tes" });
 });
 

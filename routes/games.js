@@ -26,6 +26,26 @@ router.get("/:id", isLoggedIn, function(request, response) {
     });
 });
 
+router.get("/:id/getUsernames", isLoggedIn, function(request, response) {
+  const roomId = request.params["id"];
+  const userId = request.user.id;
+
+  // console.log("room id requesting names :" + roomId);
+  // db.any("SELECT * FROM rooms")
+  //   .then(function(data) {
+  //     response.json(data);
+  //   })
+  //   .catch(function(error) {
+  //     console.log(error);
+  //   });
+
+  //with the room id, find the guest and host player id
+  db.one(`SELECT * FROM rooms WHERE room_id = $1`, [roomId]).then(results => {
+    console.log("guest id : " + results["guest_id"]);
+    console.log("host id : " + results["host_id"]);
+  });
+});
+
 function joinGame(userId, roomId, response) {
   db.any("SELECT * FROM players WHERE room_id = $1", roomId).then(results => {
     //check the player(s) in the results and see if the given userid trying to join is either of them

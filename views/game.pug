@@ -4,6 +4,7 @@ block scripts
     script(src="/socket.io/socket.io.js")
     script.
         const socket = io();
+    script(src='/javascripts/joinGame.js')
 block stylesheets
     link( rel='stylesheet', href='/stylesheets/GameView.css')
 
@@ -18,24 +19,8 @@ block content
                     label content
             #board-and-header
                 #header
-                    #title
-                        h1 GIN RUMMY
-                    #menucontainer.hide-mobile
-                        ul#menu
-                            li
-                                a(title='new game', href='#newgame') New Game
-                            li
-                                | |
-                                a(title='Rules', href='#rules') Rules
-                            li
-                                | |
-                                a(title='About', href='#about') About
-                            li
-                                | |
-                                a(title='Options', href='#options') Options
-                            li.stats-link
-                                | |
-                                a(title='statistics') Statistics
+     
+
                 #board.board.ginrummy(style='height: 600px;')
                     #play-page.inner-page(style='height: 600px;')
                         #top-player.avatar
@@ -68,7 +53,7 @@ block content
                                 table
                                     tbody
                                         tr
-                                            th(colspan='4') Total game score
+                                            th(colspan='4') Total Game Score
                                         tr.names-row
                                             th.bottom-player-name You
                                             th.top-player-name Bill
@@ -304,21 +289,10 @@ block content
                             .facedown
                             .faceup
             #login-button.hide-mobile
-                ul#buttons
-                    li
-                        a(title='profile', href='#profile') Profile
-                    li |
-                    li
-                        a(title='login', href='#login') Login
+               
             #right-column(style='height: auto !important;')
                 label chatbox
                 #right-content(style='height: 600px;')
                     label chat
             div(style='clear:both')
-        //- #textcontent(style='height: auto !important;')
-        //-     #about.appmode-hide
-        //-         h2 About Gin Rummy
-        //-         p
-        //-             | This is online version of Gin Rummy. this is a project for SFSU CSC 667 class
 
-    script(src='/socket.io/socket.io.js')
