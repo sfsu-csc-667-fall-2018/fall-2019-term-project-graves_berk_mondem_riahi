@@ -15,3 +15,12 @@ fetch("/games/" + roomId + "/getGuest").then(response => {
     $(".guestName").append($("<li>").text(response["username"]));
   });
 });
+
+//creates the deal button
+$("#deal").append(
+  $(
+    " <form action = '" +
+      roomId +
+      "/deal ' method ='POST'> <button type = 'submit'> deal </button> </form> "
+  )
+);

@@ -40,6 +40,26 @@ router.get("/:id", isLoggedIn, function(request, response) {
   }
 });
 
+router.post("/:id/deal", isLoggedIn, function(request, response) {
+  const roomId = request.params["id"];
+  const userId = request.user.id;
+
+  //to deal, figure out the
+  db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
+    userId,
+    roomId
+  ])
+    .then(results => {
+      let playerId = results["player_id"];
+      console.log(playerId);
+      console.log(roomId);
+      //call your function hear to deal cards matt
+    })
+    .catch(error => {
+      console.log(error);
+    });
+});
+
 router.get("/:id/getHost", isLoggedIn, function(request, response) {
   const roomId = request.params["id"];
   const userId = request.user.id;
