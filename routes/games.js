@@ -3,6 +3,7 @@ const router = express.Router();
 const isLoggedIn = require("../auth/middleware/isLoggedIn");
 const db = require("./db/connection");
 const deck = require("../gameLogic/deck");
+const serverSide = require("../gameLogic/serverSide");
 
 /* GET home page. */
 router.get("/:id", isLoggedIn, function(request, response) {
@@ -27,7 +28,7 @@ router.get("/:id", isLoggedIn, function(request, response) {
 
   var holder = deck.generateRandomDeck(); //todo  maybe rename deck.js file due to one already existing in models.
   for (let index = 0; index < holder.length; index++) {
-    db.none("INSERT INTO decks(room_id,card_id) VALUES($1,$2)", [
+      db.none("INSERT INTO decks(room_id,card_id) VALUES($1,$2)", [
       roomId,
       holder[index]
     ])
@@ -37,7 +38,27 @@ router.get("/:id", isLoggedIn, function(request, response) {
       .catch(error => {
         //error
       });
+    //todo OK THING IS, it seems loop gets run fully before first console log BBBBBBBBB  happens...................
   }
+
+
+  /*
+    let valueg = 1429171842;
+    db.one("SELECT * FROM decks WHERE deck_id = (SELECT MIN(deck_id) FROM decks WHERE room_id = $1)", valueg)
+        .then(results => {
+            let deckId = results["deck_id"];
+            let cardId = results["card_id"];
+            console.log("Qwe should be 53:   " + deckId);
+            console.log("welp   should be 41:  " + cardId);
+            //call your function hear to deal cards matt
+        })
+        .catch(error => {
+            console.log(error);
+        });
+
+
+   */
+
 });
 
 router.post("/:id/deal", isLoggedIn, function(request, response) {
@@ -54,10 +75,21 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
       console.log(playerId);
       console.log(roomId);
       //call your function hear to deal cards matt
+        //todo  OK  need to setup a query for grabbing cards for players hands in here BUUTTT have things inside
+        //    functon properly finish, not relying on function returning......
+        let somebody;
+        //todo in order to use await have to be in an async function. This was a simple solution found online.
+        ;(async function(){
+            somebody = await serverSide.deal10Cards(playerId,roomId);//todo NOTE, somebody will contain array of 10 cards
+            console.log("THIS IS HAND " + somebody);
+        })();
+        //todo current issue is this console message gets printed while stuff in deal10Cards is still happening
     })
     .catch(error => {
       console.log(error);
     });
+  //todo below is just temporary, probably won;t even use. JUST A HOLDER
+
 });
 
 router.get("/:id/getHost", isLoggedIn, function(request, response) {

@@ -1,3 +1,8 @@
+const db = require("../routes/db/connection");
+
+
+//todo  WILL NEED TO FIGURE OUT how to have these variables be saved through recursion without needing to pass them through methods. That wouldn't be bad
+//   but it would look good.
 var sets = [];//exist here so other player can get them after meld creation during scoring
 var runs = [];//exist here so other player can get them after meld creation during scoring
 var deadwoodList = [];//exist here so other player can get them after meld creation during scoring
@@ -29,7 +34,7 @@ function getHand() {
 
      */
     //sortArray(new Deck().deck,function(a,b){return 0.5 - Math.random()});
-    let theHand = sortArray(thePlayerHand,function (a, b) {
+    let theHand = sortArray(thePlayerHand, function (a, b) {
         return a - b
     });
     //todo 12-12  not to biggy since will need to make a variable anyway to hold values returned from database, will just need a second one
@@ -81,14 +86,48 @@ function getDeadwoodValue() {
     return smallestDeadwoodValue;
 }
 
-function drawFromDeck(playerId) {
+async function drawFromDeck(playerId, roomId) {
     //will do some database work to get game Id from playerId and grab card
     // from deck table and move it to players hand in hand table.
-
     //todo fill this in properly with client and server and database communication.
 
 
     //todo would also need to grab all cards in playersHand, sort them and return them to client
+
+
+    let deckId = 0;
+    let cardId = 0;
+    console.log("fnny");
+    //todo NEED THIS await before db.tx OTHERWISE this function will return before database stuff is done WHICH
+    //   don't want SINCE OTHERWISE would need to setup more async calls to have grabbing hand data from dbd wait
+    //    until this database stuff is done (unsure if would be easy or hard but didn't want to do that right now.
+
+    //   todo  await essentially seems to pause code INSIDE async function, rest of code continues to run
+    //         so if don't want function to return until have this done, need await.
+    await db.tx(async t => { //seems this code will run async to rest of code in this method.
+        let results = await t.one("SELECT * FROM decks WHERE deck_id = (SELECT MIN(deck_id) FROM decks WHERE room_id = $1)", roomId)
+
+        console.log("HAHAHAHAHAHAH");
+
+        deckId = results["deck_id"];
+        cardId = results["card_id"];
+
+        await t.none("INSERT INTO handcards(player_id,room_id,card_id) VALUES($1, $2, $3)", [playerId, roomId, cardId])
+
+        return await t.result("DELETE FROM decks WHERE deck_id = $1", deckId)
+        //have to return a value
+
+
+    })
+        .then(async deletionCount => {
+            console.log("This many rows were deleted from deck " + deletionCount.rowCount);//todo PROBABLY DELETE THIS LATER
+            return cardId;
+        })
+        .catch(error => {
+            console.log("Error in deal10Cards " + error);
+        })
+    console.log("ENDING");
+    return cardId;
 }
 
 function drawFromDiscard(playerId) {
@@ -109,11 +148,47 @@ function removeCard(playerId, cardId) {
     //todo would also need to grab all cards in playersHand, sort them and return them to client
 }
 
-function formDeckAndDeal10Cards() {
-    // todo this is just a reminder that need to setup this process. Basically
-    //  represent the game seutp when game room is initially created (and a new
-    //  round starts
+async function deal10Cards(playerId, roomId) {
+
+    let deckId = 0;
+    let cardId = 0;
+    let holder = [];
+    console.log("fnny");
+    //todo NEED THIS await before db.tx OTHERWISE this function will return before database stuff is done WHICH
+    //   don't want SINCE OTHERWISE would need to setup more async calls to have grabbing hand data from dbd wait
+    //    until this database stuff is done (unsure if would be easy or hard but didn't want to do that right now.
+
+    //   todo  await essentially seems to pause code INSIDE async function, rest of code continues to run
+    //         so if don't want function to return until have this done, need await.
+    for(let index = 0; index < 10; index++) {
+        await db.tx(async t => { //seems this code will run async to rest of code in this method.
+            let results = await t.one("SELECT * FROM decks WHERE deck_id = (SELECT MIN(deck_id) FROM decks WHERE room_id = $1)", roomId)
+
+            console.log("HAHAHAHAHAHAH");
+
+            deckId = results["deck_id"];
+            cardId = results["card_id"];
+
+            await t.none("INSERT INTO handcards(player_id,room_id,card_id) VALUES($1, $2, $3)", [playerId, roomId, cardId])
+            holder.push(cardId);
+            return await t.result("DELETE FROM decks WHERE deck_id = $1", deckId)
+            //have to return a value
+
+
+        })
+            .then(async deletionCount => {
+                console.log("This many rows were deleted from deck " + deletionCount.rowCount);//todo PROBABLY DELETE THIS LATER
+                return cardId;
+            })
+            .catch(error => {
+                console.log("Error in deal10Cards " + error);
+            })
+    }
+    console.log("ENDING");
+    return holder;
+    //todo NEED TO SORT HOLDER before return it, doing that later.
 }
+
 
 //TODO above methods involves communication with client and database which I
 //  do not properly grasp on how it would work in our case without looking at example code.
@@ -215,7 +290,7 @@ function formMelds(theHand) {
 function deadWoodToRuns(changedHand, runsTemp) {
     //sortArray(new Deck().deck,function(a,b){return 0.5 - Math.random()});
 
-    let currentRuns = sortArray(runsTemp,function (a, b) {
+    let currentRuns = sortArray(runsTemp, function (a, b) {
         return a - b
     });//todo 12-12  need to create a variable based on runsTemp (like did in meldRecursion) and return the edited array
     //      since can't modify original array using this sort and didn't want to write own sorting function.--------------------
@@ -350,7 +425,7 @@ function updateMeldsCheck(tempHand, tempRuns, tempSets) {
     let deadWoodCount = deadWoodCalculator(tempHand);
     //all remaining cards in tempHand are deadwood.
     if (deadWoodCount < smallestDeadwoodValue) {
-        let sortedTempRuns = sortArray(updatedTempRuns,function (a, b) {
+        let sortedTempRuns = sortArray(updatedTempRuns, function (a, b) {
             return a - b
         });
         /*
@@ -370,7 +445,7 @@ function updateMeldsCheck(tempHand, tempRuns, tempSets) {
         deadwoodList = tempHand.slice(0);
         deadWoodCardCount = tempHand.length;
     } else if (deadWoodCount == smallestDeadwoodValue && deadWoodCardCount > tempHand.length) {////equal deadwood value but new combination provides fewer deadwood cards. (easier to get rid of)
-        let sortedTempRuns = sortArray(updatedTempRuns,function (a, b) {
+        let sortedTempRuns = sortArray(updatedTempRuns, function (a, b) {
             return a - b
         });
         /*
@@ -725,77 +800,77 @@ function cleaningRuns(changedHand, theRuns) {
             && !(ignoreCards.includes(value + 1)) && changedHand.includes(value + 1)
             && !(ignoreCards.includes(value + 2)) && changedHand.includes(value + 2)) {//false means can't do a perfect 3 run
 
-            if(changedHand.includes(value + 3) && value < 10){//4th card
-                if(!(ignoreCards.includes(value + 3))){//false means can't do a perfect 4 run
-                    if(changedHand.includes(value + 4) && value < 9){//5th card
-                        if(!(ignoreCards.includes(value + 4))){//false means can't do a perfect 5 run
-                            if(changedHand.includes(value + 5) && value < 8){//6th card
+            if (changedHand.includes(value + 3) && value < 10) {//4th card
+                if (!(ignoreCards.includes(value + 3))) {//false means can't do a perfect 4 run
+                    if (changedHand.includes(value + 4) && value < 9) {//5th card
+                        if (!(ignoreCards.includes(value + 4))) {//false means can't do a perfect 5 run
+                            if (changedHand.includes(value + 5) && value < 8) {//6th card
                                 //If 6 card exist, doesn't matter if in ignore cards, going to split anyway.
                                 theRuns.push(value);
-                                theRuns.push(value+1);
-                                theRuns.push(value+2);
+                                theRuns.push(value + 1);
+                                theRuns.push(value + 2);
                                 changedHand.splice(changedHand.indexOf(value), 1);
-                                changedHand.splice(changedHand.indexOf(value+1), 1);
-                                changedHand.splice(changedHand.indexOf(value+2), 1);
+                                changedHand.splice(changedHand.indexOf(value + 1), 1);
+                                changedHand.splice(changedHand.indexOf(value + 2), 1);
                                 ignoreCards.push(value);//don't want to re-consider cards we added, though the other 3 we looked at have potential for being in a run
-                                ignoreCards.push(value+1);
-                                ignoreCards.push(value+2);
+                                ignoreCards.push(value + 1);
+                                ignoreCards.push(value + 2);
                                 continue;
-                            }else{
+                            } else {
                                 //no 6th proper run card   so a perfect run of 5
                                 theRuns.push(value);
-                                theRuns.push(value+1);
-                                theRuns.push(value+2);
-                                theRuns.push(value+3);
-                                theRuns.push(value+4);
+                                theRuns.push(value + 1);
+                                theRuns.push(value + 2);
+                                theRuns.push(value + 3);
+                                theRuns.push(value + 4);
                                 changedHand.splice(changedHand.indexOf(value), 1);
-                                changedHand.splice(changedHand.indexOf(value+1), 1);
-                                changedHand.splice(changedHand.indexOf(value+2), 1);
-                                changedHand.splice(changedHand.indexOf(value+3), 1);
-                                changedHand.splice(changedHand.indexOf(value+4), 1);
+                                changedHand.splice(changedHand.indexOf(value + 1), 1);
+                                changedHand.splice(changedHand.indexOf(value + 2), 1);
+                                changedHand.splice(changedHand.indexOf(value + 3), 1);
+                                changedHand.splice(changedHand.indexOf(value + 4), 1);
                             }
                         }
                         ignoreCards.push(value);//don't want to re-consider cards we already looked at.
-                        ignoreCards.push(value+1);
-                        ignoreCards.push(value+2);
-                        ignoreCards.push(value+3);
-                        ignoreCards.push(value+4);
+                        ignoreCards.push(value + 1);
+                        ignoreCards.push(value + 2);
+                        ignoreCards.push(value + 3);
+                        ignoreCards.push(value + 4);
                         continue;
-                    }else{
+                    } else {
                         //no 5th proper card   so a perfect run of 4
                         theRuns.push(value);
-                        theRuns.push(value+1);
-                        theRuns.push(value+2);
-                        theRuns.push(value+3);
+                        theRuns.push(value + 1);
+                        theRuns.push(value + 2);
+                        theRuns.push(value + 3);
                         changedHand.splice(changedHand.indexOf(value), 1);
-                        changedHand.splice(changedHand.indexOf(value+1), 1);
-                        changedHand.splice(changedHand.indexOf(value+2), 1);
-                        changedHand.splice(changedHand.indexOf(value+3), 1);
+                        changedHand.splice(changedHand.indexOf(value + 1), 1);
+                        changedHand.splice(changedHand.indexOf(value + 2), 1);
+                        changedHand.splice(changedHand.indexOf(value + 3), 1);
                     }
                 }
                 ignoreCards.push(value);//don't want to re-consider cards we already looked at.
-                ignoreCards.push(value+1);
-                ignoreCards.push(value+2);
-                ignoreCards.push(value+3);
+                ignoreCards.push(value + 1);
+                ignoreCards.push(value + 2);
+                ignoreCards.push(value + 3);
                 continue;
-            }else{
+            } else {
                 //4th proper run card doesn't exist
                 theRuns.push(value);
-                theRuns.push(value+1);
-                theRuns.push(value+2);
+                theRuns.push(value + 1);
+                theRuns.push(value + 2);
                 changedHand.splice(changedHand.indexOf(value), 1);
-                changedHand.splice(changedHand.indexOf(value+1), 1);
-                changedHand.splice(changedHand.indexOf(value+2), 1);
+                changedHand.splice(changedHand.indexOf(value + 1), 1);
+                changedHand.splice(changedHand.indexOf(value + 2), 1);
             }
         }
         ignoreCards.push(value);//don't want to re-consider cards we already looked at.
-        ignoreCards.push(value+1);
-        ignoreCards.push(value+2);
+        ignoreCards.push(value + 1);
+        ignoreCards.push(value + 2);
     }
 }
 
 //determine if the two passed in cards are of the same suite
-function sameSuite(value1, value2){
+function sameSuite(value1, value2) {
     if (value1 < 13) {
         if (value2 < 13) {
             return true;
@@ -814,5 +889,10 @@ function sameSuite(value1, value2){
         }
     }
     return false;
+}
+
+module.exports = {//so can use this class and methods in rest of project.
+    deal10Cards,
+    drawFromDeck
 }
 
