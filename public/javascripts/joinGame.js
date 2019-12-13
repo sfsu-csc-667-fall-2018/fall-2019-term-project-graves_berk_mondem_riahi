@@ -12,6 +12,6 @@ fetch("/games/" + roomId + "/getHost").then(response => {
 fetch("/games/" + roomId + "/getGuest").then(response => {
   response.json().then(response => {
     //console.log(response);
-    $(".guestName").append($("<li>").text(response));
+    $(".guestName").append($("<li>").text(response["username"]));
   });
 });

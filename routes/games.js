@@ -77,12 +77,7 @@ router.get("/:id/getGuest", isLoggedIn, function(request, response) {
 function joinGame(userId, roomId, response) {
   db.any("SELECT * FROM players WHERE room_id = $1", roomId).then(results => {
     //check the player(s) in the results and see if the given userid trying to join is either of them
-    let foundPlayer = false;
-    for (let i = 0; i < results.length; i++) {
-      if ([results[i]["user_id"]] == userId) {
-        foundPlayer = true;
-      }
-    }
+
     //if theirs no players at all then add the user as a host, and add their player id as a guest_id to the room
     if (results.length == 0) {
       db.none(
@@ -105,12 +100,12 @@ function joinGame(userId, roomId, response) {
         .then(response.render("game"));
     }
     //if theirs a host already in there, then check if theyre the host
-    else if (results.length == 1) {
+    else if (results.length <= 2) {
       //if theyre not the host then add them as a guest
       //if they are the host then just let them back in and dont do anything
 
       //get the player id of the user in the game currently
-
+      console.log(results);
       //check if the playerId is owned by the same user that is trying to join the lobby
       //if it is owned by the same user, they are the host and just let them in
       //if it is not the same user, then add the user as a new player to the game, then insert them as the guest_id in the rooms table
@@ -164,6 +159,12 @@ function joinGame(userId, roomId, response) {
     }
     //boot them back to the lobby
     else {
+      console.log(results);
+      //check if either user should be in the game
+
+      //patch fix re-look over logic later
+
+      console.log("game full");
       response.redirect("/lobby");
     }
   });
