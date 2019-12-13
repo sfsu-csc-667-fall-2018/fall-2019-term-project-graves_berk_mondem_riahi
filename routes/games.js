@@ -26,23 +26,51 @@ router.get("/:id", isLoggedIn, function(request, response) {
     });
 });
 
-router.get("/:id/getUsernames", isLoggedIn, function(request, response) {
+router.get("/:id/getHost", isLoggedIn, function(request, response) {
   const roomId = request.params["id"];
   const userId = request.user.id;
 
-  // console.log("room id requesting names :" + roomId);
-  // db.any("SELECT * FROM rooms")
-  //   .then(function(data) {
-  //     response.json(data);
-  //   })
-  //   .catch(function(error) {
-  //     console.log(error);
-  //   });
+  //with the room id, find the guest and host player id
+  db.one(`SELECT * FROM rooms WHERE room_id = $1`, [roomId]).then(results => {
+    let hostId = results["host_id"];
+    db.one("SELECT * FROM players WHERE player_id = $1", [hostId]).then(
+      results => {
+        //get the users id
+        let hostUserId = results["user_id"];
+        db.one(`SELECT * FROM users WHERE id = $1`, [hostUserId])
+          .then(results => {
+            //now that you have the username send it out with response
+            response.json(results);
+          })
+          .catch(error => console.log(error));
+      }
+    );
+  });
+});
+
+//get the hostname to render on page
+router.get("/:id/getGuest", isLoggedIn, function(request, response) {
+  const roomId = request.params["id"];
+  const userId = request.user.id;
 
   //with the room id, find the guest and host player id
   db.one(`SELECT * FROM rooms WHERE room_id = $1`, [roomId]).then(results => {
-    console.log("guest id : " + results["guest_id"]);
-    console.log("host id : " + results["host_id"]);
+    let guestId = results["guest_id"];
+    db.one("SELECT * FROM players WHERE player_id = $1", [guestId])
+      .then(results => {
+        //get the users id
+        let guestUserId = results["user_id"];
+        db.one(`SELECT * FROM users WHERE id = $1`, [guestUserId])
+          .then(results => {
+            //now that you have the username send it out with response
+            response.json(results);
+          })
+          .catch(error => console.log(error));
+      })
+      .catch(error => {
+        //no guest in the game so just throw back waiting for guest
+        response.json("waiting for guest");
+      });
   });
 });
 
@@ -55,8 +83,6 @@ function joinGame(userId, roomId, response) {
         foundPlayer = true;
       }
     }
-
-    console.log(results);
     //if theirs no players at all then add the user as a host, and add their player id as a guest_id to the room
     if (results.length == 0) {
       db.none(

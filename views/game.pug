@@ -25,13 +25,13 @@ block content
                     #play-page.inner-page(style='height: 600px;')
                         #top-player.avatar
                             .face
-                            small.top-player-name Computer
+                            small(class = "guestName").top-player-name
                             #top-player-bubble.bubble
                                 p
                                     span
                         #bottom-player.avatar
                             .face
-                            small You
+                            small(class = "hostName")
                             #bottom-player-bubble.bubble
                                 p
                                     span
@@ -55,8 +55,8 @@ block content
                                         tr
                                             th(colspan='4') Total Game Score
                                         tr.names-row
-                                            th.bottom-player-name You
-                                            th.top-player-name Bill
+                                            th(class = "hostName").bottom-player-name 
+                                            th(class = "guestName").top-player-name
                                         tr
                                             td#bottom-inline-score 0
                                             td#top-inline-score 0
