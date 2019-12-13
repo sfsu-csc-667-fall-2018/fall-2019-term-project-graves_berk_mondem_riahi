@@ -37,50 +37,71 @@ function joinGame(userId, roomId, response) {
       }
     }
 
-    //rendering
-    if (results.length < 2) {
-      //add the user to the players table
-
-      let guestOrHostSQL = "";
-      let guestOrHostPos;
-      if (results.length == 0) {
-        //host
-        guestOrHost = "host_id";
-        guestOrHostPos = 0;
-      } else {
-        //guest
-        guestOrHost = "guest_id";
-        guestOrHostPos = 1;
-      }
-
+    console.log(results);
+    //if theirs no players at all then add the user as a host, and add their player id as a guest_id to the room
+    if (results.length == 0) {
       db.none(
         `INSERT INTO players (user_id,room_id) VALUES ('${userId}','${roomId}')`
-      ).then(_ => {
-        //get the player id and then store that player id into the rooms table as a guest or host
-        db.any(`SELECT * from players WHERE user_id = $1 AND room_id = $2`, [
-          userId,
-          roomId
-        ])
-          .then(results => {
-            console.log("i think this player is in this game");
-            console.log(results);
-
-            db.none(
-              `UPDATE rooms SET ${guestOrHost} = ${results[guestOrHostPos]["player_id"]} WHERE room_id = $1`,
-              [roomId]
-            ).catch(error => console.log(error));
-          })
-          .catch(error => console.log(error));
-
-        // add the user as either a guest or host to the room
-      });
-
+      )
+        .then(_ => {
+          //grab the player_id that was just generated
+          db.any(`SELECT * FROM players WHERE user_id = $1`, [userId]).then(
+            results => {
+              //add that playerid as the hostid
+              db.none(
+                `UPDATE rooms SET host_id = ${results[0]["player_id"]} WHERE room_id = $1`,
+                [roomId]
+              ).catch(error => {
+                console.log(error);
+              });
+            }
+          );
+        })
+        .then(response.render("game"));
+    }
+    //if theirs a host already in there, then check if theyre the host
+    else if (results.length == 1) {
+      //if theyre not the host then add them as a guest
+      //if they are the host then just let them back in and dont do anything
       response.render("game");
-    } else if (foundPlayer) {
-      response.render("game");
-    } else {
+      console.log("should be a guest");
+    }
+    //boot them back to the lobby
+    else {
+      console.log("game full");
       response.redirect("/lobby");
     }
+
+    //rendering
+
+    //add the user to the players table
+
+    // db.none(
+    //   `INSERT INTO players (user_id,room_id) VALUES ('${userId}','${roomId}')`
+    // ).then(_ => {
+    //   //get the player id and then store that player id into the rooms table as a guest or host
+    //   db.any(`SELECT * from players WHERE user_id = $1 AND room_id = $2`, [
+    //     userId,
+    //     roomId
+    //   ])
+    //     .then(results => {
+    //       // console.log("i think this player is in this game");
+    //       // console.log(results);
+
+    //       db.none(
+    //         `UPDATE rooms SET ${guestOrHost} = ${results[guestOrHostPos]["player_id"]} WHERE room_id = $1`,
+    //         [roomId]
+    //       ).catch(error => console.log(error));
+    //     })
+    //     .catch(error => console.log(error));
+    // });
+
+    //   response.render("game");
+    // } else if (foundPlayer) {
+    //   response.render("game");
+    // } else {
+    //   response.redirect("/lobby");
+    // }
 
     //rooms stuff
   });
