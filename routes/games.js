@@ -48,7 +48,10 @@ router.get("/:id", isLoggedIn, function(request, response) {
 router.post("/:id/deal", isLoggedIn, function(request, response) {
   const roomId = request.params["id"];
   const userId = request.user.id;
-  let io = request.app.get("io").of("/" + roomId);
+  let io = request.app.get("io");
+
+  // io.to(roomId).emit("test", roomId);
+  //io.emit("deal", "fuck you");
 
   //to deal, figure out the
   db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
@@ -59,6 +62,7 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
       let playerId = results["player_id"];
       console.log(playerId);
       console.log(roomId);
+
       //call your function hear to deal cards matt
       //todo  OK  need to setup a query for grabbing cards for players hands in here BUUTTT have things inside
       //    functon properly finish, not relying on function returning......
@@ -67,7 +71,9 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
       (async function() {
         somebody = await serverSide.deal10Cards(playerId, roomId); //todo NOTE, somebody will contain array of 10 cards
         console.log("THIS IS HAND " + somebody);
-        io.emit("test", "yeet");
+
+        //cool this works
+        io.emit("deal", [somebody]);
       })();
 
       //todo current issue is this console message gets printed while stuff in deal10Cards is still happening
@@ -76,7 +82,8 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
       console.log(error);
     });
 
-  return;
+  console.log("returning");
+  break;
 });
 
 router.get("/:id/getHost", isLoggedIn, function(request, response) {

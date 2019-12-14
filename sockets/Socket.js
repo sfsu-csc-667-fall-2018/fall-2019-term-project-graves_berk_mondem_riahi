@@ -8,10 +8,6 @@ module.exports = function(server) {
   const io = socketIO(server);
   app.set("io", io);
 
-  io.on("test", blarf => {
-    console.log("global io recieved test");
-  });
-
   io.on("connection", socket => {
     //initialize the page with messages from chat
 
@@ -29,7 +25,7 @@ module.exports = function(server) {
 
       socket.join(roomId, function() {
         console.log("joined room " + roomId);
-        socket.emit("test", roomId);
+        //socket.emit("test", roomId);
       });
 
       // socket.on("connection", socket => {

@@ -41,4 +41,10 @@ function instantiateSocket() {
   socket.on("test", function(room) {
     console.log("yeeeee " + room);
   });
+
+  socket.on("deal", hand => {
+    for (let i = 0; i < hand.length; i++) {
+      console.log(hand[i]);
+    }
+  });
 }

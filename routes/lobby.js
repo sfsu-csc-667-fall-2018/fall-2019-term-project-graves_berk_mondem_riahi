@@ -46,7 +46,7 @@ router.post("/chatMessage", function(request, response) {
     .catch(error => {
       console.log(error);
     });
-
+  console.log("testing chat return");
   return;
 });
 
