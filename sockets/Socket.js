@@ -17,11 +17,6 @@ module.exports = function(server) {
     console.log("connected");
     let newRoom;
 
-    testNs = io.of("/-671352827");
-    testNs.on("connection", socket => {
-      console.log("test ns");
-    });
-
     //create a new namespace for a new room when someone creates the room
     socket.on("createRoom", roomId => {
       console.log("creating new namespace " + roomId);
@@ -30,6 +25,15 @@ module.exports = function(server) {
 
       newRoom.on("connection", socket => {
         console.log("someone connected to new room");
+      });
+
+      //figure out how to join this dynamically
+
+      testNs = io.of("/" + roomId);
+
+      testNs.on("connection", socket => {
+        console.log("test ns");
+        socket.emit("test", "dumb room");
       });
     });
 

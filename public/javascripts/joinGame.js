@@ -5,15 +5,15 @@ let socket = io();
 socket.emit("createRoom", roomId);
 
 console.log("/" + roomId);
-socket = io("/" + roomId);
 
 // socket = io("/" + roomId);
 //have this socket join this room
 
 //get the hosts name
 fetch("/games/" + roomId + "/getHost").then(response => {
+  instantiateSocket();
   response.json().then(response => {
-    //console.log(response["username"]);
+    //connect the socket to the rooms namespace
     $(".hostName").append($("<li>").text(response["username"]));
   });
 });
@@ -34,6 +34,10 @@ $("#deal").append(
   )
 );
 
-socket.on("test", function(room) {
-  console.log("yeeeee");
-});
+function instantiateSocket() {
+  socket = io("/" + roomId);
+
+  socket.on("test", function(room) {
+    console.log("yeeeee");
+  });
+}
