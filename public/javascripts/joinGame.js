@@ -2,9 +2,8 @@ let url = window.location.href;
 const roomId = url.substring(url.lastIndexOf("/") + 1, url.length);
 
 let socket = io();
-socket.emit("createRoom", roomId);
 
-console.log("/" + roomId);
+// console.log("/" + roomId);
 
 // socket = io("/" + roomId);
 //have this socket join this room
@@ -35,9 +34,11 @@ $("#deal").append(
 );
 
 function instantiateSocket() {
-  socket = io("/" + roomId);
+  // socket = io("/" + roomId);
+  socket.emit("createRoom", roomId);
+  // socket.emit("test");
 
   socket.on("test", function(room) {
-    console.log("yeeeee");
+    console.log("yeeeee " + room);
   });
 }

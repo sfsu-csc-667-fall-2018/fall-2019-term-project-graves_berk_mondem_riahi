@@ -48,6 +48,7 @@ router.get("/:id", isLoggedIn, function(request, response) {
 router.post("/:id/deal", isLoggedIn, function(request, response) {
   const roomId = request.params["id"];
   const userId = request.user.id;
+  let io = request.app.get("io").of("/" + roomId);
 
   //to deal, figure out the
   db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
@@ -66,6 +67,7 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
       (async function() {
         somebody = await serverSide.deal10Cards(playerId, roomId); //todo NOTE, somebody will contain array of 10 cards
         console.log("THIS IS HAND " + somebody);
+        io.emit("test", "yeet");
       })();
 
       //todo current issue is this console message gets printed while stuff in deal10Cards is still happening

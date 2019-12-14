@@ -8,6 +8,10 @@ module.exports = function(server) {
   const io = socketIO(server);
   app.set("io", io);
 
+  io.on("test", blarf => {
+    console.log("global io recieved test");
+  });
+
   io.on("connection", socket => {
     //initialize the page with messages from chat
 
@@ -19,22 +23,27 @@ module.exports = function(server) {
 
     //create a new namespace for a new room when someone creates the room
     socket.on("createRoom", roomId => {
-      console.log("creating new namespace " + roomId);
-      newRoom = io.of("/" + roomId);
-      newRoom.emit("test", "hello");
+      // newRoom = io.of("/" + roomId);
 
-      newRoom.on("connection", socket => {
-        console.log("someone connected to new room");
+      //newRoom.emit("test", "hello");
+
+      socket.join(roomId, function() {
+        console.log("joined room " + roomId);
+        socket.emit("test", roomId);
       });
+
+      // socket.on("connection", socket => {
+      //   console.log("someone connected to new room");
+      // });
 
       //figure out how to join this dynamically
 
-      testNs = io.of("/" + roomId);
+      // testNs = io.of("/" + roomId);
 
-      testNs.on("connection", socket => {
-        console.log("test ns");
-        socket.emit("test", "dumb room");
-      });
+      // testNs.on("connection", socket => {
+      //   console.log("test ns");
+      //   //socket.emit("test", "dumb room");
+      // });
     });
 
     //this needs alot of its responsibilities moved, but it's tricky with how io works
