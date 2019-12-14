@@ -15,10 +15,22 @@ module.exports = function(server) {
     //todo: figure out a way to get this in the route
 
     console.log("connected");
+    let newRoom;
 
-    socket.on("joinRoom", roomId => {
-      console.log("joining this room " + roomId);
-      socket.join(roomId);
+    testNs = io.of("/-671352827");
+    testNs.on("connection", socket => {
+      console.log("test ns");
+    });
+
+    //create a new namespace for a new room when someone creates the room
+    socket.on("createRoom", roomId => {
+      console.log("creating new namespace " + roomId);
+      newRoom = io.of("/" + roomId);
+      newRoom.emit("test", "hello");
+
+      newRoom.on("connection", socket => {
+        console.log("someone connected to new room");
+      });
     });
 
     //this needs alot of its responsibilities moved, but it's tricky with how io works

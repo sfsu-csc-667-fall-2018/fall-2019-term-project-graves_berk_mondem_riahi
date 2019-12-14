@@ -13,7 +13,6 @@ router.get("/:id", isLoggedIn, function(request, response) {
 
   const roomId = request.params["id"];
   const userId = request.user.id;
-  io.sockets.emit("test");
 
   //check if the user is supposed to be in the lobby, or if it has two users already
   db.one("SELECT * FROM rooms WHERE room_id = $1", roomId)

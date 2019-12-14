@@ -1,10 +1,14 @@
 let url = window.location.href;
 const roomId = url.substring(url.lastIndexOf("/") + 1, url.length);
-const socket = io();
 
+let socket = io();
+socket.emit("createRoom", roomId);
+
+console.log("/" + roomId);
+socket = io("/" + roomId);
+
+// socket = io("/" + roomId);
 //have this socket join this room
-
-socket.emit("joinRoom", roomId);
 
 //get the hosts name
 fetch("/games/" + roomId + "/getHost").then(response => {
@@ -30,6 +34,6 @@ $("#deal").append(
   )
 );
 
-socket.on("joinRoom", function(room) {
+socket.on("test", function(room) {
   console.log("yeeeee");
 });
