@@ -10,6 +10,8 @@ router.get("/:id", isLoggedIn, function(request, response) {
   //id is just whatever it parses after /game_
   //params stores the id after game_
   //if we can get these we're golden
+  let io = request.app.get("io");
+
   const roomId = request.params["id"];
   const userId = request.user.id;
 
@@ -42,23 +44,7 @@ router.get("/:id", isLoggedIn, function(request, response) {
   }
 
 
-  /*
-    let valueg = 1429171842;
-    db.one("SELECT * FROM decks WHERE deck_id = (SELECT MIN(deck_id) FROM decks WHERE room_id = $1)", valueg)
-        .then(results => {
-            let deckId = results["deck_id"];
-            let cardId = results["card_id"];
-            console.log("Qwe should be 53:   " + deckId);
-            console.log("welp   should be 41:  " + cardId);
-            //call your function hear to deal cards matt
-        })
-        .catch(error => {
-            console.log(error);
-        });
-
-
-   */
-
+  //socket shit
 });
 
 router.post("/:id/deal", isLoggedIn, function(request, response) {
@@ -88,8 +74,9 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
     .catch(error => {
       console.log(error);
     });
-  //todo below is just temporary, probably won;t even use. JUST A HOLDER
 
+
+  return;
 });
 
 router.get("/:id/getHost", isLoggedIn, function(request, response) {

@@ -31,19 +31,17 @@ router.get("/getRooms", isLoggedIn, function(request, response) {
 router.get("/", isLoggedIn, function(request, response) {
   let io = request.app.get("io");
 
-  console.log("Hello " + request.user.id);
-
   response.render("lobby", { test: "tes" });
 });
 
 router.post("/chatMessage", function(request, response) {
   let io = request.app.get("io");
 
-  console.log("hello " + request.user.id);
   db.any(
     `INSERT INTO messages (message_text,room_id,user_id) VALUES ('${request.body.message}',0,'${request.user.id}')`
   )
     .then(_ => {
+      console.log("emmiting");
       io.emit("chat message", request.body.message);
     })
     .catch(error => {
@@ -69,6 +67,7 @@ router.post("/createRoom", function(request, response) {
       hash = (hash << 5) - hash + chr;
       hash |= 0; // convert to 32 bit int because that's what postgres can store
     }
+    hash = Math.abs(hash);
   }
   db.any(
     `INSERT INTO rooms (room_id,room_name,password) VALUES ('${hash}','${request.body.roomName}','${request.body.roomPassword}')`
