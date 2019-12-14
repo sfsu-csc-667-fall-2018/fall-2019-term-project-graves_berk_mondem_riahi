@@ -12,13 +12,13 @@ module.exports = {
         allowNull: false,
         type: Sequelize.STRING
       },
-      room_id: {
-        allowNull: false,
-        type: Sequelize.INTEGER
-      },
-      user_id: {
-        type: Sequelize.INTEGER
-      },
+      // room_id: {
+      //   allowNull: false,
+      //   type: Sequelize.INTEGER
+      // },
+      // user_id: {
+      //   type: Sequelize.INTEGER
+      // },
       time_stamp: {
         type: Sequelize.DATE
       }

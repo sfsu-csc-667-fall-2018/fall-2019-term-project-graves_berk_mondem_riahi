@@ -26,6 +26,8 @@ module.exports = (sequelize, DataTypes) => {
   });
   messages.associate = function(models) {
     // associations can be defined here
+    messages.belongsTo(models.users);
+    messages.belongsTo(models.rooms);
   };
   return messages;
 };

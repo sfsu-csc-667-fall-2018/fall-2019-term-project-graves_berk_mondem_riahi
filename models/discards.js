@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
   });
   discards.associate = function(models) {
     // associations can be defined here
+    discards.belongsTo(models.rooms);
   };
   return discards;
 };

@@ -13,9 +13,11 @@ module.exports = {
         type: Sequelize.STRING
       },
       host_id: {
+        allowNull: true,
         type: Sequelize.INTEGER
       },
       guest_id: {
+        allowNull: true,
         type: Sequelize.INTEGER
       },
       password: {
