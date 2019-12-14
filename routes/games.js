@@ -3,6 +3,7 @@ const router = express.Router();
 const isLoggedIn = require("../auth/middleware/isLoggedIn");
 const db = require("./db/connection");
 const deck = require("../gameLogic/deck");
+const serverSide = require("../gameLogic/serverSide");
 
 /* GET home page. */
 router.get("/:id", isLoggedIn, function(request, response) {
@@ -58,6 +59,16 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
       console.log(playerId);
       console.log(roomId);
       //call your function hear to deal cards matt
+      //todo  OK  need to setup a query for grabbing cards for players hands in here BUUTTT have things inside
+      //    functon properly finish, not relying on function returning......
+      let somebody;
+      //todo in order to use await have to be in an async function. This was a simple solution found online.
+      (async function() {
+        somebody = await serverSide.deal10Cards(playerId, roomId); //todo NOTE, somebody will contain array of 10 cards
+        console.log("THIS IS HAND " + somebody);
+      })();
+
+      //todo current issue is this console message gets printed while stuff in deal10Cards is still happening
     })
     .catch(error => {
       console.log(error);
