@@ -72,13 +72,44 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
         somebody = await serverSide.deal10Cards(playerId, roomId); //todo NOTE, somebody will contain array of 10 cards
         console.log("!!!!THIS IS HAND " + somebody);
 
-        let hail = await serverSide.removeCard(playerId,roomId,somebody[1]);
-        console.log("This is new hand " + hail);
+       // let hail = await serverSide.removeCard(playerId,roomId,somebody[1]);
+        //console.log("This is new hand " + hail);
 
-        let bail = await serverSide.drawFromDiscard(playerId,roomId);
-        console.log("Drew from discard, this is our hand  " + bail);
+        //let bail = await serverSide.drawFromDiscard(playerId,roomId);
+        //console.log("Drew from discard, this is our hand  " + bail);
 
         //response.send(somebody);
+          //getMeldData
+
+          /*
+          let meldData = {
+        runs : runs,
+        sets : sets,
+        deadwood : deadwoodList,
+        deadwoodValue : smallestDeadwoodValue,
+    }
+           */
+
+          //this code shows can use splice and slice in node.js
+          // so unsure why i got error before in serverSide.js
+          /*
+          let befallen = [1,2,3,4];
+          console.log("TEsting  " + befallen);
+          console.log(befallen.splice(0,1));
+          console.log("2 " + befallen);
+          console.log(befallen.slice(0));
+
+           */
+
+
+        let derp = await serverSide.getMeldData(playerId,roomId);
+        console.log("This is my runs " + derp.runs);
+        console.log("This is my sets " + derp.sets);
+        console.log("This is my deadwood " + derp.deadwood);
+        console.log("This is my deadwood value" + derp.deadwoodValue);
+
+
+
         console.log("games socket room " + userId + roomId);
         io.to(userId + roomId).emit("deal", somebody);
         response.json(somebody);
