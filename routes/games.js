@@ -20,7 +20,7 @@ router.get("/:id", isLoggedIn, function(request, response) {
     .then(_ => {
       console.log(userId + " joined " + roomId);
       //add the user to the game
-      joinGame(userId, roomId, response);
+      joinGame(userId, roomId, io, response);
     })
     .catch(error => {
       //if the game room doesnt exist just send them back to the lobby
@@ -71,7 +71,11 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
       (async function() {
         somebody = await serverSide.deal10Cards(playerId, roomId); //todo NOTE, somebody will contain array of 10 cards
         console.log("THIS IS HAND " + somebody);
-        io.emit("deal", [somebody]);
+
+        //response.send(somebody);
+        io.emit("deal", somebody);
+        response.json(somebody);
+        response.render("game");
         //cool this works
       })();
 
@@ -133,7 +137,7 @@ router.get("/:id/getGuest", isLoggedIn, function(request, response) {
   });
 });
 
-function joinGame(userId, roomId, response) {
+function joinGame(userId, roomId, io, response) {
   db.any("SELECT * FROM players WHERE room_id = $1", roomId).then(results => {
     //check the player(s) in the results and see if the given userid trying to join is either of them
 
@@ -146,6 +150,8 @@ function joinGame(userId, roomId, response) {
           //grab the player_id that was just generated
           db.any(`SELECT * FROM players WHERE user_id = $1`, [userId]).then(
             results => {
+              //send the player to the socket room for the host for that game room
+              //io.emit("hostJoin", { userId: userId, roomId: roomId });
               //add that playerid as the hostid
               db.none(
                 `UPDATE rooms SET host_id = ${results[0]["player_id"]} WHERE room_id = $1`,

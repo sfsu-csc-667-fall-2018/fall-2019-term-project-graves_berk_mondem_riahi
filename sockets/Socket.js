@@ -19,13 +19,24 @@ module.exports = function(server) {
     //create a new namespace for a new room when someone creates the room
     socket.on("createRoom", roomId => {
       socket.join(roomId, function() {
-        console.log("joined room " + roomId);
+        console.log("user joined socket for room " + roomId);
         //socket.emit("test", roomId);
       });
     });
 
-    socket.on("deal", roomId => {
-      console.log("dealing cards to some room " + roomId);
+    socket.on("hostJoin", hostInfo => {
+      socket.join(hostInfo["userId"] + hostInfo["roomId"], function() {
+        console.log(
+          "host joined socket for room " +
+            hostInfo["roomId"] +
+            " with userid " +
+            hostInfo["playerId"]
+        );
+      });
     });
+
+    // socket.on("deal", roomId => {
+    //   console.log("dealing cards to some room " + roomId);
+    // });
   });
 };

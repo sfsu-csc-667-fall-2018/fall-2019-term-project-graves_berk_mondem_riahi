@@ -24,29 +24,38 @@ fetch("/games/" + roomId + "/getGuest").then(response => {
   });
 });
 
+// fetch("/games/" + roomId + "/deal").then(response => {
+//   response.json().then(response => {
+//     console.log(response);
+//   });
+// });
+
 //creates the deal button
-$("#deal").append(
-  $(
-    " <form action = '" +
-      roomId +
-      "/deal ' method ='POST'> <button type = 'submit' onclick = 'dealCards()'> deal </button> </form> "
-  )
-);
+// $("#deal").append(
+//   $(
+//     " <form action = '" +
+//       roomId +
+//       "/deal ' method ='POST'> <button type = 'submit' onclick = 'dealCards()'> deal </button> </form> "
+//   )
+// );
+
+$("#dealButton").click(function() {
+  $.post(roomId + "/deal", function(res) {});
+});
 
 function instantiateSocket() {
-  // socket = io("/" + roomId);
   socket.emit("createRoom", roomId);
-  // socket.emit("test");
 
-  socket.on("test", function(room) {
-    console.log("yeeeee " + room);
-  });
+  // socket.on("test", function(room) {
+  //   console.log("yeeeee " + room);
+  // });
 
   socket.on("deal", hand => {
     for (let i = 0; i < hand.length; i++) {
-      console.log(hand[i]);
+      console.log(cardIdentify(hand[i]));
     }
     $("#deal").remove();
+    $("#messageBox").remove();
   });
 }
 

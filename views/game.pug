@@ -2,7 +2,7 @@ extends layout
 
 block scripts
     script(src="/socket.io/socket.io.js")
-    script(src= '/javascripts/gameLogic.js')
+    script(src= '/javascripts/clientSide.js')
     script(src='/javascripts/joinGame.js')
 block stylesheets
     link( rel='stylesheet', href='/stylesheets/GameView.css')
@@ -38,7 +38,8 @@ block content
                             p Click Deal to start the game.
                     
                         #deal
-                            //- button.big Deal
+                            #dealButton
+                                button.big Deal
                             p deal button
                         #pass
                             button PASS
