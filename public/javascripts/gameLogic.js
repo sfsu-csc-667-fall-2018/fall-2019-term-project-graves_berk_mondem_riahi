@@ -1,0 +1,4 @@
+// function dealCards() {
+
+// //   $("#deal").remove();
+// }

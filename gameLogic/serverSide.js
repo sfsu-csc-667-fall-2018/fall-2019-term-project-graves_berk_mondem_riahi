@@ -89,7 +89,7 @@ async function drawFromDeck(playerId, roomId) {
 
   let deckId = 0;
   let cardId = 0;
-  console.log("fnny");
+  // console.log("fnny");
   //todo NEED THIS await before db.tx OTHERWISE this function will return before database stuff is done WHICH
   //   don't want SINCE OTHERWISE would need to setup more async calls to have grabbing hand data from dbd wait
   //    until this database stuff is done (unsure if would be easy or hard but didn't want to do that right now.
@@ -104,7 +104,7 @@ async function drawFromDeck(playerId, roomId) {
         roomId
       );
 
-      console.log("HAHAHAHAHAHAH");
+      // console.log("HAHAHAHAHAHAH");
 
       deckId = results["deck_id"];
       cardId = results["card_id"];
@@ -118,15 +118,15 @@ async function drawFromDeck(playerId, roomId) {
       //have to return a value
     })
     .then(async deletionCount => {
-      console.log(
-        "This many rows were deleted from deck " + deletionCount.rowCount
-      ); //todo PROBABLY DELETE THIS LATER
+      // console.log(
+      //   "This many rows were deleted from deck " + deletionCount.rowCount
+      // ); //todo PROBABLY DELETE THIS LATER
       return cardId;
     })
     .catch(error => {
       console.log("Error in deal10Cards " + error);
     });
-  console.log("ENDING");
+  // console.log("ENDING");
   return cardId;
 }
 
@@ -148,7 +148,7 @@ async function deal10Cards(playerId, roomId) {
   let deckId = 0;
   let cardId = 0;
   let holder = [];
-  console.log("fnny");
+  //console.log("fnny");
   //todo NEED THIS await before db.tx OTHERWISE this function will return before database stuff is done WHICH
   //   don't want SINCE OTHERWISE would need to setup more async calls to have grabbing hand data from dbd wait
   //    until this database stuff is done (unsure if would be easy or hard but didn't want to do that right now.
@@ -164,7 +164,7 @@ async function deal10Cards(playerId, roomId) {
           roomId
         );
 
-        console.log("HAHAHAHAHAHAH");
+        //console.log("HAHAHAHAHAHAH");
 
         deckId = results["deck_id"];
         cardId = results["card_id"];
@@ -178,9 +178,9 @@ async function deal10Cards(playerId, roomId) {
         //have to return a value
       })
       .then(async deletionCount => {
-        console.log(
-          "This many rows were deleted from deck " + deletionCount.rowCount
-        ); //todo PROBABLY DELETE THIS LATER
+        // console.log(
+        //   "This many rows were deleted from deck " + deletionCount.rowCount
+        // ); //todo PROBABLY DELETE THIS LATER
         return cardId;
       })
       .catch(error => {
