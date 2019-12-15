@@ -40,7 +40,7 @@ function getHand() {
     //   that will be sorted hand version which we will send to client. -----------------------
     return theHand;
 }
-
+/*
 //todo delete this later, used it for debugging because lazy
 function getSets(playerId) {
     return sets;
@@ -55,6 +55,8 @@ function getRuns(playerId) {
 function addCard(value) {
     thePlayerHand.push(value);
 }
+
+ */
 
 function getMelds(playerId) {
     let playerHand = getHand(playerId); //currently unsure how server returns things to client.
@@ -84,10 +86,7 @@ async function drawFromDeck(playerId, roomId) {
 
     //todo would also need to grab all cards in playersHand, sort them and return them to client
 
-    let deckId = 0;
-    let cardId = 0;
     let holder = [];
-     console.log("fnny");
     //todo NEED THIS await before db.tx OTHERWISE this function will return before database stuff is done WHICH
     //   don't want SINCE OTHERWISE would need to setup more async calls to have grabbing hand data from dbd wait
     //    until this database stuff is done (unsure if would be easy or hard but didn't want to do that right now.
@@ -100,10 +99,9 @@ async function drawFromDeck(playerId, roomId) {
                 "SELECT * FROM decks WHERE deck_id = (SELECT MIN(deck_id) FROM decks WHERE room_id = $1)",
                 roomId
             );
-            deckId = results["deck_id"];
-            cardId = results["card_id"];
+            let deckId = results["deck_id"];
+            let cardId = results["card_id"];
 
-            console.log("HAHAHAHAHA");
 
             await t.none(
                 "INSERT INTO handcards(player_id,room_id,card_id) VALUES($1, $2, $3)",
@@ -118,53 +116,99 @@ async function drawFromDeck(playerId, roomId) {
 
     //Now need to grab all cards in playersHand
     //todo probably a more elegant way but couldn't find it.
-    await db.any("SELECT card_id FROM handcards WHERE player_id = $1 AND room_id = $2", [1,1544938245])
+    await db.any("SELECT card_id FROM handcards WHERE player_id = $1 AND room_id = $2", [playerId,roomId])
         .then(results =>{
             for(let index = 0; index < results.length; index++){
                 holder.push(results[index]["card_id"]);
             }
         })
-    console.log("We just grabbed a players hand.");
-    console.log(holder);
+
+    //todo STILL NEED TO SORT IT
+    return holder;
+
+}
+
+//todo NEED TO THINK where in code will retrieve top discard when want to display it, not draw it.
+//   don't think should do it here since this is for grabbing top discard and putting it in players hands.
+//    though maybe in game.js when in router for draw from discard, could also call method to
+//    get top discard after drawing so can display it for both players maybe???
+async function drawFromDiscard(playerId,roomId) {
+
+
+    //todo would also need to grab all cards in playersHand, sort them and return them to client
+
+    let holder = [];
+
+    await db.tx(async t => {
+        //seems this code will run async to rest of code in this method.
+        let results = await t.one(
+            "SELECT * FROM discards WHERE discard_id = (SELECT MAX(discard_id) FROM discards WHERE room_id = $1)",
+            roomId
+        );
+        let discardId = results["discard_id"];
+        let cardId = results["card_id"];
+
+
+        await t.none(
+            "INSERT INTO handcards(player_id,room_id,card_id) VALUES($1, $2, $3)",
+            [playerId, roomId, cardId]
+        );
+
+        return await t.result("DELETE FROM discards WHERE discard_id = $1", discardId);
+    })
+        .catch(error => {
+            console.log("Error in drawFromDiscard " + error);
+        });
+
+    //Now need to grab all cards in playersHand
+    //todo probably a more elegant way but couldn't find it.
+    await db.any("SELECT card_id FROM handcards WHERE player_id = $1 AND room_id = $2", [playerId,roomId])
+        .then(results =>{
+            for(let index = 0; index < results.length; index++){
+                holder.push(results[index]["card_id"]);
+            }
+        })
+
+    //todo STILL NEED TO SORT IT
+    return holder;
+}
+
+async function removeCard(playerId, roomId, cardId) {
+    //will do some database work to get game Id from playerId and remove cardId
+    // from hand table and move it to discard table
+    //todo would also need to grab all cards in playersHand, sort them and return them to client
+
+    let holder = [];
+
+    await db.tx(async t => {
+        //seems this code will run async to rest of code in this method.
+        await t.result("DELETE FROM handcards WHERE player_id = $1 AND room_id = $2 AND card_id = $3", [playerId,roomId,cardId]);
+
+        await t.none(
+            "INSERT INTO discards(room_id,card_id) VALUES($1, $2)",
+            [roomId, cardId]
+        );
+
+    })
+        .catch(error => {
+            console.log("Error in removeCard " + error);
+        });
+
+    //Now need to grab all cards in playersHand
+    //todo probably a more elegant way but couldn't find it.
+    await db.any("SELECT card_id FROM handcards WHERE player_id = $1 AND room_id = $2", [playerId,roomId])
+        .then(results =>{
+            for(let index = 0; index < results.length; index++){
+                holder.push(results[index]["card_id"]);
+            }
+        })
 
     return holder;
 
-    /*
-    let holder2 = await db.query({
-      text: "SELECT card_id FROM handcards WHERE player_id = $1 AND room_id = $2",
-      values: [1,1544938245],
-      rowMode: "array"
-    });
-    console.log("ANOTHER ATTEMPT");
-    console.log(holder2[0][0]);
-
-     */
-  /*
-  SELECT card_id FROM handcards WHERE player_id = 1 AND room_id = 1544938245
-   */
-  /* db.any(`SELECT * FROM players WHERE user_id = $1`, [userId]).then(
-            results => {
-
-   */
-}
-
-function drawFromDiscard(playerId) {
-    //will do some database work to get game Id from playerId and grab card
-    // from discard table and move it to players hand in hand table.
-    //todo fill this in properly with client and server and database communication.
-    //todo would also need to grab all cards in playersHand, sort them and return them to client
-}
-
-function removeCard(playerId, cardId) {
-    //will do some database work to get game Id from playerId and remove cardId
-    // from hand table and move it to discard table
-    //todo fill this in properly with client and server and database communication.
-    //todo would also need to grab all cards in playersHand, sort them and return them to client
 }
 
 async function deal10Cards(playerId, roomId) {
-    let deckId = 0;
-    let cardId = 0;
+
     let holder = [];
     //console.log("fnny");
     //todo NEED THIS await before db.tx OTHERWISE this function will return before database stuff is done WHICH
@@ -183,8 +227,8 @@ async function deal10Cards(playerId, roomId) {
 
                 //console.log("HAHAHAHAHAHAH");
 
-                deckId = results["deck_id"];
-                cardId = results["card_id"];
+                let deckId = results["deck_id"];
+                let cardId = results["card_id"];
 
                 await t.none(
                     "INSERT INTO handcards(player_id,room_id,card_id) VALUES($1, $2, $3)",
@@ -1002,5 +1046,7 @@ function sameSuite(value1, value2) {
 module.exports = {
     //so can use this class and methods in rest of project.
     deal10Cards,
-    drawFromDeck
+    drawFromDeck,
+    drawFromDiscard,
+    removeCard
 };

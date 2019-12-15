@@ -69,8 +69,14 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
       //    functon properly finish, not relying on function returning......
       //todo in order to use await have to be in an async function. This was a simple solution found online.
       (async function() {
-        somebody = await serverSide.drawFromDeck(playerId, roomId); //todo NOTE, somebody will contain array of 10 cards
+        somebody = await serverSide.deal10Cards(playerId, roomId); //todo NOTE, somebody will contain array of 10 cards
         console.log("!!!!THIS IS HAND " + somebody);
+
+        let hail = await serverSide.removeCard(playerId,roomId,somebody[1]);
+        console.log("This is new hand " + hail);
+
+        let bail = await serverSide.drawFromDiscard(playerId,roomId);
+        console.log("Drew from discard, this is our hand  " + bail);
 
         //response.send(somebody);
         console.log("games socket room " + userId + roomId);
