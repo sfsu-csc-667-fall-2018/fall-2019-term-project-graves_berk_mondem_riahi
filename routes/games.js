@@ -73,9 +73,9 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
         console.log("THIS IS HAND " + somebody);
 
         //response.send(somebody);
-        io.emit("deal", somebody);
+        console.log("games socket room " + userId + roomId);
+        io.to(userId + roomId).emit("deal", somebody);
         response.json(somebody);
-        response.render("game");
         //cool this works
       })();
 
@@ -102,6 +102,8 @@ router.get("/:id/getHost", isLoggedIn, function(request, response) {
         let hostUserId = results["user_id"];
         db.one(`SELECT * FROM users WHERE id = $1`, [hostUserId])
           .then(results => {
+            results["hostId"] = hostId;
+            results["userId"] = userId;
             //now that you have the username send it out with response
             response.json(results);
           })

@@ -13,6 +13,11 @@ fetch("/games/" + roomId + "/getHost").then(response => {
   instantiateSocket();
   response.json().then(response => {
     //connect the socket to the rooms namespace
+    socket.emit("hostTest", "asd");
+    console.log(response["userId"] + roomId);
+
+    socket.emit("hostJoin", { userId: response["userId"], roomId: roomId });
+
     $(".hostName").append($("<li>").text(response["username"]));
   });
 });
@@ -44,11 +49,7 @@ $("#dealButton").click(function() {
 });
 
 function instantiateSocket() {
-  socket.emit("createRoom", roomId);
-
-  // socket.on("test", function(room) {
-  //   console.log("yeeeee " + room);
-  // });
+  socket.emit("joinRoom", roomId);
 
   socket.on("deal", hand => {
     for (let i = 0; i < hand.length; i++) {
@@ -56,6 +57,10 @@ function instantiateSocket() {
     }
     $("#deal").remove();
     $("#messageBox").remove();
+  });
+
+  socket.on("hostTest", function() {
+    console.log("recieved the host test");
   });
 }
 
