@@ -29,7 +29,7 @@ $("#deal").append(
   $(
     " <form action = '" +
       roomId +
-      "/deal ' method ='POST'> <button type = 'submit'> deal </button> </form> "
+      "/deal ' method ='POST'> <button type = 'submit' onclick = 'dealCards()'> deal </button> </form> "
   )
 );
 
@@ -46,5 +46,11 @@ function instantiateSocket() {
     for (let i = 0; i < hand.length; i++) {
       console.log(hand[i]);
     }
+    $("#deal").remove();
   });
+}
+
+//this is how the server knows to do some card bullshit now
+function dealCards() {
+  // socket.emit("deal", roomId);
 }

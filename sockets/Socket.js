@@ -15,33 +15,17 @@ module.exports = function(server) {
     //todo: figure out a way to get this in the route
 
     console.log("connected");
-    let newRoom;
 
     //create a new namespace for a new room when someone creates the room
     socket.on("createRoom", roomId => {
-      // newRoom = io.of("/" + roomId);
-
-      //newRoom.emit("test", "hello");
-
       socket.join(roomId, function() {
         console.log("joined room " + roomId);
         //socket.emit("test", roomId);
       });
-
-      // socket.on("connection", socket => {
-      //   console.log("someone connected to new room");
-      // });
-
-      //figure out how to join this dynamically
-
-      // testNs = io.of("/" + roomId);
-
-      // testNs.on("connection", socket => {
-      //   console.log("test ns");
-      //   //socket.emit("test", "dumb room");
-      // });
     });
 
-    //this needs alot of its responsibilities moved, but it's tricky with how io works
+    socket.on("deal", roomId => {
+      console.log("dealing cards to some room " + roomId);
+    });
   });
 };
