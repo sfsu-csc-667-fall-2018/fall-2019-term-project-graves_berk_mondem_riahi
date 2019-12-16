@@ -117,6 +117,7 @@ router.get("/:id/getHost", isLoggedIn, function(request, response) {
 router.get("/:id/getGuest", isLoggedIn, function(request, response) {
   const roomId = request.params["id"];
   const userId = request.user.id;
+  let guestOrHost = "";
 
   //with the room id, find the guest and host player id
   db.one(`SELECT * FROM rooms WHERE room_id = $1`, [roomId]).then(results => {
@@ -124,10 +125,22 @@ router.get("/:id/getGuest", isLoggedIn, function(request, response) {
     db.one("SELECT * FROM players WHERE player_id = $1", [guestId])
       .then(results => {
         //get the users id
+
+        //check if the user currently connected is a guest, used to establish a socket emission
         let guestUserId = results["user_id"];
+
+        if (guestUserId == userId) {
+          guestOrHost = "guest";
+        } else {
+          guestOrHost = "host";
+        }
+
+        console.log(guestOrHost);
+
         db.one(`SELECT * FROM users WHERE id = $1`, [guestUserId])
           .then(results => {
             //now that you have the username send it out with response
+            results["guestOrHost"] = guestOrHost;
             response.json(results);
           })
           .catch(error => console.log(error));
@@ -154,6 +167,7 @@ function joinGame(userId, roomId, io, response) {
             results => {
               //send the player to the socket room for the host for that game room
               //io.emit("hostJoin", { userId: userId, roomId: roomId });
+
               //add that playerid as the hostid
               db.none(
                 `UPDATE rooms SET host_id = ${results[0]["player_id"]} WHERE room_id = $1`,
@@ -164,7 +178,9 @@ function joinGame(userId, roomId, io, response) {
             }
           );
         })
-        .then(response.render("game"));
+        .then(_ => {
+          response.render("game");
+        });
     }
     //if theirs a host already in there, then check if theyre the host
     else if (results.length <= 2) {
@@ -192,6 +208,8 @@ function joinGame(userId, roomId, io, response) {
               //if this returns a result, that means that the player in the room is owned by this user, so just let them into the game
               if (results.length > 0) {
                 //the user joining is the hosst
+                // io.to(roomId).emit("hostTest", "asds");
+                console.log("io?");
                 response.render("game");
               } else {
               }
