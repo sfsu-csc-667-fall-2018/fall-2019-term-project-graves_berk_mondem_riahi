@@ -18,7 +18,7 @@ router.get("/:id", isLoggedIn, function(request, response) {
   //check if the user is supposed to be in the lobby, or if it has two users already
   db.one("SELECT * FROM rooms WHERE room_id = $1", roomId)
     .then(_ => {
-      console.log(userId + " joined " + roomId);
+      // console.log(userId + " joined " + roomId);
       //add the user to the game
       joinGame(userId, roomId, io, response);
     })
@@ -78,17 +78,17 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
 
               (async function() {
                 somebody = await serverSide.deal10Cards(hostId, roomId); //todo NOTE, somebody will contain array of 10 cards
-                console.log("THIS IS HAND " + somebody);
+                // console.log("THIS IS HAND " + somebody);
                 //response.send(somebody);
                 // console.log("games socket room " + userId + roomId);
-                console.log("sending a hand to a host");
+                // console.log("sending a hand to a host");
                 io.to(hostUserId + roomId).emit("deal", somebody);
 
                 somebody = await serverSide.deal10Cards(guestId, roomId); //todo NOTE, somebody will contain array of 10 cards
-                console.log("THIS IS HAND " + somebody);
+                // console.log("THIS IS HAND " + somebody);
                 //response.send(somebody);
                 // console.log("games socket room " + userId + roomId);
-                console.log("sending a hand to a guest");
+                // console.log("sending a hand to a guest");
                 io.to(guestUserId + roomId).emit("deal", somebody);
 
                 //response.json(somebody);
@@ -165,7 +165,7 @@ router.get("/:id/getGuest", isLoggedIn, function(request, response) {
         //   guestOrHost = "host";
         // }
 
-        console.log(guestOrHost);
+        // console.log(guestOrHost);
 
         db.one(`SELECT * FROM users WHERE id = $1`, [guestUserId])
           .then(results => {
@@ -204,13 +204,13 @@ router.get("/:id/getHand", isLoggedIn, function(request, response) {
     userId
   ])
     .then(results => {
-      console.log(results);
+      // console.log(results);
       let playerId = results["player_id"];
 
       (async function() {
         let hand = await serverSide.getHand(playerId, roomId);
-        console.log("get hand says");
-        console.log(hand);
+        // console.log("get hand says");
+        // console.log(hand);
         return response.json(hand);
       })();
     })
@@ -325,8 +325,7 @@ function joinGame(userId, roomId, io, response) {
                 )
                   .then(_ => {
                     //right here is where the game can start actually,
-                    console.log("the game is afoot");
-
+                    // console.log("the game is afoot");
                     //
                   })
                   .catch(error => {
@@ -339,7 +338,7 @@ function joinGame(userId, roomId, io, response) {
     }
     //boot them back to the lobby
     else {
-      console.log(results);
+      // console.log(results);
       //check if either user should be in the game
 
       //patch fix re-look over logic later
