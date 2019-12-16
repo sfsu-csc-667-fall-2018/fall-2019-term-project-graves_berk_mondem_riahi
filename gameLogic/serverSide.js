@@ -1192,5 +1192,6 @@ module.exports = {
   drawFromDeck,
   drawFromDiscard,
   removeCard,
-  getMeldData
+  getMeldData,
+  getHand
 };
