@@ -11,9 +11,6 @@ module.exports = function(server) {
   io.on("connection", socket => {
     //initialize the page with messages from chat
 
-    //this should only be run if the room is the lobby
-    //todo: figure out a way to get this in the route
-
     console.log("connected");
 
     //create a new namespace for a new room when someone creates the room
@@ -29,31 +26,18 @@ module.exports = function(server) {
     });
 
     socket.on("hostJoin", hostInfo => {
-      console.log("a host is joinging");
       let hostRoom = hostInfo["userId"] + hostInfo["roomId"];
       console.log(hostRoom);
-      socket.join(hostRoom, function() {
-        console.log(
-          "host joined socket for room " +
-            hostInfo["userId"] +
-            " with userid " +
-            hostInfo["roomId"]
-        );
-      });
-
-      // io.to(hostRoom).emit(
-      //   "hostTest",
-      //   "the host should get this not the guest"
-      // );
+      socket.join(hostRoom, function() {});
     });
 
     socket.on("guestJoin", guestInfo => {
-      console.log("a guest is joining");
-
       let guestRoom = guestInfo["userId"] + guestInfo["roomId"];
-      socket.join(guestRoom, function() {
-        console.log("a guest joined the room boi");
-      });
+      socket.join(guestRoom, function() {});
+    });
+
+    socket.on("displayHands", userAndOpponentHand => {
+      console.log("show em bois");
     });
   });
 };

@@ -164,8 +164,8 @@ function instantiateSocket() {
   });
 
   socket.on("draw", hand => {
-    console.log("rendering hand");
-    console.log(hand);
+    // console.log("rendering hand");
+    // console.log(hand);
     // console.log("drew a card boi");
     //empty all the children of all card classes for the user
     let i = 0;
@@ -180,23 +180,63 @@ function instantiateSocket() {
     $("#cardUser" + hand.length).empty();
   });
 
-  // socket.on("hostTest", function() {
-  //   console.log("recieved the host test");
-  // });
+  socket.on("displayMelds", meldData => {
+    // console.log(meldData.deadwoodValue);
+    // console.log("displayin them melds son");
 
-  //something here for drawing maybe
-  // socket.on('displayCard',card)
+    $("#runs").empty();
+    $("#sets").empty();
+    $("#deadwoodVal").empty();
+
+    //replace the runs and sets with actual card names
+    for (let i = 0; i < meldData.runs.length; i++) {
+      for (let j = 0; j < meldData.runs[i].length; j++) {
+        meldData.runs[i][j] = cardIdentify(meldData.runs[i][j]);
+      }
+    }
+
+    for (let i = 0; i < meldData.sets.length; i++) {
+      for (let j = 0; j < meldData.sets[i].length; j++) {
+        meldData.sets[i][j] = cardIdentify(meldData.sets[i][j]);
+      }
+    }
+
+    for (let i = 0; i < meldData.runs.length; i++) {
+      $("#runs").append("<li> " + meldData.runs[i] + " </li><br></br>");
+    }
+
+    for (let i = 0; i < meldData.sets.length; i++) {
+      $("#sets").append("<li> " + meldData.sets[i] + " </li> <br></br>");
+    }
+
+    $("#deadwoodVal").append("<p> " + meldData.deadwoodValue + " </p>");
+  });
+
+  socket.on("updateScores", scores => {
+    $("#hostScore").empty();
+    $("#guestScore").empty();
+    $("#hostScore").append($("<td> " + scores + "</td>"));
+    $("#guestScore").append($("<td> " + scores + "</td>"));
+  });
+
+  socket.on("showHands", hands => {
+    //user hand is index 0
+    //opponent hand is index 1
+
+    for (let i = 0; i < hands[0].length; i++) {
+      $("#cardUser" + i).empty();
+
+      $("#cardUser" + i).append(
+        $("<img src ='/cards/" + hands[0][i] + ".jpg'></img>")
+      );
+    }
+
+    for (let i = 0; i < hands[1].length; i++) {
+      $("#cardOpponent" + i).empty();
+
+      $("#cardOpponent" + i).append(
+        $("<img src ='/cards/" + hands[1][i] + ".jpg'></img>")
+      );
+    }
+  });
 }
-
-//this is how the server knows to do some card bullshit now
-function dealCards() {
-  // socket.emit("deal", roomId);
-}
-
-// function drawFromDeck() {
-//   console.log("toucha the deck ;)");
-// }
-
-//im sorry john look away your pure eyes musn't look upon such filth
-
-//testing img name for card id
