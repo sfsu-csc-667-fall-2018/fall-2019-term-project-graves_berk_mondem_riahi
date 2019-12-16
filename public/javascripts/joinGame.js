@@ -83,6 +83,42 @@ $("#discard").click(function() {
   $.post(roomId + "/drawFromDiscard", function(res) {});
 });
 
+$("#cardUser0").click(function() {
+  $.post(roomId + "/discardFromHand", { cardNum: 0 }, function(res) {});
+});
+$("#cardUser1").click(function() {
+  $.post(roomId + "/discardFromHand", { cardNum: 1 }, function(res) {});
+});
+$("#cardUser2").click(function() {
+  $.post(roomId + "/discardFromHand", { cardNum: 2 }, function(res) {});
+});
+$("#cardUser3").click(function() {
+  $.post(roomId + "/discardFromHand", { cardNum: 3 }, function(res) {});
+});
+$("#cardUser4").click(function() {
+  $.post(roomId + "/discardFromHand", { cardNum: 4 }, function(res) {});
+});
+$("#cardUser5").click(function() {
+  $.post(roomId + "/discardFromHand", { cardNum: 5 }, function(res) {});
+});
+$("#cardUser6").click(function() {
+  $.post(roomId + "/discardFromHand", { cardNum: 6 }, function(res) {});
+});
+$("#cardUser7").click(function() {
+  $.post(roomId + "/discardFromHand", { cardNum: 7 }, function(res) {});
+});
+$("#cardUser8").click(function() {
+  $.post(roomId + "/discardFromHand", { cardNum: 8 }, function(res) {});
+});
+$("#cardUser9").click(function() {
+  $.post(roomId + "/discardFromHand", { cardNum: 9 }, function(res) {});
+});
+$("#cardUser10").click(function() {
+  $.post(roomId + "/discardFromHand", { cardNum: 10 }, function(res) {});
+});
+
+//oh god look away
+
 function instantiateSocket() {
   socket.emit("joinRoom", roomId);
 
@@ -105,22 +141,27 @@ function instantiateSocket() {
 
   socket.on("discard", card => {
     $("#discard").empty();
+
     if (card != undefined) {
       $("#discard").append("<img src ='/cards/" + card + ".jpg'></img>");
     }
   });
 
   socket.on("draw", hand => {
+    console.log("rendering hand");
+    console.log(hand);
     // console.log("drew a card boi");
     //empty all the children of all card classes for the user
-
-    for (let i = 0; i < 11; i++) {
+    let i = 0;
+    for (i = 0; i < hand.length; i++) {
       $("#cardUser" + i).empty();
 
       $("#cardUser" + i).append(
         $("<img src ='/cards/" + hand[i] + ".jpg'></img>")
       );
     }
+
+    $("#cardUser" + hand.length).empty();
   });
 
   // socket.on("hostTest", function() {
@@ -141,38 +182,5 @@ function dealCards() {
 // }
 
 //im sorry john look away your pure eyes musn't look upon such filth
-function card0Discard() {
-  console.log("yeet");
-}
-function card1Discard() {
-  console.log("yeet");
-}
-function card2Discard() {
-  console.log("yeet");
-}
-function card3Discard() {
-  console.log("yeet");
-}
-function card4Discard() {
-  console.log("yeet");
-}
-function card5Discard() {
-  console.log("yeet");
-}
-function card6Discard() {
-  console.log("yeet");
-}
-function card7Discard() {
-  console.log("yeet");
-}
-function card8Discard() {
-  console.log("yeet");
-}
-function card9Discard() {
-  console.log("yeet");
-}
-function card10Discard() {
-  console.log("yeet");
-}
 
 //testing img name for card id
