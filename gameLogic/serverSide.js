@@ -167,6 +167,7 @@ async function drawFromDiscard(playerId, roomId) {
 
 //todo NOTE, updated this so doesn't return hand anymore.
 async function removeCard(playerId, roomId, cardId) {
+
   //let holder = [];
 
   await db
@@ -559,8 +560,12 @@ function deadWoodCalculator(theHand) {
   return counter;
 }
 
+
+
 //todo MAY need another copy to deal with layoffs.... though possible not, just need to pass in player A's deadwood and player B's runs
 function deadWoodToRuns(changedHand, runsTemp) {
+
+
   let currentRuns = sortArray(runsTemp, function(a, b) {
     return a - b;
   });
@@ -714,6 +719,7 @@ function runsTo2D(theArray) {
   }
   return new2DArray;
 }
+
 
 // Creates a 3-4 size set with cardValue. If have a 4 set and 2+ conflict cards are in it,
 // will reduce set size to 3 and return true representing need for 4 set action to occur.
