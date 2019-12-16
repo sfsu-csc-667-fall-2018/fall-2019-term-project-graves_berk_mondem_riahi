@@ -181,7 +181,21 @@ body {
   position: relative;
   left: 40px;
 }
-
+ul {
+  color: white;
+}
+li {
+  color: white;
+}
+th {
+  color: white;
+}
+p {
+  color: white;
+}
+h5 {
+  color: white;
+}
 #show-scorecard {
   position: absolute;
   width: 100%;

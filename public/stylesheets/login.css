@@ -1,6 +1,6 @@
 body {
   font-family: "Open Sans", sans-serif;
-  background: #3498db;
+  background-color: #2a2d2f;
   width: 100%;
   text-align: center;
   margin: 100px 0px 100px 0px;
@@ -28,7 +28,7 @@ h1 {
 }
 
 .btn {
-  background: #2ecc71;
+  background: #065828;
   width: 125px;
   padding-top: 5px;
   padding-bottom: 5px;
@@ -38,13 +38,14 @@ h1 {
   margin-top: 50px;
   margin-bottom: 20px;
   float: left;
-  margin-left: 16px;
+  margin-left: 25%;
+
   font-weight: 800;
   font-size: 0.8em;
 }
 
 .btn:hover {
-  background: #2cc06b;
+  background: #076e32;
 }
 
 #btn2 {
