@@ -47,8 +47,10 @@ async function getTopDiscard(roomId){
         console.log("Error in drawFromDiscard " + error);
       });
 
+
   return cardId;
 }
+
 
 async function checkDiscard(roomId){
   let cardId
@@ -75,6 +77,7 @@ async function checkDiscard(roomId){
 }
 
 //todo PROBABLY when you return melds, you also return whether player can knock,gin,big big.
+
 async function getMeldData(playerId, roomId) {
   let playerHand = await getHand(playerId, roomId);
   ///console.log("IN getMeldData  " + playerHand);
@@ -264,6 +267,7 @@ async function deal10Cards(playerId, roomId) {
   //todo NEED TO SORT HOLDER before return it, doing that later.
 }
 
+
 async function deckToDiscard(roomId){
   await db
       .tx(async t => {
@@ -298,6 +302,7 @@ async function deckToDiscard(roomId){
 function doLayOffsAndScore(player1Id,player2Id,buttonPresserId,roomId,actionPerformed){
     
 }
+
 
 
 
@@ -614,8 +619,10 @@ function deadWoodCalculator(theHand) {
 }
 
 
+
 //todo MAY need another copy to deal with layoffs.... though possible not, just need to pass in player A's deadwood and player B's runs
 function deadWoodToRuns(changedHand, runsTemp) {
+
 
   let currentRuns = sortArray(runsTemp, function(a, b) {
     return a - b;
