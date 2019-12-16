@@ -91,8 +91,15 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
                 // console.log("sending a hand to a guest");
                 io.to(guestUserId + roomId).emit("deal", somebody);
 
-                //response.json(somebody);
-                //cool this works
+                //after the cards are drawn discard one
+                await serverSide.deckToDiscard(roomId);
+
+                //test to look
+                let deckDiscard = await serverSide.getTopDiscard(roomId);
+
+                io.to(roomId).emit("discard", deckDiscard);
+
+                //flip the top card onto the discard
               })();
             })
             .catch(error => {
@@ -182,22 +189,23 @@ router.get("/:id/getGuest", isLoggedIn, function(request, response) {
   });
 });
 
+router.get("/:id/getTopDiscard", isLoggedIn, function(request, response) {
+  const roomId = request.params["id"];
+  const userId = request.user.id;
+
+  (async function() {
+    let topDiscard = await serverSide.getTopDiscard(roomId);
+    // console.log("get top discard says");
+    // console.log(topDiscard);
+    return response.json(topDiscard);
+  })();
+});
+
 router.get("/:id/getHand", isLoggedIn, function(request, response) {
   const roomId = request.params["id"];
   const userId = request.user.id;
-  let guestOrHost = "";
 
   //check if the game room has a guest and host in it first
-
-  // db.one("SELECT * FROM rooms WHERE room_id = $1", [roomId])
-  //   .then(results => {
-  //     if (results["guest_id"] != undefined && results["host_id"] != undefined) {
-  //       return response.json("waiting for guest to join");
-  //     }
-  //   })
-  //   .catch(error => {
-  //     console.log("error");
-  //   });
 
   db.one("SELECT * FROM players WHERE room_id = $1 AND user_id = $2", [
     roomId,

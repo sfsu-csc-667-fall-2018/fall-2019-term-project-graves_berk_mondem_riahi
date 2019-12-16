@@ -9,6 +9,12 @@ let hand = [];
 // socket = io("/" + roomId);
 //have this socket join this room
 
+fetch("/games/" + roomId + "/getTopDiscard").then(response => {
+  response.json().then(response => {
+    $("#discard").append("<img src ='/cards/" + response + ".jpg'></img>");
+  });
+});
+
 fetch("/games/" + roomId + "/getHand").then(response => {
   response.json().then(response => {
     console.log("got this from the hand");
@@ -86,9 +92,13 @@ function instantiateSocket() {
     $("#messageBox").remove();
   });
 
-  socket.on("hostTest", function() {
-    console.log("recieved the host test");
+  socket.on("discard", card => {
+    $("#discard").append("<img src ='/cards/" + card + ".jpg'></img>");
   });
+
+  // socket.on("hostTest", function() {
+  //   console.log("recieved the host test");
+  // });
 
   //something here for drawing maybe
   // socket.on('displayCard',card)
