@@ -2,6 +2,7 @@ let url = window.location.href;
 const roomId = url.substring(url.lastIndexOf("/") + 1, url.length);
 let guestOrHost = "";
 let socket = io();
+let hand = [];
 
 // console.log("/" + roomId);
 
@@ -12,6 +13,17 @@ fetch("/games/" + roomId + "/getHand").then(response => {
   response.json().then(response => {
     console.log("got this from the hand");
     console.log(response);
+    hand = response;
+    if (hand.length > 0) {
+      $("#deal").remove();
+    }
+
+    for (let i = 0; i < hand.length; i++) {
+      $("#cardUser" + i).append(
+        $("<img src ='/cards/" + hand[i] + ".jpg'></img>")
+      );
+      $("#cardOpponent" + i).append($("<img src ='/cards/back.jpg'></img>"));
+    }
   });
 });
 
