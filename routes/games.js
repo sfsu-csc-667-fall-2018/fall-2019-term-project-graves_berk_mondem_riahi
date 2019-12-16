@@ -108,37 +108,6 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
     .catch(error => {
       console.log(error);
     });
-
-  // let somebody;
-  // // io.to(roomId).emit("test", roomId);
-  // //io.emit("deal", "fuck you");
-
-  // //first deal to the player who clicked the button (the current user as identified by the session)
-  // db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
-  //   userId,
-  //   roomId
-  // ])
-  //   .then(results => {
-  //     let playerId = results["player_id"];
-  //     // console.log(playerId);
-  //     // console.log(roomId);
-
-  //     (async function() {
-  //       somebody = await serverSide.deal10Cards(playerId, roomId); //todo NOTE, somebody will contain array of 10 cards
-  //       // console.log("THIS IS HAND " + somebody);
-  //       //response.send(somebody);
-  //       // console.log("games socket room " + userId + roomId);
-
-  //       io.to(userId + roomId).emit("deal", somebody);
-  //       //response.json(somebody);
-  //       //cool this works
-  //     })();
-
-  //     //todo current issue is this console message gets printed while stuff in deal10Cards is still happening
-  //   })
-  //   .catch(error => {
-  //     console.log(error);
-  //   });
 });
 
 router.get("/:id/getHost", isLoggedIn, function(request, response) {
@@ -149,6 +118,7 @@ router.get("/:id/getHost", isLoggedIn, function(request, response) {
   //with the room id, find the guest and host player id
   db.one(`SELECT * FROM rooms WHERE room_id = $1`, [roomId]).then(results => {
     let hostId = results["host_id"];
+
     db.one("SELECT * FROM players WHERE player_id = $1", [hostId]).then(
       results => {
         //get the users id
@@ -211,6 +181,45 @@ router.get("/:id/getGuest", isLoggedIn, function(request, response) {
       });
   });
 });
+
+router.get("/:id/getHand");
+
+function guestOrHostFunc(userId, roomId) {
+  db.one("SELECT * FROM rooms WHERE room_id = $1 ", [roomId]).then(results => {
+    let guestId = results["guest_id"];
+    let hostId = results["host_id"];
+    let guestUserId = "";
+    let hostUserId = "";
+
+    db.one("SELECT * FROM players WHERE player_id = $1 AND room_id = $2", [
+      guestId,
+      roomId
+    ])
+      .then(results => {
+        guestUserId = results["user_id"];
+      })
+      .then(_ => {
+        db.one("SELECT * FROM players WHERE player_id = $1 AND room_id = $2", [
+          hostId,
+          roomId
+        ])
+          .then(results => {
+            hostUserId = results["user_id"];
+          })
+          .catch(error => console.log(error));
+
+        if (userId == hostUserId) {
+          return "host";
+        } else if (userId == guestUserId) {
+          return "guest";
+        }
+        return "guest or host failed";
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  });
+}
 
 function joinGame(userId, roomId, io, response) {
   db.any("SELECT * FROM players WHERE room_id = $1", roomId).then(results => {
