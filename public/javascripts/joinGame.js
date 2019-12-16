@@ -10,8 +10,8 @@ let socket = io();
 
 fetch("/games/" + roomId + "/getGuest").then(response => {
   response.json().then(response => {
-    console.log(response["guestOrHost"]);
-    guestOrHost = response["guestOrHost"];
+    // console.log(response["guestOrHost"]);
+    // guestOrHost = response["guestOrHost"];
 
     //console.log(response);
     //socket.emit("guestJoin", { userId: response["userId"], roomId: roomId });
@@ -25,7 +25,10 @@ fetch("/games/" + roomId + "/getHost").then(response => {
   response.json().then(response => {
     //connect the socket to the rooms namespace
     //socket.emit("hostTest", "asd");
-    console.log(response["userId"] + roomId);
+    // console.log(response["userId"] + roomId);
+
+    console.log(response["guestOrHost"]);
+    guestOrHost = response["guestOrHost"];
 
     if (guestOrHost == "host") {
       console.log("trying to join host socket room");

@@ -144,6 +144,7 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
 router.get("/:id/getHost", isLoggedIn, function(request, response) {
   const roomId = request.params["id"];
   const userId = request.user.id;
+  let guestOrHost = "";
 
   //with the room id, find the guest and host player id
   db.one(`SELECT * FROM rooms WHERE room_id = $1`, [roomId]).then(results => {
@@ -152,10 +153,17 @@ router.get("/:id/getHost", isLoggedIn, function(request, response) {
       results => {
         //get the users id
         let hostUserId = results["user_id"];
+        if (userId == hostUserId) {
+          guestOrHost = "host";
+        } else {
+          guestOrHost = "guest";
+        }
+
         db.one(`SELECT * FROM users WHERE id = $1`, [hostUserId])
           .then(results => {
             results["hostId"] = hostId;
             results["userId"] = userId;
+            results["guestOrHost"] = guestOrHost;
             //now that you have the username send it out with response
             response.json(results);
           })
@@ -179,20 +187,20 @@ router.get("/:id/getGuest", isLoggedIn, function(request, response) {
         //get the users id
 
         //check if the user currently connected is a guest, used to establish a socket emission
-        let guestUserId = results["user_id"];
+        // let guestUserId = results["user_id"];
 
-        if (guestUserId == userId) {
-          guestOrHost = "guest";
-        } else {
-          guestOrHost = "host";
-        }
+        // if (guestUserId == userId) {
+        //   guestOrHost = "guest";
+        // } else {
+        //   guestOrHost = "host";
+        // }
 
         console.log(guestOrHost);
 
         db.one(`SELECT * FROM users WHERE id = $1`, [guestUserId])
           .then(results => {
             //now that you have the username send it out with response
-            results["guestOrHost"] = guestOrHost;
+            // results["guestOrHost"] = guestOrHost;
             response.json(results);
           })
           .catch(error => console.log(error));
