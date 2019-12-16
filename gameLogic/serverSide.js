@@ -38,6 +38,25 @@ async function getHand(playerId, roomId) {
   return holder;
 }
 
+async function getTopDiscard(roomId) {
+  let cardId;
+
+  await db
+    .tx(async t => {
+      //seems this code will run async to rest of code in this method.
+      let results = await t.one(
+        "SELECT * FROM discards WHERE discard_id = (SELECT MAX(discard_id) FROM discards WHERE room_id = $1)",
+        roomId
+      );
+      cardId = results["card_id"];
+    })
+    .catch(error => {
+      console.log("Error in drawFromDiscard " + error);
+    });
+
+  return cardId;
+}
+
 async function getMeldData(playerId, roomId) {
   let playerHand = await getHand(playerId, roomId);
   ///console.log("IN getMeldData  " + playerHand);
@@ -225,6 +244,33 @@ async function deal10Cards(playerId, roomId) {
 
   return holder;
   //todo NEED TO SORT HOLDER before return it, doing that later.
+}
+
+async function deckToDiscard(roomId) {
+  await db
+    .tx(async t => {
+      //seems this code will run async to rest of code in this method.
+      let results = await t.one(
+        "SELECT * FROM decks WHERE deck_id = (SELECT MIN(deck_id) FROM decks WHERE room_id = $1)",
+        roomId
+      );
+
+      //console.log("HAHAHAHAHAHAH");
+
+      let deckId = results["deck_id"];
+      let cardId = results["card_id"];
+
+      await t.none("INSERT INTO discards(room_id,card_id) VALUES($1, $2)", [
+        roomId,
+        cardId
+      ]);
+
+      return await t.result("DELETE FROM decks WHERE deck_id = $1", deckId);
+      //have to return a value
+    })
+    .catch(error => {
+      console.log("Error in deckToDiscard " + error);
+    });
 }
 
 //TODO above methods involves communication with client and database
@@ -515,8 +561,10 @@ function deadWoodCalculator(theHand) {
 }
 
 
+
 //todo MAY need another copy to deal with layoffs.... though possible not, just need to pass in player A's deadwood and player B's runs
 function deadWoodToRuns(changedHand, runsTemp) {
+
 
   let currentRuns = sortArray(runsTemp, function(a, b) {
     return a - b;
@@ -1048,5 +1096,7 @@ module.exports = {
   drawFromDiscard,
   removeCard,
   getMeldData,
-  getHand
+  getHand,
+  deckToDiscard,
+  getTopDiscard
 };
