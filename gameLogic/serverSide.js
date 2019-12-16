@@ -1,15 +1,7 @@
 const db = require("../routes/db/connection");
 const sortArray = require("array-sort"); //needed so can sort array in generateRandomDeck.
 
-/*
-var sets = []; //exist here so other player can get them after meld creation during scoring
-var runs = []; //exist here so other player can get them after meld creation during scoring
-var deadwoodList = []; //exist here so other player can get them after meld creation during scoring
-var smallestDeadwoodValue = 7331; //exist here so other player can get them after meld creation during scoring
-// ALSO exist for meld recursion
-var deadWoodCardCount = 1337; //exist here so other player can get them after meld creation during scoring
-// ALSO exist for meld recursion
- */
+
 
 async function getHand(playerId, roomId) {
   /*
@@ -38,24 +30,53 @@ async function getHand(playerId, roomId) {
   return holder;
 }
 
-async function getTopDiscard(roomId) {
-  let cardId;
+async function getTopDiscard(roomId){
+  let cardId
 
   await db
-    .tx(async t => {
-      //seems this code will run async to rest of code in this method.
-      let results = await t.one(
-        "SELECT * FROM discards WHERE discard_id = (SELECT MAX(discard_id) FROM discards WHERE room_id = $1)",
-        roomId
-      );
-      cardId = results["card_id"];
-    })
-    .catch(error => {
-      console.log("Error in drawFromDiscard " + error);
-    });
+      .tx(async t => {
+        //seems this code will run async to rest of code in this method.
+        let results = await t.one(
+            "SELECT * FROM discards WHERE discard_id = (SELECT MAX(discard_id) FROM discards WHERE room_id = $1)",
+            roomId
+        );
+        cardId = results["card_id"];
+
+      })
+      .catch(error => {
+        console.log("Error in drawFromDiscard " + error);
+      });
+
 
   return cardId;
 }
+
+
+async function checkDiscard(roomId){
+  let cardId
+
+  await db
+      .tx(async t => {
+        //seems this code will run async to rest of code in this method.
+        let results = await t.one(
+            "SELECT * FROM discards WHERE discard_id = (SELECT MAX(discard_id) FROM discards WHERE room_id = $1)",
+            roomId
+        );
+        cardId = results["card_id"];
+
+      })
+      .catch(error => {
+        console.log("Error in drawFromDiscard " + error);
+      });
+
+  if(cardId != undefined){
+    return true;
+  }
+
+  return false;
+}
+
+//todo PROBABLY when you return melds, you also return whether player can knock,gin,big big.
 
 async function getMeldData(playerId, roomId) {
   let playerHand = await getHand(playerId, roomId);
@@ -246,34 +267,69 @@ async function deal10Cards(playerId, roomId) {
   //todo NEED TO SORT HOLDER before return it, doing that later.
 }
 
-async function deckToDiscard(roomId) {
+
+async function deckToDiscard(roomId){
   await db
-    .tx(async t => {
-      //seems this code will run async to rest of code in this method.
-      let results = await t.one(
-        "SELECT * FROM decks WHERE deck_id = (SELECT MIN(deck_id) FROM decks WHERE room_id = $1)",
-        roomId
-      );
+      .tx(async t => {
+        //seems this code will run async to rest of code in this method.
+        let results = await t.one(
+            "SELECT * FROM decks WHERE deck_id = (SELECT MIN(deck_id) FROM decks WHERE room_id = $1)",
+            roomId
+        );
 
-      //console.log("HAHAHAHAHAHAH");
+        //console.log("HAHAHAHAHAHAH");
 
-      let deckId = results["deck_id"];
-      let cardId = results["card_id"];
+        let deckId = results["deck_id"];
+        let cardId = results["card_id"];
 
-      await t.none("INSERT INTO discards(room_id,card_id) VALUES($1, $2)", [
-        roomId,
-        cardId
-      ]);
+        await t.none("INSERT INTO discards(room_id,card_id) VALUES($1, $2)", [
+          roomId,
+          cardId
+        ]);
 
-      return await t.result("DELETE FROM decks WHERE deck_id = $1", deckId);
-      //have to return a value
-    })
-    .catch(error => {
-      console.log("Error in deckToDiscard " + error);
-    });
+        return await t.result("DELETE FROM decks WHERE deck_id = $1", deckId);
+        //have to return a value
+      })
+      .catch(error => {
+        console.log("Error in deckToDiscard " + error);
+      });
 }
 
+
+
+//todo note, acitonPerformed will be value 1-3. 1 is knock, 2 is gin, 3 is big gin.
+//  will also send back score, not going to implemnt displaying new runs
+function doLayOffsAndScore(player1Id,player2Id,buttonPresserId,roomId,actionPerformed){
+    
+}
+
+
+
+
 //TODO above methods involves communication with client and database
+
+//todo PROBABLY when you return melds, you also return whether player can knock,gin,big big.
+
+//todo not going to make this function involve database things, will have a seperate function which calls this one.
+// was tired and made it super jank.  knocker, ginner, superGin will be boolean
+//   WILL need to calculate score before method call and also pass in what action was taken.
+//    also need to do layoffs before this method call.
+
+//for determining the score based on action and the deadwood value between the two players.
+function scoring(totalDeadwood, knocker, ginner, superGin, undercut){
+
+  if(knocker){
+    if(undercut){
+      return 25 + totalDeadwood;
+    }
+    return totalDeadwood
+  }else if(ginner){
+    return 25 + totalDeadwood;
+  }else if(superGin){
+    return  31 + totalDeadwood;
+  }
+}
+
 
 function sorted(listToSort) {
   /* //code that won't work in node.js
@@ -462,6 +518,8 @@ function formMelds(theHand) {
   }
 
   //todo didn't include players current hand since that should be done somewhere else I feel, like in game.js
+
+  //todo  ALSO CHECK if player can knock, gin, big gin and return values to client.
   let meldData = {
     runs: runs,
     sets: sets,
