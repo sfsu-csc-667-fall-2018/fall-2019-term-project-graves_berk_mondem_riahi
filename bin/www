@@ -26,14 +26,14 @@ const server = http.createServer(app);
 //this just makes the io object and sets all the socket stuff up
 require("../sockets/Socket")(server);
 
-models.sequelize.sync().then(function() {
+//models.sequelize.sync().then(function() {
   /**
    * Listen on provided port, on all network interfaces.
    */
   server.listen(port);
   server.on("error", onError);
   server.on("listening", onListening);
-});
+//});
 
 /**
  * Normalize a port into a number, string, or false.

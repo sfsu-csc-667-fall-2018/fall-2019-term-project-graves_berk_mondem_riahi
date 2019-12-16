@@ -16,6 +16,11 @@ module.exports = {
       //   allowNull: false,
       //   type: Sequelize.INTEGER
       // }
+      points: {
+        allowNull: false,
+        type: Sequelize.INTEGER,
+        defaultValue: 0
+      }
     });
   },
   down: (queryInterface, Sequelize) => {
