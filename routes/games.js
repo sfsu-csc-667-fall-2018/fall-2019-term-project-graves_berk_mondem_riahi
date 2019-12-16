@@ -79,6 +79,7 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
               (async function() {
                 somebody = await serverSide.deal10Cards(hostUserId, roomId); //todo NOTE, somebody will contain array of 10 cards
                 console.log("THIS IS HAND " + somebody);
+                //todo change this to call getHand, in order to get players hand.
                 //response.send(somebody);
                 // console.log("games socket room " + userId + roomId);
                 console.log("sending a hand to a host");
@@ -86,6 +87,7 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
 
                 somebody = await serverSide.deal10Cards(guestUserId, roomId); //todo NOTE, somebody will contain array of 10 cards
                 console.log("THIS IS HAND " + somebody);
+                  //todo change this to call getHand, in order to get players hand.
                 //response.send(somebody);
                 // console.log("games socket room " + userId + roomId);
                 console.log("sending a hand to a guest");

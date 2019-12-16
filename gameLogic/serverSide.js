@@ -39,19 +39,17 @@ async function getHand(playerId, roomId) {
 }
 
 async function getMeldData(playerId, roomId) {
-  let playerHand = await getHand(playerId, roomId); //todo DOH, so for async functions, I need to put await otherwise if you call it
-  // code after call will continue to run. So also have to make getMeldData async.
+  let playerHand = await getHand(playerId, roomId);
   ///console.log("IN getMeldData  " + playerHand);
-  //todo the slice problem lies in that playerHand isn't an array, its an object promise.....
+
   let meldData = formMelds(playerHand);
   ///console.log("we finished calculating melds");
   return meldData; //not returning playerHand in this method, need to call getHand for that.
 }
 
+//todo NOTE, updated this so doesn't return hand anymore.
 async function drawFromDeck(playerId, roomId) {
-  //todo would also need to grab all cards in playersHand, sort them and return them to client
-
-  let holder = [];
+  //let holder = [];
   //todo NEED THIS await before db.tx OTHERWISE this function will return before database stuff is done WHICH
   //   don't want SINCE OTHERWISE would need to setup more async calls to have grabbing hand data from dbd wait
   //    until this database stuff is done (unsure if would be easy or hard but didn't want to do that right now.
@@ -79,6 +77,7 @@ async function drawFromDeck(playerId, roomId) {
       console.log("Error in drawFromDeck " + error);
     });
 
+  /*
   //Now need to grab all cards in playersHand
   //todo probably a more elegant way but couldn't find it.
   await db
@@ -92,19 +91,18 @@ async function drawFromDeck(playerId, roomId) {
       }
     });
 
-  //todo STILL NEED TO SORT IT
-
-  return holder;
+   */
+  //return holder;
 }
 
 //todo NEED TO THINK where in code will retrieve top discard when want to display it, not draw it.
 //   don't think should do it here since this is for grabbing top discard and putting it in players hands.
 //    though maybe in game.js when in router for draw from discard, could also call method to
 //    get top discard after drawing so can display it for both players maybe???
-async function drawFromDiscard(playerId, roomId) {
-  //todo would also need to grab all cards in playersHand, sort them and return them to client
 
-  let holder = [];
+//todo NOTE, updated this so doesn't return hand anymore.
+async function drawFromDiscard(playerId, roomId) {
+  //let holder = [];
 
   await db
     .tx(async t => {
@@ -130,6 +128,7 @@ async function drawFromDiscard(playerId, roomId) {
       console.log("Error in drawFromDiscard " + error);
     });
 
+  /*
   //Now need to grab all cards in playersHand
   //todo probably a more elegant way but couldn't find it.
   await db
@@ -142,17 +141,15 @@ async function drawFromDiscard(playerId, roomId) {
         holder.push(results[index]["card_id"]);
       }
     });
-
-  //todo STILL NEED TO SORT IT
   return holder;
+
+   */
 }
 
+//todo NOTE, updated this so doesn't return hand anymore.
 async function removeCard(playerId, roomId, cardId) {
-  //will do some database work to get game Id from playerId and remove cardId
-  // from hand table and move it to discard table
-  //todo would also need to grab all cards in playersHand, sort them and return them to client
 
-  let holder = [];
+  //let holder = [];
 
   await db
     .tx(async t => {
@@ -171,6 +168,7 @@ async function removeCard(playerId, roomId, cardId) {
       console.log("Error in removeCard " + error);
     });
 
+  /*
   //Now need to grab all cards in playersHand
   //todo probably a more elegant way but couldn't find it.
   await db
@@ -185,6 +183,8 @@ async function removeCard(playerId, roomId, cardId) {
     });
 
   return holder;
+
+   */
 }
 
 async function deal10Cards(playerId, roomId) {
@@ -248,7 +248,7 @@ function sorted(listToSort) {
       return (a % 13) - (b % 13);
     }
   });
-  //todo 12-12  will need to return new array. Also have to create a new array variable to return.--------------------------
+
   return newlySorted;
 }
 
