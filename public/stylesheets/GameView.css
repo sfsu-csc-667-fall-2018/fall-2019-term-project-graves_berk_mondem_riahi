@@ -70,7 +70,7 @@ div #menucontainer {
 }
 
 body {
-  background-color: #181a1b;
+  background-color: #2a2d2f;
   font-family: Arial, sans-serif;
   color: #333;
   padding-bottom: 5px;
@@ -84,7 +84,6 @@ body {
 #left-column {
   float: left;
   width: 160px;
-  border: solid 3px black;
   margin-right: 75px;
   margin-top: 117px;
 }
@@ -98,7 +97,7 @@ body {
 }
 
 #board {
-  background-color: #2a2d2f;
+  background-color: #1a1d1f;
   border: solid 3px#fff;
   border-radius: 30px;
   color: #fff;
@@ -198,11 +197,6 @@ body {
 }
 
 #inline-score-wrapper {
-  bottom: 24px;
-  right: 5px;
-  width: auto;
-}
-#inline-score-wrapper {
   box-sizing: border-box;
   position: absolute;
   right: 0;
@@ -246,7 +240,7 @@ body {
 }
 
 #inline-score-wrapper {
-  bottom: 24px;
+  bottom: 10px;
   right: 5px;
   width: auto;
 }
@@ -363,4 +357,9 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
+}
+
+img {
+  max-width: 100%;
+  max-height: 100%;
 }

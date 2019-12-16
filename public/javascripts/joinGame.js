@@ -1,6 +1,6 @@
 let url = window.location.href;
 const roomId = url.substring(url.lastIndexOf("/") + 1, url.length);
-
+let guestOrHost = "";
 let socket = io();
 
 // console.log("/" + roomId);
@@ -8,24 +8,37 @@ let socket = io();
 // socket = io("/" + roomId);
 //have this socket join this room
 
+fetch("/games/" + roomId + "/getGuest").then(response => {
+  response.json().then(response => {
+    // console.log(response["guestOrHost"]);
+    // guestOrHost = response["guestOrHost"];
+
+    //console.log(response);
+    //socket.emit("guestJoin", { userId: response["userId"], roomId: roomId });
+    $(".guestName").append($("<li>").text(response["username"]));
+  });
+});
+
 //get the hosts name
 fetch("/games/" + roomId + "/getHost").then(response => {
   instantiateSocket();
   response.json().then(response => {
     //connect the socket to the rooms namespace
-    socket.emit("hostTest", "asd");
-    console.log(response["userId"] + roomId);
+    //socket.emit("hostTest", "asd");
+    // console.log(response["userId"] + roomId);
 
-    socket.emit("hostJoin", { userId: response["userId"], roomId: roomId });
+    console.log(response["guestOrHost"]);
+    guestOrHost = response["guestOrHost"];
+
+    if (guestOrHost == "host") {
+      console.log("trying to join host socket room");
+      socket.emit("hostJoin", { userId: response["userId"], roomId: roomId });
+    } else if (guestOrHost == "guest") {
+      console.log("trying to join guest socket room");
+      socket.emit("guestJoin", { userId: response["userId"], roomId: roomId });
+    }
 
     $(".hostName").append($("<li>").text(response["username"]));
-  });
-});
-
-fetch("/games/" + roomId + "/getGuest").then(response => {
-  response.json().then(response => {
-    //console.log(response);
-    $(".guestName").append($("<li>").text(response["username"]));
   });
 });
 
@@ -45,6 +58,7 @@ fetch("/games/" + roomId + "/getGuest").then(response => {
 // );
 
 $("#dealButton").click(function() {
+  console.log("ass");
   $.post(roomId + "/deal", function(res) {});
 });
 
@@ -53,8 +67,17 @@ function instantiateSocket() {
 
   socket.on("deal", hand => {
     for (let i = 0; i < hand.length; i++) {
+      //see if we can get this to show up in html
+
       console.log(cardIdentify(hand[i]));
+
+      $("#cardUser" + i).append(
+        $("<img src ='/cards/" + hand[i] + ".jpg'></img>")
+      );
+      $("#cardOpponent" + i).append($("<img src ='/cards/back.jpg'></img>"));
     }
+
+    // $("#cardHost1").append($("<img src ='/cards/0.jpg'></img>"));
     $("#deal").remove();
     $("#messageBox").remove();
   });
@@ -62,9 +85,14 @@ function instantiateSocket() {
   socket.on("hostTest", function() {
     console.log("recieved the host test");
   });
+
+  //something here for drawing maybe
+  // socket.on('displayCard',card)
 }
 
 //this is how the server knows to do some card bullshit now
 function dealCards() {
   // socket.emit("deal", roomId);
 }
+
+//testing img name for card id
