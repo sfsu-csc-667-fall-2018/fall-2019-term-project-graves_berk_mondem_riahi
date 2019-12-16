@@ -1,15 +1,9 @@
 const db = require("../routes/db/connection");
 const sortArray = require("array-sort"); //needed so can sort array in generateRandomDeck.
 
-
+////////////
 
 async function getHand(playerId, roomId) {
-  /*
-    let theHand = sortArray(thePlayerHand, function (a, b) {
-        return a - b;
-    });
-
-    */
   let holder = [];
 
   await db
@@ -23,8 +17,7 @@ async function getHand(playerId, roomId) {
       }
     });
 
-  //don't need to sort the hand for method call but due need it sorted to return it to client.
-  console.log("111 IN getHand  " + holder);
+  //console.log("111 IN getHand  " + holder);
   holder = sorted(holder);
   ///console.log("222 IN getHand  " + holder);
   return holder;
@@ -87,15 +80,9 @@ async function getMeldData(playerId, roomId) {
   return meldData; //not returning playerHand in this method, need to call getHand for that.
 }
 
-//todo NOTE, updated this so doesn't return hand anymore.
-async function drawFromDeck(playerId, roomId) {
-  //let holder = [];
-  //todo NEED THIS await before db.tx OTHERWISE this function will return before database stuff is done WHICH
-  //   don't want SINCE OTHERWISE would need to setup more async calls to have grabbing hand data from dbd wait
-  //    until this database stuff is done (unsure if would be easy or hard but didn't want to do that right now.
 
-  //   todo  await essentially seems to pause code INSIDE async function, rest of code continues to run
-  //         so if don't want function to return until have this done, need await.
+async function drawFromDeck(playerId, roomId) {
+
   await db
     .tx(async t => {
       //seems this code will run async to rest of code in this method.
@@ -117,32 +104,10 @@ async function drawFromDeck(playerId, roomId) {
       console.log("Error in drawFromDeck " + error);
     });
 
-  /*
-  //Now need to grab all cards in playersHand
-  //todo probably a more elegant way but couldn't find it.
-  await db
-    .any(
-      "SELECT card_id FROM handcards WHERE player_id = $1 AND room_id = $2",
-      [playerId, roomId]
-    )
-    .then(results => {
-      for (let index = 0; index < results.length; index++) {
-        holder.push(results[index]["card_id"]);
-      }
-    });
-
-   */
-  //return holder;
 }
 
-//todo NEED TO THINK where in code will retrieve top discard when want to display it, not draw it.
-//   don't think should do it here since this is for grabbing top discard and putting it in players hands.
-//    though maybe in game.js when in router for draw from discard, could also call method to
-//    get top discard after drawing so can display it for both players maybe???
 
-//todo NOTE, updated this so doesn't return hand anymore.
 async function drawFromDiscard(playerId, roomId) {
-  //let holder = [];
 
   await db
     .tx(async t => {
@@ -167,29 +132,9 @@ async function drawFromDiscard(playerId, roomId) {
     .catch(error => {
       console.log("Error in drawFromDiscard " + error);
     });
-
-  /*
-  //Now need to grab all cards in playersHand
-  //todo probably a more elegant way but couldn't find it.
-  await db
-    .any(
-      "SELECT card_id FROM handcards WHERE player_id = $1 AND room_id = $2",
-      [playerId, roomId]
-    )
-    .then(results => {
-      for (let index = 0; index < results.length; index++) {
-        holder.push(results[index]["card_id"]);
-      }
-    });
-  return holder;
-
-   */
 }
 
-//todo NOTE, updated this so doesn't return hand anymore.
 async function removeCard(playerId, roomId, cardId) {
-
-  //let holder = [];
 
   await db
     .tx(async t => {
@@ -208,34 +153,11 @@ async function removeCard(playerId, roomId, cardId) {
       console.log("Error in removeCard " + error);
     });
 
-  /*
-  //Now need to grab all cards in playersHand
-  //todo probably a more elegant way but couldn't find it.
-  await db
-    .any(
-      "SELECT card_id FROM handcards WHERE player_id = $1 AND room_id = $2",
-      [playerId, roomId]
-    )
-    .then(results => {
-      for (let index = 0; index < results.length; index++) {
-        holder.push(results[index]["card_id"]);
-      }
-    });
-
-  return holder;
-
-   */
 }
 
 async function deal10Cards(playerId, roomId) {
   let holder = [];
-  //console.log("fnny");
-  //todo NEED THIS await before db.tx OTHERWISE this function will return before database stuff is done WHICH
-  //   don't want SINCE OTHERWISE would need to setup more async calls to have grabbing hand data from dbd wait
-  //    until this database stuff is done (unsure if would be easy or hard but didn't want to do that right now.
 
-  //   todo  await essentially seems to pause code INSIDE async function, rest of code continues to run
-  //         so if don't want function to return until have this done, need await.
   for (let index = 0; index < 10; index++) {
     await db
       .tx(async t => {
@@ -245,7 +167,6 @@ async function deal10Cards(playerId, roomId) {
           roomId
         );
 
-        //console.log("HAHAHAHAHAHAH");
 
         let deckId = results["deck_id"];
         let cardId = results["card_id"];
@@ -263,8 +184,9 @@ async function deal10Cards(playerId, roomId) {
       });
   }
 
+  holder = sorted(holder);
   return holder;
-  //todo NEED TO SORT HOLDER before return it, doing that later.
+
 }
 
 
@@ -276,8 +198,6 @@ async function deckToDiscard(roomId){
             "SELECT * FROM decks WHERE deck_id = (SELECT MIN(deck_id) FROM decks WHERE room_id = $1)",
             roomId
         );
-
-        //console.log("HAHAHAHAHAHAH");
 
         let deckId = results["deck_id"];
         let cardId = results["card_id"];
@@ -332,16 +252,7 @@ function scoring(totalDeadwood, knocker, ginner, superGin, undercut){
 
 
 function sorted(listToSort) {
-  /* //code that won't work in node.js
-      listToSort.sort(function (a, b) {
-          if ((a % 13) - (b % 13) === 0) {//same face value but different suite  //todo check on since wanted ===
-              return a - b;
-          } else {
-              return (a % 13) - (b % 13);
-          }
-      });
 
-       */
   let newlySorted = sortArray(listToSort, function(a, b) {
     if ((a % 13) - (b % 13) === 0) {
       //same face value but different suite  //todo check on since wanted ===
@@ -397,11 +308,9 @@ function formMelds(theHand) {
       return;
     }
 
-    //sorted(tempHand);// todo 12-12  will need to re-assign tempHands. no worries since due to what i due at start of method, don't care about modifying
-    // todo   PREVIOUS VALUE. so its good to just re--assigned tempHand ---------------
     tempHand = sorted(tempHand);
 
-    //Have to search for conflcit card. Going from right to left (higher value to lower)
+    //Have to search for conflict card. Going from right to left (higher value to lower)
     for (let index = tempHand.length - 1; index > -1; index--) {
       let cardValue = tempHand[index];
       if (ignoreCards.includes(cardValue)) {
@@ -418,7 +327,6 @@ function formMelds(theHand) {
       updateMeldsCheck(tempHand, tempRuns, tempSets);
       return;
     }
-    //todo NOTE decided to create blocks for each action so unneeded data isn't forced to be around, thus taking up memory
 
     {
       let handForDoBySet = tempHand.slice(0);
@@ -466,8 +374,6 @@ function formMelds(theHand) {
   }
 
   function updateMeldsCheck(tempHand, tempRuns, tempSets) {
-    // todo  12-12 create a new variable like do in meldRecursion, based on where this function is used
-    //   no reason to modify original values since they are discarded after this function call
     let updatedTempRuns = deadWoodToRuns(tempHand, tempRuns);
     //  it will have new values in it. Don't need it for sets since can modify array that was passed in.
     deadWoodToSets(tempHand, tempSets); //don't sort in here
@@ -477,17 +383,10 @@ function formMelds(theHand) {
       let sortedTempRuns = sortArray(updatedTempRuns, function(a, b) {
         return a - b;
       });
-      /*
-                tempRuns.sort(function (a, b) {
-                    return a - b
-                });//todo 12-12  must update tempRuns with new array sorting approach due to node.js being the way it is.-------------------------
 
-                 */
       tempSets = sorted(tempSets);
       tempHand = sorted(tempHand);
-      //alert("HERE WE ARE");
-      ////alert(sortedTempRuns);
-      ////alert(tempSets);
+
       runs = runsTo2D(sortedTempRuns).slice(0);
       sets = setsTo2D(tempSets).slice(0);
       smallestDeadwoodValue = deadWoodCount;
@@ -501,12 +400,7 @@ function formMelds(theHand) {
       let sortedTempRuns = sortArray(updatedTempRuns, function(a, b) {
         return a - b;
       });
-      /*
-                tempRuns.sort(function (a, b) {
-                    return a - b
-                });//todo 12-12  must update tempRuns with new array sorting approach due to node.js being the way it is.-------------------------
 
-                 */
       tempSets = sorted(tempSets);
       tempHand = sorted(tempHand);
       runs = runsTo2D(sortedTempRuns).slice(0);
@@ -604,7 +498,6 @@ function isInRun(changedHand, cardId) {
   return false;
 }
 
-//todo maybe could be "improved" using javascript reduce
 function deadWoodCalculator(theHand) {
   let counter = 0;
   for (let value of theHand) {
@@ -622,7 +515,6 @@ function deadWoodCalculator(theHand) {
 
 //todo MAY need another copy to deal with layoffs.... though possible not, just need to pass in player A's deadwood and player B's runs
 function deadWoodToRuns(changedHand, runsTemp) {
-
 
   let currentRuns = sortArray(runsTemp, function(a, b) {
     return a - b;
@@ -673,8 +565,8 @@ function deadWoodToRuns(changedHand, runsTemp) {
       ) {
         //checks if card that fits left side of current run is in changedHand.
         let foundCard = currentRuns[indexLeftCardOfRun] - 1;
-        currentRuns.splice(indexLeftCardOfRun, 0, foundCard); //TODO MAKE SURE THIS WORKS
-        changedHand.splice(changedHand.indexOf(foundCard), 1); //TODO CHECK IF THIS WORKS
+        currentRuns.splice(indexLeftCardOfRun, 0, foundCard);
+        changedHand.splice(changedHand.indexOf(foundCard), 1);
         //leftCardOfRun would remain the value it started as since a new card is being put in that spot.
         //we do however need to update indexRightCardOfRun
         indexRightCardOfRun++;
@@ -702,7 +594,7 @@ function deadWoodToRuns(changedHand, runsTemp) {
         } else {
           currentRuns.splice(indexRightCardOfRun + 1, 0, foundCard);
         }
-        changedHand.splice(changedHand.indexOf(foundCard), 1); //TODO CHECK IF THIS WORKS
+        changedHand.splice(changedHand.indexOf(foundCard), 1);
         indexRightCardOfRun++;
       } else {
         indexLeftCardOfRun = indexRightCardOfRun + 1;
@@ -731,7 +623,7 @@ function deadWoodToSets(changedHand, setsTemp) {
   }
 }
 
-//todo this RELIES ON theArray being sorted in my suite ordering format, or else it won't work. theArray has to be sorted before this method.
+//this RELIES ON theArray being sorted in my suite ordering format, or else it won't work. theArray has to be sorted before this method.
 // When sending clients runs and sets, they will be in form of a 2D array, so need to convert 1D array been using during meld formations to a organized 2D
 function setsTo2D(theArray) {
   let new2DArray = [[]];
@@ -752,7 +644,7 @@ function setsTo2D(theArray) {
   return new2DArray;
 }
 
-//todo this RELIES ON theArray being sorted, or else it won't work. theArray must be sorted before this method.
+//this RELIES ON theArray being sorted, or else it won't work. theArray must be sorted before this method.
 // When sending clients runs and sets, they will be in form of a 2D array, so need to convert 1D array been using during meld formations to a organized 2D
 function runsTo2D(theArray) {
   let new2DArray = [[]];
@@ -841,7 +733,7 @@ function do4Set(changedHand, theSets, cardValue) {
 
   for (let value of holder) {
     theSets.push(value);
-    changedHand.splice(changedHand.indexOf(value), 1); //todo CHECK TO MAKE SURE THIS WORKS.
+    changedHand.splice(changedHand.indexOf(value), 1);
   }
 }
 
@@ -999,7 +891,7 @@ function cleaningSets(changedHand, theSets) {
   for (let value of handForIterating) {
     if (!ignoreCards.includes(value % 13)) {
       theSets.push(value);
-      changedHand.splice(changedHand.indexOf(value), 1); //TODO CHECK TO SEE IF WORKS
+      changedHand.splice(changedHand.indexOf(value), 1);
     }
   }
 }
@@ -1012,17 +904,6 @@ function cleaningSets(changedHand, theSets) {
 function cleaningRuns(changedHand, theRuns) {
   let handForIterating = changedHand.slice(0); //NEED this since can't alter a list your iterating through without consequences
   let ignoreCards = [];
-
-  //todo MAJOR NOTE, just realized, I actually don't need theRuns sorted SINCE  I sort them in deadWoodToRuns and meld recursion check anyway.
-  //     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  /*
-      theRuns.sort(function (a, b) {//todo  12-12  NEED to reconfigure method so return theRuns SINCE don't have an array sort that modifies original array
-          // todo  and you need this sorted for this method BUT you also need to change original array. SO best solution curently is
-          //  to return the outcome of theRuns and replace tempruns with new value.
-          return a - b
-      });//Need list to be ordered 0-51 to most efficiently perform this methods purpose.
-
-       */
 
   for (let value of handForIterating) {
     if (isInRun(changedHand, value) && !isInSet(changedHand, value)) {
