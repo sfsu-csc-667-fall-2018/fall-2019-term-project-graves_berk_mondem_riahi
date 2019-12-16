@@ -1,7 +1,6 @@
 body {
   font-family: "Open Sans", sans-serif;
   background: #3498db;
-  margin: 0 auto 0 auto;
   width: 100%;
   text-align: center;
   margin: 100px 0px 100px 0px;
@@ -24,7 +23,8 @@ h1 {
   border-radius: 6px;
   margin: 0 auto 0 auto;
   padding: 0px 0px 100px 0px;
-  border: #2980b9 4px solid;
+  border: grey 2px solid;
+  box-shadow: 0px 10px 10px 5px grey;
 }
 
 .btn {
@@ -48,18 +48,18 @@ h1 {
 }
 
 #btn2 {
-  float: left;
+  float: right;
   background: #3498db;
   width: 125px;
   padding-top: 5px;
   padding-bottom: 5px;
   color: white;
   border-radius: 4px;
-  border: #2980b9 1px solid;
+  border: grey 1px solid;
 
-  margin-top: 20px;
+  margin-top: 50px;
   margin-bottom: 20px;
-  margin-left: 10px;
+  margin-right: 10px;
   font-weight: 800;
   font-size: 0.8em;
 }

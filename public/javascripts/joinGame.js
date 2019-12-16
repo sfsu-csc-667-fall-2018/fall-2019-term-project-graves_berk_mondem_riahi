@@ -2,11 +2,30 @@ let url = window.location.href;
 const roomId = url.substring(url.lastIndexOf("/") + 1, url.length);
 let guestOrHost = "";
 let socket = io();
+let hand = [];
 
 // console.log("/" + roomId);
 
 // socket = io("/" + roomId);
 //have this socket join this room
+
+fetch("/games/" + roomId + "/getHand").then(response => {
+  response.json().then(response => {
+    console.log("got this from the hand");
+    console.log(response);
+    hand = response;
+    if (hand.length > 0) {
+      $("#deal").remove();
+    }
+
+    for (let i = 0; i < hand.length; i++) {
+      $("#cardUser" + i).append(
+        $("<img src ='/cards/" + hand[i] + ".jpg'></img>")
+      );
+      $("#cardOpponent" + i).append($("<img src ='/cards/back.jpg'></img>"));
+    }
+  });
+});
 
 fetch("/games/" + roomId + "/getGuest").then(response => {
   response.json().then(response => {
@@ -41,21 +60,6 @@ fetch("/games/" + roomId + "/getHost").then(response => {
     $(".hostName").append($("<li>").text(response["username"]));
   });
 });
-
-// fetch("/games/" + roomId + "/deal").then(response => {
-//   response.json().then(response => {
-//     console.log(response);
-//   });
-// });
-
-//creates the deal button
-// $("#deal").append(
-//   $(
-//     " <form action = '" +
-//       roomId +
-//       "/deal ' method ='POST'> <button type = 'submit' onclick = 'dealCards()'> deal </button> </form> "
-//   )
-// );
 
 $("#dealButton").click(function() {
   console.log("ass");
