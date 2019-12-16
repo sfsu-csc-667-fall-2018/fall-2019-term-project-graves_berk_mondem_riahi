@@ -55,53 +55,55 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
     .then(results => {
       let guestId = results["guest_id"];
       let hostId = results["host_id"];
+
+      let guestUserId = "";
+      let hostUserId = "";
       //deal to the guest
       db.one("SELECT * FROM players WHERE player_id = $1 AND room_id = $2", [
         guestId,
         roomId
       ])
         .then(results => {
-          let guestUserId = results["user_id"];
-          let somebody;
+          guestUserId = results["user_id"];
+        })
+        .then(_ => {
+          db.one(
+            "SELECT * FROM players WHERE player_id = $1 AND room_id = $2",
+            [hostId, roomId]
+          )
+            .then(results => {
+              hostUserId = results["user_id"];
 
-          (async function() {
-            somebody = await serverSide.deal10Cards(guestUserId, roomId); //todo NOTE, somebody will contain array of 10 cards
-            // console.log("THIS IS HAND " + somebody);
-            //response.send(somebody);
-            // console.log("games socket room " + userId + roomId);
+              let somebody;
 
-            io.to(guestUserId + roomId).emit("deal", somebody);
-            //response.json(somebody);
-            //cool this works
-          })();
+              (async function() {
+                somebody = await serverSide.deal10Cards(hostUserId, roomId); //todo NOTE, somebody will contain array of 10 cards
+                console.log("THIS IS HAND " + somebody);
+                //response.send(somebody);
+                // console.log("games socket room " + userId + roomId);
+                console.log("sending a hand to a host");
+                io.to(hostUserId + roomId).emit("deal", somebody);
+
+                somebody = await serverSide.deal10Cards(hostUserId, roomId); //todo NOTE, somebody will contain array of 10 cards
+                console.log("THIS IS HAND " + somebody);
+                //response.send(somebody);
+                // console.log("games socket room " + userId + roomId);
+                console.log("sending a hand to a guest");
+                io.to(guestUserId + roomId).emit("deal", somebody);
+
+                //response.json(somebody);
+                //cool this works
+              })();
+            })
+            .catch(error => {
+              console.log(error);
+            });
         })
         .catch(error => {
           console.log(error);
         });
 
       //deal to the host
-      db.one("SELECT * FROM players WHERE player_id = $1 AND room_id = $2", [
-        hostId,
-        roomId
-      ])
-        .then(results => {
-          let hostUserId = results["user_id"];
-          let somebody;
-
-          (async function() {
-            somebody = await serverSide.deal10Cards(hostUserId, roomId); //todo NOTE, somebody will contain array of 10 cards
-            // console.log("THIS IS HAND " + somebody);
-            //response.send(somebody);
-            // console.log("games socket room " + userId + roomId);
-
-            io.to(hostUserId + roomId).emit("deal", somebody);
-            //response.json(somebody);
-            //cool this works
-          })();
-        })
-        .catch(error => {
-          console.log(error);
-        });
     })
     .catch(error => {
       console.log(error);

@@ -57,7 +57,6 @@ fetch("/games/" + roomId + "/getHost").then(response => {
 $("#dealButton").click(function() {
   console.log("ass");
   $.post(roomId + "/deal", function(res) {});
-  $.post(roomId + "/deal", function(res) {});
 });
 
 function instantiateSocket() {
@@ -66,6 +65,7 @@ function instantiateSocket() {
   socket.on("deal", hand => {
     for (let i = 0; i < hand.length; i++) {
       //see if we can get this to show up in html
+
       console.log(cardIdentify(hand[i]));
 
       $("#cardUser" + i).append(
