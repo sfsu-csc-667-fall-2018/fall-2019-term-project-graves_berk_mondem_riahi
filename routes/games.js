@@ -120,7 +120,7 @@ router.post("/:id/gin", isLoggedIn, function(request, response) {
 
       console.log(playerIdOfButtonPusherPerson);
 
-      io.to(roomId).emit("updateScores", 10);
+      // io.to(roomId).emit("updateScores", 10);
     });
   });
   response.json("");
@@ -249,20 +249,18 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
               let somebody;
 
               (async function() {
-                somebody = await serverSide.deal10Cards(hostId, roomId); //todo NOTE, somebody will contain array of 10 cards
-                // console.log("THIS IS HAND " + somebody);
+                await serverSide.deal10Cards(hostId, roomId); //todo NOTE, somebody will contain array of 10 cards
 
-                //response.send(somebody);
-                // console.log("games socket room " + userId + roomId);
-                // console.log("sending a hand to a host");
-                io.to(hostUserId + roomId).emit("deal", somebody);
+                let hostHand = await serverSide.getHand(hostId, roomId);
+                io.to(hostUserId + roomId).emit("deal", hostHand);
 
-                somebody = await serverSide.deal10Cards(guestId, roomId); //todo NOTE, somebody will contain array of 10 cards
+                await serverSide.deal10Cards(guestId, roomId); //todo NOTE, somebody will contain array of 10 cards
                 // console.log("THIS IS HAND " + somebody);
                 //response.send(somebody);
                 // console.log("games socket room " + userId + roomId);
                 // console.log("sending a hand to a guest");
-                io.to(guestUserId + roomId).emit("deal", somebody);
+                let guestHand = await serverSide.getHand(guestId, roomId);
+                io.to(guestUserId + roomId).emit("deal", guestHand);
 
                 //after the cards are drawn discard one
                 await serverSide.deckToDiscard(roomId);
