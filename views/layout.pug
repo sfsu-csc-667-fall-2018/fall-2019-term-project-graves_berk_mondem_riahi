@@ -19,12 +19,18 @@ html(lang='en')
     link(rel='stylesheet', href='/stylesheets/style.css')
   body
 
-    nav.navbar.navbar-inverse.navbar-fixed-top
-      .container
-        .navbar-header
-          a.navbar-brand(href='/') Home
-        .navbar-header
-          a.navbar-brand(href='/lobby')   Lobby
+    #menucontainer.col
+      nav.navbar.navbar-inverse.navbar-fixed-top
+        #menu
+          ul#menulist
+            li
+              a.navbar-brand(href='/') Home
+            li
+              a.navbar-brand(href='/lobby')   Lobby
+            li
+              a.navbar-brand(href='/register') Sign Up
+            li
+              a.navbar-brand(href='/login') Sign In
 
     .container
       block content
