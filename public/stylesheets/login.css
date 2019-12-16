@@ -1,0 +1,82 @@
+body {
+  font-family: "Open Sans", sans-serif;
+  background-color: #2a2d2f;
+  width: 100%;
+  text-align: center;
+  margin: 100px 0px 100px 0px;
+}
+
+p {
+  font-size: 12px;
+  text-decoration: none;
+  color: #ffffff;
+}
+
+h1 {
+  font-size: 1.5em;
+  color: #525252;
+}
+
+.box {
+  background: white;
+  width: 300px;
+  border-radius: 6px;
+  margin: 0 auto 0 auto;
+  padding: 0px 0px 100px 0px;
+  border: grey 2px solid;
+  box-shadow: 0px 10px 10px 5px grey;
+}
+
+.btn {
+  background: #065828;
+  width: 125px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  color: white;
+  border-radius: 4px;
+  border: #27ae60 1px solid;
+  margin-top: 50px;
+  margin-bottom: 20px;
+  float: left;
+  margin-left: 25%;
+
+  font-weight: 800;
+  font-size: 0.8em;
+}
+
+.btn:hover {
+  background: #076e32;
+}
+
+#btn2 {
+  float: right;
+  background: #3498db;
+  width: 125px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  color: white;
+  border-radius: 4px;
+  border: grey 1px solid;
+
+  margin-top: 50px;
+  margin-bottom: 20px;
+  margin-right: 10px;
+  font-weight: 800;
+  font-size: 0.8em;
+}
+
+#btn2:hover {
+  background: #3594d2;
+}
+
+.form-group1 {
+  position: relative;
+  bottom: 5px;
+  vertical-align: middle;
+}
+
+.form-group2 {
+  position: relative;
+  top: 10px;
+  vertical-align: middle;
+}

@@ -11,28 +11,33 @@ module.exports = function(server) {
   io.on("connection", socket => {
     //initialize the page with messages from chat
 
-    //this should only be run if the room is the lobby
-    //todo: figure out a way to get this in the route
-
     console.log("connected");
-    let newRoom;
-
-    testNs = io.of("/-671352827");
-    testNs.on("connection", socket => {
-      console.log("test ns");
-    });
 
     //create a new namespace for a new room when someone creates the room
-    socket.on("createRoom", roomId => {
-      console.log("creating new namespace " + roomId);
-      newRoom = io.of("/" + roomId);
-      newRoom.emit("test", "hello");
-
-      newRoom.on("connection", socket => {
-        console.log("someone connected to new room");
+    socket.on("joinRoom", roomId => {
+      socket.join(roomId, function() {
+        console.log("user joined socket for room " + roomId);
+        //socket.emit("test", roomId);
       });
     });
 
-    //this needs alot of its responsibilities moved, but it's tricky with how io works
+    socket.on("hostTest", host => {
+      console.log("host test");
+    });
+
+    socket.on("hostJoin", hostInfo => {
+      let hostRoom = hostInfo["userId"] + hostInfo["roomId"];
+      console.log(hostRoom);
+      socket.join(hostRoom, function() {});
+    });
+
+    socket.on("guestJoin", guestInfo => {
+      let guestRoom = guestInfo["userId"] + guestInfo["roomId"];
+      socket.join(guestRoom, function() {});
+    });
+
+    socket.on("displayHands", userAndOpponentHand => {
+      console.log("show em bois");
+    });
   });
 };

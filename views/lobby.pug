@@ -16,9 +16,7 @@ block content
 
   form(name = "createRoomForm" method = 'POST' action = '/lobby/createRoom')
     input(id = "roomName" name = "roomName" autocomplete = "off" maxlength="50" placeholder = "Room Name") 
-    input(id = "roomPassword" name = "roomPassword" autocomplete = "off" maxlength="50" placeholder = "Password")
-    input(id = "roomId" name = "roomId" autocomplete = "off" maxlength="50" placeholder = "Unique Room Id")
-    button Create Room
+    button(name = 'createRoomButton') Create Room
   
 
 
@@ -26,7 +24,7 @@ block content
 
   form(name = "messageForm" method='POST' action='/lobby/chatMessage'  )
     input( id ="message" type = "message" name = "message" autocomplete = "off" maxlength="50")
-    button Send
+    button(name = 'createMessageButton') Send
 
 
 
