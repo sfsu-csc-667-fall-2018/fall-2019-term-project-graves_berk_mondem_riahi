@@ -10,13 +10,17 @@ let hand = [];
 //have this socket join this room
 
 fetch("/games/" + roomId + "/getTopDiscard").then(response => {
-  if (response.length > 0) {
-    response.json().then(response => {
+  // if (response.length > 0) {
+  response
+    .json()
+    .then(response => {
       if (response != undefined) {
       }
+
       $("#discard").append("<img src ='/cards/" + response + ".jpg'></img>");
-    });
-  }
+    })
+    .catch(error => {});
+  // }
 });
 
 fetch("/games/" + roomId + "/getHand").then(response => {
@@ -69,6 +73,18 @@ fetch("/games/" + roomId + "/getHost").then(response => {
 
     $(".hostName").append($("<li>").text(response["username"]));
   });
+});
+
+$("#knock").click(function() {
+  $.post(roomId + "/knock", function(res) {});
+});
+
+$("#gin").click(function() {
+  $.post(roomId + "/gin", function(res) {});
+});
+
+$("#bigGin").click(function() {
+  $.post(roomId + "/bigGin", function(res) {});
 });
 
 $("#dealButton").click(function() {

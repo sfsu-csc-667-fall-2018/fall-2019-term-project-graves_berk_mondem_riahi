@@ -177,11 +177,6 @@ body {
   width: 120px;
 }
 
-#knock {
-  position: absolute;
-  left: -10px;
-}
-
 #sortHand {
   position: relative;
   left: 40px;

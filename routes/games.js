@@ -45,6 +45,78 @@ router.get("/:id", isLoggedIn, function(request, response) {
   //socket shit
 });
 
+router.post("/:id/knock", isLoggedIn, function(request, response) {
+  const roomId = request.params["id"];
+  const userId = request.user.id;
+  let io = request.app.get("io");
+
+  db.one("SELECT * FROM rooms WHERE room_id = $1", [roomId]).then(results => {
+    let hostPlayerId = results["host_id"];
+    let guestPlayerId = results["guest_id"];
+
+    db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
+      userId,
+      roomId
+    ]).then(results => {
+      let playerIdOfButtonPusherPerson = results["player_id"];
+
+      console.log(hostPlayerId);
+
+      console.log(guestPlayerId);
+
+      console.log(playerIdOfButtonPusherPerson);
+    });
+  });
+});
+
+router.post("/:id/bigGin", isLoggedIn, function(request, response) {
+  const roomId = request.params["id"];
+  const userId = request.user.id;
+  let io = request.app.get("io");
+
+  db.one("SELECT * FROM rooms WHERE room_id = $1", [roomId]).then(results => {
+    let hostPlayerId = results["host_id"];
+    let guestPlayerId = results["guest_id"];
+
+    db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
+      userId,
+      roomId
+    ]).then(results => {
+      let playerIdOfButtonPusherPerson = results["player_id"];
+
+      console.log(hostPlayerId);
+
+      console.log(guestPlayerId);
+
+      console.log(playerIdOfButtonPusherPerson);
+    });
+  });
+});
+
+router.post("/:id/gin", isLoggedIn, function(request, response) {
+  const roomId = request.params["id"];
+  const userId = request.user.id;
+  let io = request.app.get("io");
+
+  db.one("SELECT * FROM rooms WHERE room_id = $1", [roomId]).then(results => {
+    let hostPlayerId = results["host_id"];
+    let guestPlayerId = results["guest_id"];
+
+    db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
+      userId,
+      roomId
+    ]).then(results => {
+      let playerIdOfButtonPusherPerson = results["player_id"];
+
+      console.log(hostPlayerId);
+
+      console.log(guestPlayerId);
+
+      console.log(playerIdOfButtonPusherPerson);
+    });
+  });
+});
+
 router.post("/:id/discardFromHand", isLoggedIn, function(request, response) {
   const roomId = request.params["id"];
   const userId = request.user.id;

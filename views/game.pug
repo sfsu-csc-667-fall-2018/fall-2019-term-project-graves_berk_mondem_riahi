@@ -18,6 +18,7 @@ block content
                     label
             #board-and-header
                 #header
+                
      
 
                 #board.board.ginrummy(style='height: 600px;')
@@ -39,25 +40,35 @@ block content
                         #deal
                             #dealButton
                                 button.big Deal
-                   
-                        #pass
-                            button PASS
+
                         #player-buttons(style='display: block;')
-                            button#knock
-                                span#no-knock KNOCK
-                                span#yes-knock(style='display: none;') KNOCK
-                            button#sortHand Sort
+                         
+                  
+                        
+                            //- button#knock
+                            //-     span#no-knock KNOCK
+                            //-     span#yes-knock(style='display: none;') KNOCK
+                            //- button#knock
+                            //-     span#no-knock GIN
+                            //-     span#yes-knock(style='display: none;') GIN
+                            //- button#knock
+                            //-     span#no-knock BIG GIN
+                            //-     span#yes-knock(style='display: none;') BIG GIN
+
+                    
                         #show-scorecard
                             a(href='#show-scorecard') Click here to show the scorecard again
+                            
                        
                         #best-move.hide-restart.show-after-deal(style='top: 532px;')
-                            #melds-container
-                                | Melds:
-                                span.melds
-                            #deadwood-container
-                                | Deadwood:
-                                span.deadwood-count
-                                span.deadwood
+                              
+                            #gin 
+                                button Gin
+                            #bigGin
+                                button Big Gin
+                            #knock
+                                button Knock
+                          
                         #result-box.dialog.results
                             h3 X wins this round with Big Gin
                             .trophy.hide-restart
