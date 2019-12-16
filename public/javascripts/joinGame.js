@@ -102,6 +102,14 @@ function instantiateSocket() {
   socket.on("draw", hand => {
     // console.log("drew a card boi");
     //empty all the children of all card classes for the user
+
+    for (let i = 0; i < 11; i++) {
+      $("#cardUser" + i).empty();
+
+      $("#cardUser" + i).append(
+        $("<img src ='/cards/" + hand[i] + ".jpg'></img>")
+      );
+    }
   });
 
   // socket.on("hostTest", function() {

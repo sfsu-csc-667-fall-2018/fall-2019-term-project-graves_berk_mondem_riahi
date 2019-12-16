@@ -49,15 +49,24 @@ router.post("/:id/draw", isLoggedIn, function(request, response) {
   const roomId = request.params["id"];
   const userId = request.user.id;
   let io = request.app.get("io");
+  let hand = [];
 
-  io.to(userId + roomId).emit("draw");
+  db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
+    userId,
+    roomId
+  ]).then(results => {
+    (async function() {
+      let playerId = results["player_id"];
+      await serverSide.drawFromDeck(playerId, roomId);
 
-  // (async function() {
-  //   await serverSide.drawFromDeck();
-  //   // console.log("get hand says");
-  //   // console.log(hand);
-  //   return response.json(hand);
-  // })();
+      hand = await serverSide.getHand(playerId, roomId);
+      console.log(hand);
+      io.to(userId + roomId).emit("draw", hand);
+      // return response.json(hand);
+    })();
+  });
+
+  // console.log(hand);
 });
 
 router.post("/:id/deal", isLoggedIn, function(request, response) {
