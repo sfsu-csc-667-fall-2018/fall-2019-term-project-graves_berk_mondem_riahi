@@ -366,7 +366,7 @@ function formMelds(theHand) {
   function updateMeldsCheck(tempHand, tempRuns, tempSets) {
     // todo  12-12 create a new variable like do in meldRecursion, based on where this function is used
     //   no reason to modify original values since they are discarded after this function call
-    let updatedTempRuns = deadWoodToRuns(tempHand, tempRuns); //todo 12-12  since we need to sort tempRuns in deadWoodToRuns, need updated tempRuns to be returned since
+    let updatedTempRuns = deadWoodToRuns(tempHand, tempRuns);
     //  it will have new values in it. Don't need it for sets since can modify array that was passed in.
     deadWoodToSets(tempHand, tempSets); //don't sort in here
     let deadWoodCount = deadWoodCalculator(tempHand);
@@ -381,8 +381,8 @@ function formMelds(theHand) {
                 });//todo 12-12  must update tempRuns with new array sorting approach due to node.js being the way it is.-------------------------
 
                  */
-      tempSets = sorted(tempSets); // todo 12-12  update tempSets
-      tempHand = sorted(tempHand); // todo 12-12 update tempHand
+      tempSets = sorted(tempSets);
+      tempHand = sorted(tempHand);
       //alert("HERE WE ARE");
       ////alert(sortedTempRuns);
       ////alert(tempSets);
@@ -514,21 +514,13 @@ function deadWoodCalculator(theHand) {
   return counter;
 }
 
-//todo NOTE: this would be called by getMelds
-//  though feel there is no point to this besides organization
-/*
-function formMelds(theHand) {
-    meldRecursion(theHand.slice(0), [], [], []);
-}
-*/
+
 //todo MAY need another copy to deal with layoffs.... though possible not, just need to pass in player A's deadwood and player B's runs
 function deadWoodToRuns(changedHand, runsTemp) {
-  //sortArray(new Deck().deck,function(a,b){return 0.5 - Math.random()});
 
   let currentRuns = sortArray(runsTemp, function(a, b) {
     return a - b;
-  }); //todo 12-12  need to create a variable based on runsTemp (like did in meldRecursion) and return the edited array
-  //      since can't modify original array using this sort and didn't want to write own sorting function.--------------------
+  });
   let indexLeftCardOfRun = 0;
   let indexRightCardOfRun = -1;
 
@@ -612,9 +604,10 @@ function deadWoodToRuns(changedHand, runsTemp) {
       }
     }
   }
+  return currentRuns;
 }
 
-//don't care for order since it will be sorted later
+//don't care for order since it will be sorted later. So I can modify original array passed in.
 function deadWoodToSets(changedHand, setsTemp) {
   if (setsTemp.length == 0 || changedHand.length == 0) {
     return;
@@ -626,7 +619,7 @@ function deadWoodToSets(changedHand, setsTemp) {
       setsTemp.includes(aCardValue + 13)
     ) {
       setsTemp.push(aCardValue);
-      changedHand.splice(index, 1); //TODO CHECK TO MAKE SURE ITS FINE
+      changedHand.splice(index, 1);
       index--;
     }
   }
@@ -679,144 +672,6 @@ function runsTo2D(theArray) {
   return new2DArray;
 }
 
-/*
-function updateMeldsCheck(tempHand, tempRuns, tempSets) {
-    // todo  12-12 create a new variable like do in meldRecursion, based on where this function is used
-    //   no reason to modify original values since they are discarded after this function call
-    let updatedTempRuns = deadWoodToRuns(tempHand, tempRuns); //todo 12-12  since we need to sort tempRuns in deadWoodToRuns, need updated tempRuns to be returned since
-    //  it will have new values in it. Don't need it for sets since can modify array that was passed in.
-    deadWoodToSets(tempHand, tempSets); //don't sort in here
-    let deadWoodCount = deadWoodCalculator(tempHand);
-    //all remaining cards in tempHand are deadwood.
-    if (deadWoodCount < smallestDeadwoodValue) {
-        let sortedTempRuns = sortArray(updatedTempRuns, function (a, b) {
-            return a - b;
-        });
-
-        tempSets = sorted(tempSets); // todo 12-12  update tempSets
-        tempHand = sorted(tempHand); // todo 12-12 update tempHand
-        //alert("HERE WE ARE");
-        ////alert(sortedTempRuns);
-        ////alert(tempSets);
-        runs = runsTo2D(sortedTempRuns).slice(0);
-        sets = setsTo2D(tempSets).slice(0);
-        smallestDeadwoodValue = deadWoodCount;
-        deadwoodList = tempHand.slice(0);
-        deadWoodCardCount = tempHand.length;
-    } else if (
-        deadWoodCount == smallestDeadwoodValue &&
-        deadWoodCardCount > tempHand.length
-    ) {
-        ////equal deadwood value but new combination provides fewer deadwood cards. (easier to get rid of)
-        let sortedTempRuns = sortArray(updatedTempRuns, function (a, b) {
-            return a - b;
-        });
-
-        tempSets = sorted(tempSets); // todo 12-12  update tempSets
-        tempHand = sorted(tempHand); // todo 12-12 update tempHand
-        runs = runsTo2D(sortedTempRuns).slice(0);
-        sets = setsTo2D(tempSets).slice(0);
-        smallestDeadwoodValue = deadWoodCount;
-        deadwoodList = tempHand.slice(0);
-        deadWoodCardCount = tempHand.length;
-    }
-}
-*/
-
-/*
-function meldRecursion(changedHand, theRuns, theSets, skippedCards) {
-    let tempHand = changedHand.slice(0);
-    let tempRuns = theRuns.slice(0);
-    let tempSets = theSets.slice(0);
-    let need4SetAction = false;
-    let did4RunAction = false;
-    let doOtherRunActions = [false, false];
-    let ignoreCards = skippedCards.slice(0); //this is used so don't re-pick conflict cards that chose skip action higher up in tree.
-    let conflictCardID = -1;
-
-    if (tempHand.length < 3) {
-        updateMeldsCheck(tempHand, tempRuns, tempSets);
-        return;
-    }
-
-    //begin cleaning
-    cleaningSets(tempHand, tempSets);
-    cleaningRuns(tempHand, tempRuns);
-
-    if (tempHand.length < 3) {
-        updateMeldsCheck(tempHand, tempRuns, tempSets);
-        return;
-    }
-
-    //sorted(tempHand);// todo 12-12  will need to re-assign tempHands. no worries since due to what i due at start of method, don't care about modifying
-    // todo   PREVIOUS VALUE. so its good to just re--assigned tempHand ---------------
-    tempHand = sorted(tempHand);
-
-    //Have to search for conflcit card. Going from right to left (higher value to lower)
-    for (let index = tempHand.length - 1; index > -1; index--) {
-        let cardValue = tempHand[index];
-        if (ignoreCards.includes(cardValue)) {
-            //this card chose skip action in this tree path so not making it a conflict card again.
-            continue;
-        }
-        if (isInRun(tempHand, cardValue) && isInSet(tempHand, cardValue)) {
-            conflictCardID = cardValue;
-            break;
-        }
-    }
-    if (conflictCardID == -1) {
-        //no more conflict cards that are not in ignoreCards.
-        updateMeldsCheck(tempHand, tempRuns, tempSets);
-        return;
-    }
-    //todo NOTE decided to create blocks for each action so unneeded data isn't forced to be around, thus taking up memory
-
-    {
-        let handForDoBySet = tempHand.slice(0);
-        let setsForDoBySet = tempSets.slice(0);
-        need4SetAction = doBySet(handForDoBySet, setsForDoBySet, conflictCardID);
-        meldRecursion(handForDoBySet, tempRuns, setsForDoBySet, ignoreCards);
-    }
-
-    {
-        let handForRun3 = tempHand.slice(0);
-        let runsForRun3 = tempRuns.slice(0);
-        doOtherRunActions = makeRun(handForRun3, runsForRun3, conflictCardID, 3);
-        meldRecursion(handForRun3, runsForRun3, tempSets, ignoreCards);
-    }
-
-    if (need4SetAction) {
-        let handForDo4Set = tempHand.slice(0);
-        let setsForDo4Set = tempSets.slice(0);
-        do4Set(handForDo4Set, setsForDo4Set, conflictCardID);
-        meldRecursion(handForDo4Set, tempRuns, setsForDo4Set, ignoreCards);
-    }
-
-    if (doOtherRunActions[0]) {
-        //determines if need to do 4 run
-        let handFor4Run = tempHand.slice(0);
-        let runsFor4Run = tempRuns.slice(0);
-        doOtherRunActions = makeRun(handFor4Run, runsFor4Run, conflictCardID, 4);
-        did4RunAction = true;
-        meldRecursion(handFor4Run, runsFor4Run, tempSets, ignoreCards);
-    }
-    // if 4 run action happened, need to look at index 0 to determine if need 5 run, otherwise need to look at 1.
-    if (
-        (doOtherRunActions[1] && !did4RunAction) ||
-        (doOtherRunActions && doOtherRunActions[1])
-    ) {
-        let handFor5Run = tempHand.slice(0);
-        let runsFor5Run = tempRuns.slice(0);
-        makeRun(handFor5Run, runsFor5Run, conflictCardID, 5);
-        meldRecursion(handFor5Run, runsFor5Run, tempSets, ignoreCards);
-    }
-
-    //skip action. Helpful for grabbing all possible set combinations
-    ignoreCards.push(conflictCardID);
-    meldRecursion(tempHand, tempRuns, tempSets, ignoreCards);
-}
-
- */
 
 // Creates a 3-4 size set with cardValue. If have a 4 set and 2+ conflict cards are in it,
 // will reduce set size to 3 and return true representing need for 4 set action to occur.
@@ -855,7 +710,7 @@ function doBySet(changedHand, theSets, cardValue) {
 
   for (let value of holder) {
     theSets.push(value);
-    changedHand.splice(changedHand.indexOf(value), 1); //todo CHECK TO MAKE SURE THIS WORKS.
+    changedHand.splice(changedHand.indexOf(value), 1);
   }
 
   return need4SetAction;
@@ -998,7 +853,7 @@ function makeRun(changedHand, theRuns, cardValue, minRunSize) {
 
   for (let value of holder) {
     theRuns.push(value);
-    changedHand.splice(changedHand.indexOf(value), 1); //todo CHECK TO SEE IF WORKS
+    changedHand.splice(changedHand.indexOf(value), 1);
   }
 
   if (holder.length >= minRunSize + 2) {
@@ -1192,5 +1047,6 @@ module.exports = {
   drawFromDeck,
   drawFromDiscard,
   removeCard,
-  getMeldData
+  getMeldData,
+  getHand
 };
