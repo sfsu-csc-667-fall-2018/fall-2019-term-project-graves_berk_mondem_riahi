@@ -45,6 +45,34 @@ router.get("/:id", isLoggedIn, function(request, response) {
   //socket shit
 });
 
+router.post("/:id/drawFromDiscard", isLoggedIn, function(request, response) {
+  const roomId = request.params["id"];
+  const userId = request.user.id;
+  let io = request.app.get("io");
+  let hand = [];
+
+  db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
+    userId,
+    roomId
+  ]).then(results => {
+    (async function() {
+      let playerId = results["player_id"];
+      await serverSide.drawFromDiscard(playerId, roomId);
+
+      let topDiscard = await serverSide.getTopDiscard(roomId);
+
+      io.to(roomId).emit("discard", topDiscard);
+
+      hand = await serverSide.getHand(playerId, roomId);
+      //console.log(hand);
+      io.to(userId + roomId).emit("draw", hand);
+      // return response.json(hand);
+    })();
+  });
+
+  // console.log(hand);
+});
+
 router.post("/:id/draw", isLoggedIn, function(request, response) {
   const roomId = request.params["id"];
   const userId = request.user.id;

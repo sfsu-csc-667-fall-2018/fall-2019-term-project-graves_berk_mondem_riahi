@@ -10,15 +10,19 @@ let hand = [];
 //have this socket join this room
 
 fetch("/games/" + roomId + "/getTopDiscard").then(response => {
-  response.json().then(response => {
-    $("#discard").append("<img src ='/cards/" + response + ".jpg'></img>");
-  });
+  if (response.length > 0) {
+    response.json().then(response => {
+      if (response != undefined) {
+      }
+      $("#discard").append("<img src ='/cards/" + response + ".jpg'></img>");
+    });
+  }
 });
 
 fetch("/games/" + roomId + "/getHand").then(response => {
   response.json().then(response => {
-    console.log("got this from the hand");
-    console.log(response);
+    // console.log("got this from the hand");
+    // console.log(response);
     hand = response;
     if (hand.length > 0) {
       $("#deal").remove();
@@ -52,14 +56,14 @@ fetch("/games/" + roomId + "/getHost").then(response => {
     //socket.emit("hostTest", "asd");
     // console.log(response["userId"] + roomId);
 
-    console.log(response["guestOrHost"]);
+    // console.log(response["guestOrHost"]);
     guestOrHost = response["guestOrHost"];
 
     if (guestOrHost == "host") {
-      console.log("trying to join host socket room");
+      // console.log("trying to join host socket room");
       socket.emit("hostJoin", { userId: response["userId"], roomId: roomId });
     } else if (guestOrHost == "guest") {
-      console.log("trying to join guest socket room");
+      // console.log("trying to join guest socket room");
       socket.emit("guestJoin", { userId: response["userId"], roomId: roomId });
     }
 
@@ -75,6 +79,10 @@ $("#deckCard").click(function() {
   $.post(roomId + "/draw", function(res) {});
 });
 
+$("#discard").click(function() {
+  $.post(roomId + "/drawFromDiscard", function(res) {});
+});
+
 function instantiateSocket() {
   socket.emit("joinRoom", roomId);
 
@@ -82,7 +90,7 @@ function instantiateSocket() {
     for (let i = 0; i < hand.length; i++) {
       //see if we can get this to show up in html
 
-      console.log(cardIdentify(hand[i]));
+      // console.log(cardIdentify(hand[i]));
 
       $("#cardUser" + i).append(
         $("<img src ='/cards/" + hand[i] + ".jpg'></img>")
@@ -96,7 +104,10 @@ function instantiateSocket() {
   });
 
   socket.on("discard", card => {
-    $("#discard").append("<img src ='/cards/" + card + ".jpg'></img>");
+    $("#discard").empty();
+    if (card != undefined) {
+      $("#discard").append("<img src ='/cards/" + card + ".jpg'></img>");
+    }
   });
 
   socket.on("draw", hand => {
