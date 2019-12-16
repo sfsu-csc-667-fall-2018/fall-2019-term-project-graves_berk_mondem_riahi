@@ -74,6 +74,12 @@ router.post("/:id/bigGin", isLoggedIn, function(request, response) {
   const userId = request.user.id;
   let io = request.app.get("io");
 
+  //testing delete room
+
+  (async function() {
+    await serverSide.deleteRoom(roomId);
+  })();
+
   db.one("SELECT * FROM rooms WHERE room_id = $1", [roomId]).then(results => {
     let hostPlayerId = results["host_id"];
     let guestPlayerId = results["guest_id"];
@@ -115,6 +121,7 @@ router.post("/:id/gin", isLoggedIn, function(request, response) {
       console.log(playerIdOfButtonPusherPerson);
     });
   });
+  response.json("");
 });
 
 router.post("/:id/discardFromHand", isLoggedIn, function(request, response) {
@@ -142,7 +149,7 @@ router.post("/:id/discardFromHand", isLoggedIn, function(request, response) {
       io.to(userId + roomId).emit("draw", hand);
     })();
   });
-
+  response.json("");
   // console.log(request.body["cardNum"]);
 });
 
@@ -170,7 +177,7 @@ router.post("/:id/drawFromDiscard", isLoggedIn, function(request, response) {
       // return response.json(hand);
     })();
   });
-
+  response.json("");
   // console.log(hand);
 });
 
@@ -189,12 +196,20 @@ router.post("/:id/draw", isLoggedIn, function(request, response) {
       await serverSide.drawFromDeck(playerId, roomId);
 
       hand = await serverSide.getHand(playerId, roomId);
-      console.log(hand);
+      // console.log(hand);
       io.to(userId + roomId).emit("draw", hand);
+
+      //melds and shit
+
+      let meldData = await serverSide.getMeldData(playerId, roomId);
+      console.log(meldData.runs);
+      console.log(meldData.sets);
+      console.log(meldData.deadwoodValue);
+
       // return response.json(hand);
     })();
   });
-
+  response.json("");
   // console.log(hand);
 });
 
@@ -230,7 +245,6 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
               let somebody;
 
               (async function() {
-
                 somebody = await serverSide.deal10Cards(hostId, roomId); //todo NOTE, somebody will contain array of 10 cards
                 // console.log("THIS IS HAND " + somebody);
 
@@ -238,7 +252,6 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
                 // console.log("games socket room " + userId + roomId);
                 // console.log("sending a hand to a host");
                 io.to(hostUserId + roomId).emit("deal", somebody);
-
 
                 somebody = await serverSide.deal10Cards(guestId, roomId); //todo NOTE, somebody will contain array of 10 cards
                 // console.log("THIS IS HAND " + somebody);
@@ -271,6 +284,7 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
     .catch(error => {
       console.log(error);
     });
+  response.json("");
 });
 
 router.get("/:id/getHost", isLoggedIn, function(request, response) {

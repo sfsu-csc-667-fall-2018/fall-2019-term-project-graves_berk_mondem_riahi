@@ -29,16 +29,15 @@ module.exports = function(server) {
     });
 
     socket.on("hostJoin", hostInfo => {
-      console.log("a host is joinging");
       let hostRoom = hostInfo["userId"] + hostInfo["roomId"];
       console.log(hostRoom);
       socket.join(hostRoom, function() {
-        console.log(
-          "host joined socket for room " +
-            hostInfo["userId"] +
-            " with userid " +
-            hostInfo["roomId"]
-        );
+        // console.log(
+        //   "host joined socket for room " +
+        //     hostInfo["userId"] +
+        //     " with userid " +
+        //     hostInfo["roomId"]
+        // );
       });
 
       // io.to(hostRoom).emit(
@@ -48,11 +47,11 @@ module.exports = function(server) {
     });
 
     socket.on("guestJoin", guestInfo => {
-      console.log("a guest is joining");
+      // console.log("a guest is joining");
 
       let guestRoom = guestInfo["userId"] + guestInfo["roomId"];
       socket.join(guestRoom, function() {
-        console.log("a guest joined the room boi");
+        // console.log("a guest joined the room boi");
       });
     });
   });

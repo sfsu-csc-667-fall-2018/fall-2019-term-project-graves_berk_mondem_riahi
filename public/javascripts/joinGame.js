@@ -164,8 +164,8 @@ function instantiateSocket() {
   });
 
   socket.on("draw", hand => {
-    console.log("rendering hand");
-    console.log(hand);
+    // console.log("rendering hand");
+    // console.log(hand);
     // console.log("drew a card boi");
     //empty all the children of all card classes for the user
     let i = 0;
@@ -187,16 +187,3 @@ function instantiateSocket() {
   //something here for drawing maybe
   // socket.on('displayCard',card)
 }
-
-//this is how the server knows to do some card bullshit now
-function dealCards() {
-  // socket.emit("deal", roomId);
-}
-
-// function drawFromDeck() {
-//   console.log("toucha the deck ;)");
-// }
-
-//im sorry john look away your pure eyes musn't look upon such filth
-
-//testing img name for card id
