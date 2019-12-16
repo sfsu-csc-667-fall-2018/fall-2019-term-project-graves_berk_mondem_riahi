@@ -68,8 +68,11 @@ fetch("/games/" + roomId + "/getHost").then(response => {
 });
 
 $("#dealButton").click(function() {
-  console.log("ass");
   $.post(roomId + "/deal", function(res) {});
+});
+
+$("#deckCard").click(function() {
+  $.post(roomId + "/draw", function(res) {});
 });
 
 function instantiateSocket() {
@@ -96,6 +99,11 @@ function instantiateSocket() {
     $("#discard").append("<img src ='/cards/" + card + ".jpg'></img>");
   });
 
+  socket.on("draw", hand => {
+    // console.log("drew a card boi");
+    //empty all the children of all card classes for the user
+  });
+
   // socket.on("hostTest", function() {
   //   console.log("recieved the host test");
   // });
@@ -109,9 +117,9 @@ function dealCards() {
   // socket.emit("deal", roomId);
 }
 
-function drawFromDeck() {
-  console.log("toucha the deck ;)");
-}
+// function drawFromDeck() {
+//   console.log("toucha the deck ;)");
+// }
 
 //im sorry john look away your pure eyes musn't look upon such filth
 function card0Discard() {

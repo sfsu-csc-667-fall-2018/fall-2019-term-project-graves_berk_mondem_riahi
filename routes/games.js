@@ -45,6 +45,21 @@ router.get("/:id", isLoggedIn, function(request, response) {
   //socket shit
 });
 
+router.post("/:id/draw", isLoggedIn, function(request, response) {
+  const roomId = request.params["id"];
+  const userId = request.user.id;
+  let io = request.app.get("io");
+
+  io.to(userId + roomId).emit("draw");
+
+  // (async function() {
+  //   await serverSide.drawFromDeck();
+  //   // console.log("get hand says");
+  //   // console.log(hand);
+  //   return response.json(hand);
+  // })();
+});
+
 router.post("/:id/deal", isLoggedIn, function(request, response) {
   const roomId = request.params["id"];
   const userId = request.user.id;
