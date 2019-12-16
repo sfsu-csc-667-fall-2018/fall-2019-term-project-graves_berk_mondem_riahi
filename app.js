@@ -69,6 +69,10 @@ app.use(function(err, req, res, next) {
 });
 
 //initialize lobby room
-//b.any(`INSERT INTO rooms (room_id , room_name) VALUES ('0','lobby')`);
+db.any(`INSERT INTO rooms (room_id , room_name) VALUES ('0','lobby')`).catch(
+  error => {
+    //lobby is already instantiated
+  }
+);
 
 module.exports = app;

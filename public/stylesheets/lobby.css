@@ -6,3 +6,16 @@ button {
 ul {
   list-style-type: none;
 }
+body {
+  background-color: #2a2d2f;
+}
+
+li {
+  color: white;
+}
+p {
+  color: white;
+}
+input {
+  background-color: #2a2d2f;
+}
