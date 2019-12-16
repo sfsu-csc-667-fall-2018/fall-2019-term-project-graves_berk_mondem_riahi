@@ -41,10 +41,19 @@ module.exports = function(server) {
         );
       });
 
-      io.to(hostRoom).emit(
-        "hostTest",
-        "the host should get this not the guest"
-      );
+      // io.to(hostRoom).emit(
+      //   "hostTest",
+      //   "the host should get this not the guest"
+      // );
+    });
+
+    socket.on("guestJoin", guestInfo => {
+      console.log("a guest is joining");
+
+      let guestRoom = guestInfo["userId"] + guestInfo["roomId"];
+      socket.join(guestRoom, function() {
+        console.log("a guest joined the room boi");
+      });
     });
   });
 };
