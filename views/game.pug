@@ -49,18 +49,7 @@ block content
                             button#sortHand Sort
                         #show-scorecard
                             a(href='#show-scorecard') Click here to show the scorecard again
-                        #inline-score-wrapper
-                            #inline-score
-                                table
-                                    tbody
-                                        tr
-                                            th(colspan='4') Total Game Score
-                                        tr.names-row
-                                            th(class = "hostName").bottom-player-name 
-                                            th(class = "guestName").top-player-name
-                                        tr
-                                            td#bottom-inline-score 0
-                                            td#top-inline-score 0
+                       
                         #best-move.hide-restart.show-after-deal(style='top: 532px;')
                             #melds-container
                                 | Melds:
@@ -208,8 +197,19 @@ block content
                                 .faceup
 
             #login-button.hide-mobile
-               
-            .msger(style='height: 600px;')
+             #inline-score-wrapper
+                            #inline-score
+                                table
+                                    tbody
+                                        tr
+                                            th(colspan='4') Total Game Score
+                                        tr.names-row
+                                            th(class = "hostName").bottom-player-name 
+                                            th(class = "guestName").top-player-name
+                                        tr
+                                            td#bottom-inline-score 0
+                                            td#top-inline-score 0
+            //- .msger(style='height: 600px;')
                 section
                     header.msger-header
                         .msger-header-title
