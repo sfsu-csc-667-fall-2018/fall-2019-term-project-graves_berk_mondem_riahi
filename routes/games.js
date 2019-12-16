@@ -77,12 +77,15 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
               let somebody;
 
               (async function() {
+
                 somebody = await serverSide.deal10Cards(hostId, roomId); //todo NOTE, somebody will contain array of 10 cards
                 // console.log("THIS IS HAND " + somebody);
+
                 //response.send(somebody);
                 // console.log("games socket room " + userId + roomId);
                 // console.log("sending a hand to a host");
                 io.to(hostUserId + roomId).emit("deal", somebody);
+
 
                 somebody = await serverSide.deal10Cards(guestId, roomId); //todo NOTE, somebody will contain array of 10 cards
                 // console.log("THIS IS HAND " + somebody);
