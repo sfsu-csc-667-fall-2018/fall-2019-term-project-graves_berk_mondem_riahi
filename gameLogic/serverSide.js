@@ -69,13 +69,13 @@ async function checkDiscard(roomId) {
     return false;
 }
 
-//todo PROBABLY when you return melds, you also return whether player can knock,gin,big big.
 
 async function getMeldData(playerId, roomId) {
     let playerHand = await getHand(playerId, roomId);
     ///console.log("IN getMeldData  " + playerHand);
 
     let meldData = formMelds(playerHand);
+
     ///console.log("we finished calculating melds");
     return meldData; //not returning playerHand in this method, need to call getHand for that.
 }
@@ -242,29 +242,69 @@ async function deleteRoom(roomId) {
 // this will be method called from game.js when layoff and score needs to happen
 //todo note, acitonPerformed will be value  knock,gin,  big gin.
 //  will also send back score, not going to implemnt displaying new runs
-function doLayOffsAndScore(player1Id, player2Id, buttonPresserId, roomId, actionPerformed) {
+async function doLayOffsAndScore(player1Id, player2Id, buttonPresserId, roomId, actionPerformed) {
     //todo need to recalculate melds since client doesn't send them.
-    let player1MeldData = getMeldData(player1Id, roomId);
-    let player2MeldData = getMeldData(player2Id, roomId);
+    let player1MeldData = await getMeldData(player1Id, roomId);
+    let player2MeldData = await getMeldData(player2Id, roomId);
 
-    //todo need to actually edit getMeldData so can return whether can do these actions. The replaced actionPerformed WITH
-    //  grabbing player1 and player2 data for whether they can do these actions since going to assume the can click the buttons
-    //   anytime.
-    if (!actionPerformed.localeCompare("knock")) {
-        if (!actionPerformed.localeCompare("gin")) {
-            if (!actionPerformed.localeCompare("big gin")) {
-                //cannot leg
+
+    //determines whether the player who press an action button can actually perform action.
+    if (player1Id == buttonPresserId) {
+        if (actionPerformed.localeCompare("knock")) {
+            if (!player1MeldData.canKnock) {
+                console.log("Player " + buttonPresserId + " not allowed to knock");
+                return;
+            }
+        } else if (actionPerformed.localeCompare("gin")) {
+            if (!player1MeldData.canGin) {
+                console.log("Player " + buttonPresserId + "  not allowed to gin")
+            }
+        } else if (!actionPerformed.localeCompare("big gin")) {
+            if (!player1MeldData.canBigGin) {
+                console.log("Player " + buttonPresserId + "  not allowed to big gin");
             }
         }
+    } else if (player2Id == buttonPresserId) {
+        if (actionPerformed.localeCompare("knock")) {
+            if (!player2MeldData.canKnock) {
+                console.log("Player " + buttonPresserId + " not allowed to knock");
+                return;
+            }
+        } else if (actionPerformed.localeCompare("gin")) {
+            if (!player2MeldData.canGin) {
+                console.log("Player " + buttonPresserId + "  not allowed to gin")
+            }
+        } else if (!actionPerformed.localeCompare("big gin")) {
+            if (!player2MeldData.canBigGin) {
+                console.log("Player " + buttonPresserId + "  not allowed to big gin");
+            }
+        }
+    } else {
+        console.log("Error in doLayOffsAndScore")
+        console.log("Player1 " + player1Id + "  Player2  " + player2Id + "   button presser  " + buttonPresserId);
+        return;
     }
 
 
-    if (actionPerformed.localeCompare("gin")) {//todo if method fails, go with 1, 2, and 3 approach
-        //todo SO IN HERE, do need
+    /*
+      runs: runs,
+        sets: sets,
+        deadwood: deadwoodList,
+        deadwoodValue: smallestDeadwoodValue,
+        canKnock: canKnock,
+        canGin: canGin,
+        canBigGin: canBigGin
+     */
 
+    let winnerScore
+     //now since we determine if button presser can perform action, now time to do possible layoffs and handling score.
+    if (actionPerformed.localeCompare("gin")) {
+       let totalScore = 0;
+      //todo ok cyrus totally forgot to include points in players table......... so have nothing to grab.
+      totalScore += scoring()
     } else if (actionPerformed.localeCompare("big gin")) {
 
-    } else if (actionPerformed.localeCompare("knock")) {
+    } else if (actionPerformed.localeCompare("knock")) {//todo note, this is where winner could not be the one who pressed button.
         //need to do layoffs
 
     }
@@ -311,8 +351,6 @@ function sorted(listToSort) {
     return newlySorted;
 }
 
-//todo NOTE, thinking not going to do any database transactions in here, so players hand would need to be passed into here.
-// if should grab players hand in here, won't be that big of a change I feel.
 
 function formMelds(theHand) {
     let sets = []; //exist here so other player can get them after meld creation during scoring
@@ -459,7 +497,6 @@ function formMelds(theHand) {
     let canKnock = false;
     let canGin = false;
     let canBigGin = false;
-    //todo didn't include players current hand since that should be done somewhere else I feel, like in game.js
 
     if (deadwoodList.length == 0 && sizeOfHand == 11) {
         canBigGin = true;
@@ -470,7 +507,6 @@ function formMelds(theHand) {
         canKnock = true;
     }
 
-    //todo  ALSO CHECK if player can knock, gin, big gin and return values to client.
     let meldData = {
         runs: runs,
         sets: sets,
