@@ -8,6 +8,17 @@ let socket = io();
 // socket = io("/" + roomId);
 //have this socket join this room
 
+fetch("/games/" + roomId + "/getGuest").then(response => {
+  response.json().then(response => {
+    console.log(response["guestOrHost"]);
+    guestOrHost = response["guestOrHost"];
+
+    //console.log(response);
+    //socket.emit("guestJoin", { userId: response["userId"], roomId: roomId });
+    $(".guestName").append($("<li>").text(response["username"]));
+  });
+});
+
 //get the hosts name
 fetch("/games/" + roomId + "/getHost").then(response => {
   instantiateSocket();
@@ -17,23 +28,14 @@ fetch("/games/" + roomId + "/getHost").then(response => {
     console.log(response["userId"] + roomId);
 
     if (guestOrHost == "host") {
+      console.log("trying to join host socket room");
       socket.emit("hostJoin", { userId: response["userId"], roomId: roomId });
     } else if (guestOrHost == "guest") {
+      console.log("trying to join guest socket room");
       socket.emit("guestJoin", { userId: response["userId"], roomId: roomId });
     }
 
     $(".hostName").append($("<li>").text(response["username"]));
-  });
-});
-
-fetch("/games/" + roomId + "/getGuest").then(response => {
-  response.json().then(response => {
-    console.log(response["guestOrHost"]);
-    guestOrHost = response["guestOrHost"];
-
-    //console.log(response);
-    //socket.emit("guestJoin", { userId: response["userId"], roomId: roomId });
-    $(".guestName").append($("<li>").text(response["username"]));
   });
 });
 
@@ -53,6 +55,8 @@ fetch("/games/" + roomId + "/getGuest").then(response => {
 // );
 
 $("#dealButton").click(function() {
+  console.log("ass");
+  $.post(roomId + "/deal", function(res) {});
   $.post(roomId + "/deal", function(res) {});
 });
 
@@ -64,9 +68,10 @@ function instantiateSocket() {
       //see if we can get this to show up in html
       console.log(cardIdentify(hand[i]));
 
-      $("#cardHost" + i).append(
+      $("#cardUser" + i).append(
         $("<img src ='/cards/" + hand[i] + ".jpg'></img>")
       );
+      $("#cardOpponent" + i).append($("<img src ='/cards/back.jpg'></img>"));
     }
 
     // $("#cardHost1").append($("<img src ='/cards/0.jpg'></img>"));
