@@ -147,6 +147,11 @@ router.post("/:id/discardFromHand", isLoggedIn, function(request, response) {
       io.to(roomId).emit("discard", topDiscard);
       hand = await serverSide.getHand(playerId, roomId);
       io.to(userId + roomId).emit("draw", hand);
+
+      //calculate any melds
+      let meldData = await serverSide.getMeldData(playerId, roomId);
+
+      io.to(userId + roomId).emit("displayMelds", meldData);
     })();
   });
   response.json("");
@@ -174,7 +179,10 @@ router.post("/:id/drawFromDiscard", isLoggedIn, function(request, response) {
       hand = await serverSide.getHand(playerId, roomId);
       //console.log(hand);
       io.to(userId + roomId).emit("draw", hand);
-      // return response.json(hand);
+      // calculate any melds
+      let meldData = await serverSide.getMeldData(playerId, roomId);
+
+      io.to(userId + roomId).emit("displayMelds", meldData);
     })();
   });
   response.json("");
@@ -202,17 +210,11 @@ router.post("/:id/draw", isLoggedIn, function(request, response) {
       //melds and shit
 
       let meldData = await serverSide.getMeldData(playerId, roomId);
-      // console.log(meldData.runs);
-      // console.log(meldData.sets);
-      // console.log(meldData.deadwoodValue);
 
       io.to(userId + roomId).emit("displayMelds", meldData);
-
-      // return response.json(hand);
     })();
   });
   response.json("");
-  // console.log(hand);
 });
 
 router.post("/:id/deal", isLoggedIn, function(request, response) {
@@ -270,7 +272,10 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
 
                 io.to(roomId).emit("discard", deckDiscard);
 
-                //flip the top card onto the discard
+                //calculate any melds
+                let meldData = await serverSide.getMeldData(playerId, roomId);
+
+                io.to(userId + roomId).emit("displayMelds", meldData);
               })();
             })
             .catch(error => {
