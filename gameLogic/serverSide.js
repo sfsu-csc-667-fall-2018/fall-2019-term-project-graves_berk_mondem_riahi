@@ -220,22 +220,22 @@ async function deleteRoom(roomId) {
     await db
         .tx(async t => {
             let deckCardsDeleted = await t.result("DELETE FROM decks WHERE room_id = $1", roomId);
-            console.log("Number of deck cards deleted " + deckCardsDeleted);
+            console.log("Number of deck cards deleted " + deckCardsDeleted.rowCount);
             let discardCardsDeleted = await t.result("DELETE FROM discards WHERE room_id = $1", roomId);
-            console.log("Number of discard cards deleted " + discardCardsDeleted);
+            console.log("Number of discard cards deleted " + discardCardsDeleted.rowCount);
             let playerHandCardsDeleted = await t.result("DELETE FROM handcards WHERE room_id = $1", roomId); //would delete both players hand.
-            console.log("Number of hand cards deleted " + playerHandCardsDeleted);
+            console.log("Number of hand cards deleted " + playerHandCardsDeleted.rowCount);
 
             //todo going to assume don't need to change playerId in rooms for now, though would just be two different sql statements
 
             let playersDeleted = await t.result("DELETE FROM players WHERE room_id = $1", roomId);//should delete two if both players are in.
-            console.log("Number of players deleted " + playersDeleted);
+            console.log("Number of players deleted " + playersDeleted.rowCount);
             let roomsDeleted = await t.result("DELETE FROM rooms WHERE room_id = $1", roomId);
-            console.log("Number of rooms deleted is  " + roomsDeleted +" . It should be 1");
+            console.log("Number of rooms deleted is  " + roomsDeleted.rowCount +" . It should be 1");
 
             //since we dropped individual chatrooms for each room so can focus more on game, don't need this.
             //let messagesDeleted = await t.result("DELETE FROM messages WHERE room_id = $1", roomId);
-            //console.log("Number of messages deleted is " + messagesDeleted);
+            //console.log("Number of messages deleted is " + messagesDeleted.rowCount);
         })
 }
 
