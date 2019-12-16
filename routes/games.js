@@ -77,14 +77,14 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
               let somebody;
 
               (async function() {
-                somebody = await serverSide.deal10Cards(hostUserId, roomId); //todo NOTE, somebody will contain array of 10 cards
+                somebody = await serverSide.deal10Cards(hostId, roomId); //todo NOTE, somebody will contain array of 10 cards
                 console.log("THIS IS HAND " + somebody);
                 //response.send(somebody);
                 // console.log("games socket room " + userId + roomId);
                 console.log("sending a hand to a host");
                 io.to(hostUserId + roomId).emit("deal", somebody);
 
-                somebody = await serverSide.deal10Cards(guestUserId, roomId); //todo NOTE, somebody will contain array of 10 cards
+                somebody = await serverSide.deal10Cards(guestId, roomId); //todo NOTE, somebody will contain array of 10 cards
                 console.log("THIS IS HAND " + somebody);
                 //response.send(somebody);
                 // console.log("games socket room " + userId + roomId);
@@ -182,42 +182,60 @@ router.get("/:id/getGuest", isLoggedIn, function(request, response) {
   });
 });
 
-router.get("/:id/getHand");
+router.get("/:id/getHand", isLoggedIn, function(request, response) {
+  const roomId = request.params["id"];
+  const userId = request.user.id;
+  let guestOrHost = "";
 
-function guestOrHostFunc(userId, roomId) {
-  db.one("SELECT * FROM rooms WHERE room_id = $1 ", [roomId]).then(results => {
-    let guestId = results["guest_id"];
+  //check if the game room has a guest and host in it first
+
+  // db.one("SELECT * FROM rooms WHERE room_id = $1", [roomId])
+  //   .then(results => {
+  //     if (results["guest_id"] != undefined && results["host_id"] != undefined) {
+  //       return response.json("waiting for guest to join");
+  //     }
+  //   })
+  //   .catch(error => {
+  //     console.log("error");
+  //   });
+
+  db.one("SELECT * FROM players WHERE room_id = $1 AND user_id = $2", [
+    roomId,
+    userId
+  ])
+    .then(results => {
+      console.log(results);
+      let playerId = results["player_id"];
+
+      (async function() {
+        let hand = await serverSide.getHand(playerId, roomId);
+        console.log("get hand says");
+        console.log(hand);
+        return response.json(hand);
+      })();
+    })
+    .catch(error => {
+      console.log(error);
+    });
+});
+
+function isGuestOrHost(userId, roomId) {
+  db.one(`SELECT * FROM rooms WHERE room_id = $1`, [roomId]).then(results => {
     let hostId = results["host_id"];
-    let guestUserId = "";
-    let hostUserId = "";
 
-    db.one("SELECT * FROM players WHERE player_id = $1 AND room_id = $2", [
-      guestId,
-      roomId
-    ])
-      .then(results => {
-        guestUserId = results["user_id"];
-      })
-      .then(_ => {
-        db.one("SELECT * FROM players WHERE player_id = $1 AND room_id = $2", [
-          hostId,
-          roomId
-        ])
-          .then(results => {
-            hostUserId = results["user_id"];
-          })
-          .catch(error => console.log(error));
-
+    db.one("SELECT * FROM players WHERE player_id = $1", [hostId]).then(
+      results => {
+        //get the users id
+        let hostUserId = results["user_id"];
         if (userId == hostUserId) {
+          // guestOrHost = "host";
           return "host";
-        } else if (userId == guestUserId) {
+        } else {
+          // guestOrHost = "guest";
           return "guest";
         }
-        return "guest or host failed";
-      })
-      .catch(error => {
-        console.log(error);
-      });
+      }
+    );
   });
 }
 

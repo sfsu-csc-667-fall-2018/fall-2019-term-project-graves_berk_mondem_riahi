@@ -8,6 +8,13 @@ let socket = io();
 // socket = io("/" + roomId);
 //have this socket join this room
 
+fetch("/games/" + roomId + "/getHand").then(response => {
+  response.json().then(response => {
+    console.log("got this from the hand");
+    console.log(response);
+  });
+});
+
 fetch("/games/" + roomId + "/getGuest").then(response => {
   response.json().then(response => {
     // console.log(response["guestOrHost"]);
@@ -41,21 +48,6 @@ fetch("/games/" + roomId + "/getHost").then(response => {
     $(".hostName").append($("<li>").text(response["username"]));
   });
 });
-
-// fetch("/games/" + roomId + "/deal").then(response => {
-//   response.json().then(response => {
-//     console.log(response);
-//   });
-// });
-
-//creates the deal button
-// $("#deal").append(
-//   $(
-//     " <form action = '" +
-//       roomId +
-//       "/deal ' method ='POST'> <button type = 'submit' onclick = 'dealCards()'> deal </button> </form> "
-//   )
-// );
 
 $("#dealButton").click(function() {
   console.log("ass");
