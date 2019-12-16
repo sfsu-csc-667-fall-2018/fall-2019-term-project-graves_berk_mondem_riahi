@@ -212,10 +212,10 @@ function instantiateSocket() {
     $("#deadwoodVal").append("<p> " + meldData.deadwoodValue + " </p>");
   });
 
-  // socket.on("hostTest", function() {
-  //   console.log("recieved the host test");
-  // });
-
-  //something here for drawing maybe
-  // socket.on('displayCard',card)
+  socket.on("updateScores", scores => {
+    $("#hostScore").empty();
+    $("#guestScore").empty();
+    $("#hostScore").append($("<td> " + scores + "</td>"));
+    $("#guestScore").append($("<td> " + scores + "</td>"));
+  });
 }

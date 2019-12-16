@@ -119,6 +119,8 @@ router.post("/:id/gin", isLoggedIn, function(request, response) {
       console.log(guestPlayerId);
 
       console.log(playerIdOfButtonPusherPerson);
+
+      io.to(roomId).emit("updateScores", 10);
     });
   });
   response.json("");
@@ -155,7 +157,6 @@ router.post("/:id/discardFromHand", isLoggedIn, function(request, response) {
     })();
   });
   response.json("");
-  // console.log(request.body["cardNum"]);
 });
 
 router.post("/:id/drawFromDiscard", isLoggedIn, function(request, response) {
@@ -186,7 +187,6 @@ router.post("/:id/drawFromDiscard", isLoggedIn, function(request, response) {
     })();
   });
   response.json("");
-  // console.log(hand);
 });
 
 router.post("/:id/draw", isLoggedIn, function(request, response) {

@@ -201,8 +201,12 @@ block content
                                             th(class = "hostName").bottom-player-name 
                                             th(class = "guestName").top-player-name
                                         tr
-                                            td#bottom-inline-score 0
-                                            td#top-inline-score 0
+                                            td 
+                                                #hostScore
+                                                    p 0
+                                            td 
+                                                #guestScore
+                                                    p 0
             
          
              .msger(style='height: 600px;')
