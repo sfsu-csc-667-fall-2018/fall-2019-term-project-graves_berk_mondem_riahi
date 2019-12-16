@@ -187,7 +187,7 @@ router.get("/:id/getGuest", isLoggedIn, function(request, response) {
         //get the users id
 
         //check if the user currently connected is a guest, used to establish a socket emission
-        // let guestUserId = results["user_id"];
+        let guestUserId = results["user_id"];
 
         // if (guestUserId == userId) {
         //   guestOrHost = "guest";
