@@ -1,7 +1,55 @@
 body {
-  padding: 50px;
+  background: whitesmoke;
 }
 
-a {
-  color: #00b7ff;
+#menucontainer ul {
+  position: relative;
+  text-align: center;
+  list-style-type: none;
+  padding: 0;
+  overflow: hidden;
+  background-color: #333;
+  box-shadow: 0px 3px 3px 3px #111;
 }
+
+li {
+  border-right:1px solid #bbb;
+}
+
+li:last-child {
+  border-right: none;
+}
+
+li a {
+  left: 39% ;
+  float: left;
+  position: relative;
+  border-bottom: 1px solid white;
+  display: inline-block;
+  color: white;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover:not(.active) {
+  background-color: darkgreen;
+}
+
+.active {
+  background-color: darkolivegreen;
+}
+
+#name {
+  position: relative;
+  display: block;
+  text-align: center;
+  font-family: "Comic Sans MS", "roboto";
+  font-size: 40px;
+}
+
+#page-about {
+  font-family: "Comic Sans MS", "roboto";
+  text-align: center;
+}
+
