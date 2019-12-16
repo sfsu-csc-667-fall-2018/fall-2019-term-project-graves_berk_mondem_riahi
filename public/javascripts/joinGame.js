@@ -99,4 +99,43 @@ function dealCards() {
   // socket.emit("deal", roomId);
 }
 
+function drawFromDeck() {
+  console.log("toucha the deck ;)");
+}
+
+//im sorry john look away your pure eyes musn't look upon such filth
+function card0Discard() {
+  console.log("yeet");
+}
+function card1Discard() {
+  console.log("yeet");
+}
+function card2Discard() {
+  console.log("yeet");
+}
+function card3Discard() {
+  console.log("yeet");
+}
+function card4Discard() {
+  console.log("yeet");
+}
+function card5Discard() {
+  console.log("yeet");
+}
+function card6Discard() {
+  console.log("yeet");
+}
+function card7Discard() {
+  console.log("yeet");
+}
+function card8Discard() {
+  console.log("yeet");
+}
+function card9Discard() {
+  console.log("yeet");
+}
+function card10Discard() {
+  console.log("yeet");
+}
+
 //testing img name for card id
