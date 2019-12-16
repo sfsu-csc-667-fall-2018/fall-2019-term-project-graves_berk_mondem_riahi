@@ -180,6 +180,38 @@ function instantiateSocket() {
     $("#cardUser" + hand.length).empty();
   });
 
+  socket.on("displayMelds", meldData => {
+    // console.log(meldData.deadwoodValue);
+    // console.log("displayin them melds son");
+
+    $("#runs").empty();
+    $("#sets").empty();
+    $("#deadwoodVal").empty();
+
+    //replace the runs and sets with actual card names
+    for (let i = 0; i < meldData.runs.length; i++) {
+      for (let j = 0; j < meldData.runs[i].length; j++) {
+        meldData.runs[i][j] = cardIdentify(meldData.runs[i][j]);
+      }
+    }
+
+    for (let i = 0; i < meldData.sets.length; i++) {
+      for (let j = 0; j < meldData.sets[i].length; j++) {
+        meldData.sets[i][j] = cardIdentify(meldData.sets[i][j]);
+      }
+    }
+
+    for (let i = 0; i < meldData.runs.length; i++) {
+      $("#runs").append("<li> " + meldData.runs[i] + " </li><br></br>");
+    }
+
+    for (let i = 0; i < meldData.sets.length; i++) {
+      $("#sets").append("<li> " + meldData.sets[i] + " </li> <br></br>");
+    }
+
+    $("#deadwoodVal").append("<p> " + meldData.deadwoodValue + " </p>");
+  });
+
   // socket.on("hostTest", function() {
   //   console.log("recieved the host test");
   // });

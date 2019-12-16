@@ -94,6 +94,7 @@ block content
                                             th Bonus
                                             th.sep Total
                                             th.header-result Result
+                              
                                         tr#total-row.result-row
                                             td(colspan='3') Total Score
                                             td#bottom-player-total.sep
@@ -202,35 +203,28 @@ block content
                                         tr
                                             td#bottom-inline-score 0
                                             td#top-inline-score 0
-            //- .msger(style='height: 600px;')
+            
+         
+             .msger(style='height: 600px;')
                 section
                     header.msger-header
                         .msger-header-title
                             i.fas.fa-comment-alt
-                            |  Chat Room #
+                             h2 Meld Data
                         .msger-header-options
                             span
-                                i.fas.fa-cog
-                    main.msger-chat
-                        .msg.left-msg
-                            .msg-img(style='background-image: url(https://image.flaticon.com/icons/svg/327/327779.svg)')
-                            .msg-bubble
-                                .msg-info
-                                    .msg-info-name Reciever
-                                    .msg-info-time 00:00
-                                .msg-text
-                                    | Hi, let's play!!
-                        .msg.right-msg
-                            .msg-img(style='background-image: url(https://image.flaticon.com/icons/svg/145/145867.svg)')
-                            .msg-bubble
-                                .msg-info
-                                    .msg-info-name Sender
-                                    .msg-info-time 00:00
-                                .msg-text
-                                    | Yeah let's go!!
-                    form.msger-inputarea
-                        input.msger-input(type='text', placeholder='Enter your message...')
-                        button.msger-send-btn(type='submit') Send
+                            i.fas.fa-cog    
+                
+                ul Runs 
+                    #runs
+
+            
+                ul Sets 
+                        #sets
+
+        
+                h5 Dead Wood Value
+                    #deadwoodVal
             div(style='clear:both')
 
 

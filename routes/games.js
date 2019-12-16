@@ -202,9 +202,11 @@ router.post("/:id/draw", isLoggedIn, function(request, response) {
       //melds and shit
 
       let meldData = await serverSide.getMeldData(playerId, roomId);
-      console.log(meldData.runs);
-      console.log(meldData.sets);
-      console.log(meldData.deadwoodValue);
+      // console.log(meldData.runs);
+      // console.log(meldData.sets);
+      // console.log(meldData.deadwoodValue);
+
+      io.to(userId + roomId).emit("displayMelds", meldData);
 
       // return response.json(hand);
     })();
