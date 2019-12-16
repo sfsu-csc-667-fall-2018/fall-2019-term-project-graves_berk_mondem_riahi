@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
   });
   decks.associate = function(models) {
     // associations can be defined here
+    decks.belongsTo(models.rooms);
   };
   return decks;
 };

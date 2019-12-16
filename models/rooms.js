@@ -12,9 +12,11 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.STRING
     },
     host_id: {
+      allowNull: true,
       type: DataTypes.INTEGER
     },
     guest_id: {
+      allowNull: true,
       type: DataTypes.INTEGER
     },
     password: {

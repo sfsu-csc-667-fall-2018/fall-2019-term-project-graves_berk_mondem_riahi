@@ -11,32 +11,40 @@ module.exports = function(server) {
   io.on("connection", socket => {
     //initialize the page with messages from chat
 
-    db.any("SELECT message_text,time_stamp FROM messages WHERE room_id = 0", [
-      true
-    ])
-      .then(function(data) {
-        for (let i = 0; i < data.length; i++) {
-          io.emit("chat message", data[i].message_text);
-        }
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
-
     //this should only be run if the room is the lobby
-    //todo: figure out a way to get this in the routes
-    db.any("SELECT room_name,room_id FROM rooms")
-      .then(function(data) {
-        for (let i = 0; i < data.length; i++) {
-          io.emit("create room", data[i].room_name, data[i].room_id);
-        }
-      })
-      .catch(function(error) {
-        console.log(error);
-      });
+    //todo: figure out a way to get this in the route
 
     console.log("connected");
 
-    //this needs alot of its responsibilities moved, but it's tricky with how io works
+    //create a new namespace for a new room when someone creates the room
+    socket.on("joinRoom", roomId => {
+      socket.join(roomId, function() {
+        console.log("user joined socket for room " + roomId);
+        //socket.emit("test", roomId);
+      });
+    });
+
+    socket.on("hostTest", host => {
+      console.log("host test");
+    });
+
+    socket.on("hostJoin", hostInfo => {
+      console.log("a host is joinging");
+      let hostRoom = hostInfo["userId"] + hostInfo["roomId"];
+      console.log(hostRoom);
+      socket.join(hostRoom, function() {
+        console.log(
+          "host joined socket for room " +
+            hostInfo["userId"] +
+            " with userid " +
+            hostInfo["roomId"]
+        );
+      });
+
+      io.to(hostRoom).emit(
+        "hostTest",
+        "the host should get this not the guest"
+      );
+    });
   });
 };

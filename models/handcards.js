@@ -24,6 +24,8 @@ module.exports = (sequelize, DataTypes) => {
   });
   handcards.associate = function(models) {
     // associations can be defined here
+    handcards.belongsTo(models.players);
+    handcards.belongsTo(models.rooms);
   };
   return handcards;
 };
