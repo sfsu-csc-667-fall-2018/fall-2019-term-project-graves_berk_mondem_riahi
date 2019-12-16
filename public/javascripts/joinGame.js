@@ -218,4 +218,25 @@ function instantiateSocket() {
     $("#hostScore").append($("<td> " + scores + "</td>"));
     $("#guestScore").append($("<td> " + scores + "</td>"));
   });
+
+  socket.on("showHands", hands => {
+    //user hand is index 0
+    //opponent hand is index 1
+
+    for (let i = 0; i < hands[0].length; i++) {
+      $("#cardUser" + i).empty();
+
+      $("#cardUser" + i).append(
+        $("<img src ='/cards/" + hands[0][i] + ".jpg'></img>")
+      );
+    }
+
+    for (let i = 0; i < hands[1].length; i++) {
+      $("#cardOpponent" + i).empty();
+
+      $("#cardOpponent" + i).append(
+        $("<img src ='/cards/" + hands[1][i] + ".jpg'></img>")
+      );
+    }
+  });
 }

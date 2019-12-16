@@ -7,9 +7,6 @@ const serverSide = require("../gameLogic/serverSide");
 
 /* GET home page. */
 router.get("/:id", isLoggedIn, function(request, response) {
-  //id is just whatever it parses after /game_
-  //params stores the id after game_
-  //if we can get these we're golden
   let io = request.app.get("io");
 
   const roomId = request.params["id"];
@@ -41,8 +38,6 @@ router.get("/:id", isLoggedIn, function(request, response) {
         //error
       });
   }
-
-  //socket shit
 });
 
 router.post("/:id/knock", isLoggedIn, function(request, response) {
@@ -76,9 +71,9 @@ router.post("/:id/bigGin", isLoggedIn, function(request, response) {
 
   //testing delete room
 
-  (async function() {
-    await serverSide.deleteRoom(roomId);
-  })();
+  // (async function() {
+  //   await serverSide.deleteRoom(roomId);
+  // })();
 
   db.one("SELECT * FROM rooms WHERE room_id = $1", [roomId]).then(results => {
     let hostPlayerId = results["host_id"];
@@ -87,15 +82,50 @@ router.post("/:id/bigGin", isLoggedIn, function(request, response) {
     db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
       userId,
       roomId
-    ]).then(results => {
-      let playerIdOfButtonPusherPerson = results["player_id"];
+    ])
+      .then(results => {
+        let playerIdOfButtonPusherPerson = results["player_id"];
 
-      console.log(hostPlayerId);
+        console.log(hostPlayerId);
 
-      console.log(guestPlayerId);
+        console.log(guestPlayerId);
 
-      console.log(playerIdOfButtonPusherPerson);
-    });
+        console.log(playerIdOfButtonPusherPerson);
+
+        //show the hands
+
+        //need to figure out if the user is a guest or host in their game
+        db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
+          userId,
+          roomId
+        ])
+          .then(results => {
+            (async function() {
+              let userPlayerId = results["player_id"];
+              let opponentHand = [];
+              let userHand = await serverSide.getHand(userPlayerId, roomId);
+
+              if (userPlayerId == hostPlayerId) {
+                opponentHand = await serverSide.getHand(guestPlayerId, roomId);
+              } else if (userPlayerId == guestPlayerId) {
+                opponentHand = await serverSide.getHand(hostPlayerId, roomId);
+              }
+
+              let hands = [];
+
+              hands.push(userHand);
+              hands.push(opponentHand);
+
+              io.to(roomId).emit("showHands", hands);
+            })();
+          })
+          .catch(error => {
+            console.log(error);
+          });
+      })
+      .catch(error => {
+        console.log(error);
+      });
   });
 });
 
@@ -246,19 +276,14 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
             .then(results => {
               hostUserId = results["user_id"];
 
-              let somebody;
-
               (async function() {
-                await serverSide.deal10Cards(hostId, roomId); //todo NOTE, somebody will contain array of 10 cards
+                await serverSide.deal10Cards(hostId, roomId);
 
                 let hostHand = await serverSide.getHand(hostId, roomId);
                 io.to(hostUserId + roomId).emit("deal", hostHand);
 
-                await serverSide.deal10Cards(guestId, roomId); //todo NOTE, somebody will contain array of 10 cards
-                // console.log("THIS IS HAND " + somebody);
-                //response.send(somebody);
-                // console.log("games socket room " + userId + roomId);
-                // console.log("sending a hand to a guest");
+                await serverSide.deal10Cards(guestId, roomId);
+
                 let guestHand = await serverSide.getHand(guestId, roomId);
                 io.to(guestUserId + roomId).emit("deal", guestHand);
 
@@ -341,18 +366,8 @@ router.get("/:id/getGuest", isLoggedIn, function(request, response) {
         //check if the user currently connected is a guest, used to establish a socket emission
         let guestUserId = results["user_id"];
 
-        // if (guestUserId == userId) {
-        //   guestOrHost = "guest";
-        // } else {
-        //   guestOrHost = "host";
-        // }
-
-        // console.log(guestOrHost);
-
         db.one(`SELECT * FROM users WHERE id = $1`, [guestUserId])
           .then(results => {
-            //now that you have the username send it out with response
-            // results["guestOrHost"] = guestOrHost;
             response.json(results);
           })
           .catch(error => console.log(error));
@@ -370,8 +385,7 @@ router.get("/:id/getTopDiscard", isLoggedIn, function(request, response) {
 
   (async function() {
     let topDiscard = await serverSide.getTopDiscard(roomId);
-    // console.log("get top discard says");
-    // console.log(topDiscard);
+
     return response.json(topDiscard);
   })();
 });
