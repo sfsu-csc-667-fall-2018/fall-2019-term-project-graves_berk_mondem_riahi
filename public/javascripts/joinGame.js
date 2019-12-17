@@ -91,6 +91,10 @@ $("#dealButton").click(function() {
   $.post(roomId + "/deal", function(res) {});
 });
 
+$("#endGameButton").click(function() {
+  $.post(roomId + "/endGame", function(res) {});
+});
+
 $("#deckCard").click(function() {
   $.post(roomId + "/draw", function(res) {});
 });
@@ -215,8 +219,8 @@ function instantiateSocket() {
   socket.on("updateScores", scores => {
     $("#hostScore").empty();
     $("#guestScore").empty();
-    $("#hostScore").append($("<td> " + scores + "</td>"));
-    $("#guestScore").append($("<td> " + scores + "</td>"));
+    $("#hostScore").append($("<td> " + scores[0] + "</td>"));
+    $("#guestScore").append($("<td> " + scores[1] + "</td>"));
   });
 
   socket.on("showHands", hands => {
