@@ -55,7 +55,7 @@ router.post("/:id/knock", isLoggedIn, function(request, response) {
     ]).then(results => {
       let playerIdOfButtonPusherPerson = results["player_id"];
 
-      io.to(roomId).emit("showHands", hands);
+      // io.to(roomId).emit("showHands", hands);
       let scoreData;
       (async function() {
         scoreData = await serverSide.doLayOffsAndScore(
@@ -65,7 +65,6 @@ router.post("/:id/knock", isLoggedIn, function(request, response) {
           roomId,
           "knock"
         );
-
         console.log(scoreData);
         let scores = [];
         scores.push(scoreData["player1score"], scoreData["player2score"]);
@@ -95,7 +94,7 @@ router.post("/:id/bigGin", isLoggedIn, function(request, response) {
       .then(results => {
         let playerIdOfButtonPusherPerson = results["player_id"];
 
-        io.to(roomId).emit("showHands", hands);
+        // io.to(roomId).emit("showHands", hands);
         //need to figure out if the user is a guest or host in their game
         db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
           userId,
@@ -119,8 +118,9 @@ router.post("/:id/bigGin", isLoggedIn, function(request, response) {
               hands.push(opponentHand);
 
               io.to(roomId).emit("showHands", hands);
-              let scoredata;
+
               (async function() {
+                let scoreData;
                 scoreData = await serverSide.doLayOffsAndScore(
                   hostPlayerId,
                   guestPlayerId,
@@ -168,13 +168,8 @@ router.post("/:id/gin", isLoggedIn, function(request, response) {
     ]).then(results => {
       let playerIdOfButtonPusherPerson = results["player_id"];
 
-      console.log(hostPlayerId);
-
-      console.log(guestPlayerId);
-
-      console.log(playerIdOfButtonPusherPerson);
-      let scoreData;
       (async function() {
+        let scoreData;
         scoreData = await serverSide.doLayOffsAndScore(
           hostPlayerId,
           guestPlayerId,
@@ -365,6 +360,7 @@ router.post("/:id/endGame", isLoggedIn, function(request, response) {
   (async function() {
     await serverSide.deleteRoom(roomId);
   })();
+
   response.redirect("/lobby");
 });
 
