@@ -296,18 +296,76 @@ async function doLayOffsAndScore(player1Id, player2Id, buttonPresserId, roomId, 
         canBigGin: canBigGin
      */
 
-    let winnerScore
-     //now since we determine if button presser can perform action, now time to do possible layoffs and handling score.
+
+    //now since we determine if button presser can perform action, now time to do possible layoffs and handling score.
+    let totalScore = 0;
+    let buttonPresserWon = true;
     if (actionPerformed.localeCompare("gin")) {
-       let totalScore = 0;
-      //todo ok cyrus totally forgot to include points in players table......... so have nothing to grab.
-      totalScore += scoring()
+        //todo ok cyrus totally forgot to include points in players table......... so have nothing to grab.
+        let cumulativeDeadwood = Math.abs(player1MeldData.deadwoodValue - player2MeldData.deadwoodValue);
+        totalScore += scoring(cumulativeDeadwood, false, true, false, false);
     } else if (actionPerformed.localeCompare("big gin")) {
+        let cumulativeDeadwood = Math.abs(player1MeldData.deadwoodValue - player2MeldData.deadwoodValue);
+        totalScore += scoring(cumulativeDeadwood, false, false, true, false);
 
     } else if (actionPerformed.localeCompare("knock")) {//todo note, this is where winner could not be the one who pressed button.
         //need to do layoffs
+        //todo BELOW FUNCTIONALITY WILL CHANGE BUT added this so others can start doing testing.
+        let cumulativeDeadwood = Math.abs(player1MeldData.deadwoodValue - player2MeldData.deadwoodValue);
+        totalScore += scoring(cumulativeDeadwood, true, false, false, false);
 
+        //todo would makeButtonPresserWon false if an undercut happened.
     }
+
+    if (buttonPresserWon) {
+        let loserScore = 0;
+        let winnerScore = 0;
+        await db
+            .tx(async t => {
+                winnerScore = await t.one(
+                    "SELECT points FROM players WHERE player_id = $1)",
+                    buttonPresserId
+                );
+                winnerScore += totalScore;
+                await t.none("UPDATE players SET points = $1 WHERE player_id = $2", [winnerScore, buttonPresserId]) //todo IT IS UPDATING WINNERS SCORE.
+
+                if (player1Id != buttonPresserId) {
+                    loserScore = await t.one(
+                        "SELECT points FROM players WHERE player_id = $1)",
+                        player1Id
+                    );
+
+                } else {
+                    loserScore = await t.one(
+                        "SELECT points FROM players WHERE player_id = $1)",
+                        player2Id
+                    );
+                }
+
+
+            });
+
+        let scoreData;
+        if (player1Id != buttonPresserId) {//player 1 is the loser since button presser won.
+            scoreData = {
+                player1score: loserScore,
+                player2score: winnerScore,
+                winnerId: player2Id
+            };
+        }else{//player 1 is the winner
+            scoreData = {
+                player1score: winnerScore,
+                player2score: loserScore,
+                winnerId: player1Id
+            };
+        }
+        return scoreData;
+    }
+    //todo NEED to do an else if for if button presser lsot, but that will come with layoffs.
+
+
+
+
 
 }
 
@@ -322,7 +380,7 @@ async function doLayOffsAndScore(player1Id, player2Id, buttonPresserId, roomId, 
 //    also need to do layoffs before this method call.
 
 //for determining the score based on action and the deadwood value between the two players.
-function scoring(totalDeadwood, knocker, ginner, superGin, undercut) {
+function scoring(totalDeadwood, knocker, ginner, bigGin, undercut) {
 
     if (knocker) {
         if (undercut) {
@@ -331,7 +389,7 @@ function scoring(totalDeadwood, knocker, ginner, superGin, undercut) {
         return totalDeadwood
     } else if (ginner) {
         return 25 + totalDeadwood;
-    } else if (superGin) {
+    } else if (bigGin) {
         return 31 + totalDeadwood;
     }
 }
@@ -1133,5 +1191,6 @@ module.exports = {
     getHand,
     deckToDiscard,
     getTopDiscard,
-    deleteRoom
+    deleteRoom,
+    doLayOffsAndScore
 };
