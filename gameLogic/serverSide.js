@@ -1,7 +1,6 @@
 const db = require("../routes/db/connection");
 const sortArray = require("array-sort"); //needed so can sort array in generateRandomDeck.
 
-////////////
 
 async function getHand(playerId, roomId) {
   let holder = [];
@@ -24,20 +23,24 @@ async function getHand(playerId, roomId) {
 }
 
 async function getTopDiscard(roomId) {
-  let cardId;
 
-  await db
-    .tx(async t => {
-      //seems this code will run async to rest of code in this method.
-      let results = await t.one(
-        "SELECT * FROM discards WHERE discard_id = (SELECT MAX(discard_id) FROM discards WHERE room_id = $1)",
-        roomId
-      );
-      cardId = results["card_id"];
-    })
-    .catch(error => {
-      console.log("Error in drawFromDiscard " + error);
-    });
+    let cardId;
+
+    await db
+        .tx(async t => {
+            //seems this code will run async to rest of code in this method.
+            let results = await t.one(
+                "SELECT * FROM discards WHERE discard_id = (SELECT MAX(discard_id) FROM discards WHERE room_id = $1)",
+                roomId
+            );
+            cardId = results["card_id"];
+
+        })
+        .catch(error => {
+            console.log("Error in drawFromDiscard " + error);
+        });
+
+
 
   return cardId;
 }
@@ -245,28 +248,49 @@ async function deleteRoom(roomId) {
   });
 }
 
-// this will be method called from game.js when layoff and score needs to happen
-//todo note, acitonPerformed will be value  knock,gin,  big gin.
-//  will also send back score, not going to implemnt displaying new runs
-async function doLayOffsAndScore(
-  player1Id,
-  player2Id,
-  buttonPresserId,
-  roomId,
-  actionPerformed
-) {
-  //todo need to recalculate melds since client doesn't send them.
-  let player1MeldData = await getMeldData(player1Id, roomId);
-  let player2MeldData = await getMeldData(player2Id, roomId);
 
-  //   console.log(player1MeldData);
-  //   console.log(player2MeldData);
+//todo note, actionPerformed will be value  knock,gin,  big gin.
+//  will also send back score, not going to implement displaying new runs
+async function doLayOffsAndScore(player1Id, player2Id, buttonPresserId, roomId, actionPerformed) {
+    let player1MeldData = await getMeldData(player1Id, roomId);
+    let player2MeldData = await getMeldData(player2Id, roomId);
 
-  //determines whether the player who press an action button can actually perform action.
-  if (player1Id == buttonPresserId) {
-    if (actionPerformed.localeCompare("knock")) {
-      if (!player1MeldData.canKnock) {
-        console.log("Player " + buttonPresserId + " not allowed to knock");
+
+    //determines whether the player who press an action button can actually perform action.
+    if (player1Id == buttonPresserId) {
+        if (actionPerformed.localeCompare("knock")) {
+            if (!player1MeldData.canKnock) {
+                console.log("Player " + buttonPresserId + " not allowed to knock");
+                return;
+            }
+        } else if (actionPerformed.localeCompare("gin")) {
+            if (!player1MeldData.canGin) {
+                console.log("Player " + buttonPresserId + "  not allowed to gin")
+            }
+        } else if (!actionPerformed.localeCompare("big gin")) {
+            if (!player1MeldData.canBigGin) {
+                console.log("Player " + buttonPresserId + "  not allowed to big gin");
+            }
+        }
+    } else if (player2Id == buttonPresserId) {
+        if (actionPerformed.localeCompare("knock")) {
+            if (!player2MeldData.canKnock) {
+                console.log("Player " + buttonPresserId + " not allowed to knock");
+                return;
+            }
+        } else if (actionPerformed.localeCompare("gin")) {
+            if (!player2MeldData.canGin) {
+                console.log("Player " + buttonPresserId + "  not allowed to gin")
+            }
+        } else if (!actionPerformed.localeCompare("big gin")) {
+            if (!player2MeldData.canBigGin) {
+                console.log("Player " + buttonPresserId + "  not allowed to big gin");
+            }
+        }
+    } else {
+        console.log("Error in doLayOffsAndScore")
+        console.log("Player1 " + player1Id + "  Player2  " + player2Id + "   button presser  " + buttonPresserId);
+
         return;
       }
     } else if (actionPerformed.localeCompare("gin")) {
@@ -278,141 +302,158 @@ async function doLayOffsAndScore(
         console.log("Player " + buttonPresserId + "  not allowed to big gin");
       }
     }
-  } else if (player2Id == buttonPresserId) {
-    if (actionPerformed.localeCompare("knock")) {
-      if (!player2MeldData.canKnock) {
-        console.log("Player " + buttonPresserId + " not allowed to knock");
-        return;
-      }
-    } else if (actionPerformed.localeCompare("gin")) {
-      if (!player2MeldData.canGin) {
-        console.log("Player " + buttonPresserId + "  not allowed to gin");
-      }
-    } else if (!actionPerformed.localeCompare("big gin")) {
-      if (!player2MeldData.canBigGin) {
-        console.log("Player " + buttonPresserId + "  not allowed to big gin");
-      }
+
+
+    //now since we determine if button presser can perform action, now time to do possible layoffs and handling score.
+    let totalScore = 0;
+    let buttonPresserWon = true;
+    if (actionPerformed.localeCompare("gin")) {
+        let cumulativeDeadwood = Math.abs(player1MeldData.deadwoodValue - player2MeldData.deadwoodValue);
+        totalScore += scoring(cumulativeDeadwood, false, true, false, false);
+    } else if (actionPerformed.localeCompare("big gin")) {
+        let cumulativeDeadwood = Math.abs(player1MeldData.deadwoodValue - player2MeldData.deadwoodValue);
+        totalScore += scoring(cumulativeDeadwood, false, false, true, false);
+
+    } else if (actionPerformed.localeCompare("knock")) {//todo note, this is where winner could not be the one who pressed button.
+
+        if (player1Id == buttonPresserId) {//player 1 knocked
+            let player2Deadwood = player2MeldData.deadwood.slice(0);
+            let player1Runs = player1MeldData.runs.slice(0);
+            let player1Sets = player1MeldData.sets.slice(0);
+
+            deadWoodToRuns(player2Deadwood, player1Runs);
+            deadWoodToSets(player2Deadwood, player1Sets);
+
+            let cumulativeDeadwood =  deadWoodCalculator(player2Deadwood) - player1MeldData.deadwoodValue;
+
+            if (cumulativeDeadwood <= 0) { //undercut happened.
+                buttonPresserWon = false;
+                totalScore += scoring(cumulativeDeadwood, true, false, false, true);
+            } else {
+                totalScore += scoring(cumulativeDeadwood, true, false, false, false);
+            }
+
+        } else {//player 2 knocked
+            let player1Deadwood = player1MeldData.deadwood.slice(0);
+            let player2Runs = player2MeldData.runs.slice(0);
+            let player2Sets = player2MeldData.sets.slice(0);
+
+            deadWoodToRuns(player1Deadwood, player2Runs);
+            deadWoodToSets(player1Deadwood, player2Sets);
+
+            let cumulativeDeadwood =  deadWoodCalculator(player1Deadwood) - player2MeldData.deadwoodValue;
+
+            if (cumulativeDeadwood <= 0) { //undercut happened.
+                buttonPresserWon = false;
+                totalScore += scoring(cumulativeDeadwood, true, false, false, true);
+            } else {
+                totalScore += scoring(cumulativeDeadwood, true, false, false, false);
+            }
+        }
+
+
     }
-  } else {
-    console.log("Error in doLayOffsAndScore");
-    console.log(
-      "Player1 " +
-        player1Id +
-        "  Player2  " +
-        player2Id +
-        "   button presser  " +
-        buttonPresserId
-    );
-    return;
-  }
 
-  /*
-      runs: runs,
-        sets: sets,
-        deadwood: deadwoodList,
-        deadwoodValue: smallestDeadwoodValue,
-        canKnock: canKnock,
-        canGin: canGin,
-        canBigGin: canBigGin
-     */
-
-  //now since we determine if button presser can perform action, now time to do possible layoffs and handling score.
-  let totalScore = 0;
-  let buttonPresserWon = true;
-  if (actionPerformed.localeCompare("gin")) {
-    //todo ok cyrus totally forgot to include points in players table......... so have nothing to grab.
-    let cumulativeDeadwood = Math.abs(
-      player1MeldData.deadwoodValue - player2MeldData.deadwoodValue
-    );
-    totalScore += scoring(cumulativeDeadwood, false, true, false, false);
-  } else if (actionPerformed.localeCompare("big gin")) {
-    let cumulativeDeadwood = Math.abs(
-      player1MeldData.deadwoodValue - player2MeldData.deadwoodValue
-    );
-    totalScore += scoring(cumulativeDeadwood, false, false, true, false);
-  } else if (actionPerformed.localeCompare("knock")) {
-    //todo note, this is where winner could not be the one who pressed button.
-    //need to do layoffs
-    //todo BELOW FUNCTIONALITY WILL CHANGE BUT added this so others can start doing testing.
-    let cumulativeDeadwood = Math.abs(
-      player1MeldData.deadwoodValue - player2MeldData.deadwoodValue
-    );
-    totalScore += scoring(cumulativeDeadwood, true, false, false, false);
-
-    //todo would makeButtonPresserWon false if an undercut happened.
-  }
-  //   console.log("random message");
-
-  if (buttonPresserWon) {
     let loserScore = 0;
     let winnerScore = 0;
 
-    await db.tx(async t => {
-      winnerScore = await t.one(
-        "SELECT points FROM players WHERE player_id = $1",
-        [buttonPresserId]
-      );
+    if (buttonPresserWon) {
+        await db
+            .tx(async t => {
+                winnerScore = await t.one(
+                    "SELECT points FROM players WHERE player_id = $1",
+                    buttonPresserId
+                );
+                winnerScore = winnerScore["points"];
+                winnerScore += totalScore;
+                await t.none("UPDATE players SET points = $1 WHERE player_id = $2", [winnerScore, buttonPresserId]) //todo IT IS UPDATING WINNERS SCORE.
 
-      winnerScore = winnerScore["points"];
+                if (player1Id != buttonPresserId) {
+                    loserScore = await t.one(
+                        "SELECT points FROM players WHERE player_id = $1",
+                        player1Id
+                    );
 
-      console.log(winnerScore);
-      winnerScore += totalScore;
-      await t
-        .none(
-          "UPDATE players SET points = " +
-            winnerScore +
-            " WHERE player_id = " +
-            buttonPresserId
-        )
-        .catch(error => {
-          console.log(error);
-        }); //todo IT IS UPDATING WINNERS SCORE.
+                } else {
+                    loserScore = await t.one(
+                        "SELECT points FROM players WHERE player_id = $1",
+                        player2Id
+                    );
+                }
 
-      if (player1Id != buttonPresserId) {
-        loserScore = await t.one(
-          "SELECT points FROM players WHERE player_id = $1",
-          player1Id
-        );
-      } else {
-        loserScore = await t.one(
-          "SELECT points FROM players WHERE player_id = $1",
-          player2Id
-        );
-      }
-    });
 
-    let scoreData;
+            });
 
-    if (player1Id != buttonPresserId) {
-      //player 1 is the loser since button presser won.
-      scoreData = {
-        player1score: loserScore,
-        player2score: winnerScore,
-        winnerId: player2Id
-      };
-    } else {
-      //player 1 is the winner
-      scoreData = {
-        player1score: winnerScore,
-        player2score: loserScore,
-        winnerId: player1Id
-      };
+        let scoreData;
+        if (player1Id != buttonPresserId) {//player 1 is the loser since button presser won.
+            scoreData = {
+                player1score: loserScore["points"],
+                player2score: winnerScore,
+                winnerId: player2Id
+            };
+        } else {//player 1 is the winner
+            scoreData = {
+                player1score: winnerScore,
+                player2score: loserScore["points"],
+                winnerId: player1Id
+            };
+        }
+        return scoreData;
+    } else {//a undercut happened so button presser isn't the winner
+
+        let winnerId;
+        if(player1Id != buttonPresserId){
+            winnerId = player1Id;
+        }else{
+            winnerId = player2Id;
+        }
+
+        await db
+            .tx(async t => {
+                winnerScore = await t.one(
+                    "SELECT points FROM players WHERE player_id = $1",
+                    winnerId
+                );
+                winnerScore = winnerScore["points"];
+                winnerScore += totalScore;
+                await t.none("UPDATE players SET points = $1 WHERE player_id = $2", [winnerScore, winnerId]) //todo IT IS UPDATING WINNERS SCORE.
+
+                if (player1Id != winnerId) {
+                    loserScore = await t.one(
+                        "SELECT points FROM players WHERE player_id = $1",
+                        player1Id
+                    );
+
+                } else {
+                    loserScore = await t.one(
+                        "SELECT points FROM players WHERE player_id = $1",
+                        player2Id
+                    );
+                }
+
+
+            });
+
+        let scoreData;
+        if (player1Id != winnerId) {//player 1 is the loser since button presser won.
+            scoreData = {
+                player1score: loserScore["points"],
+                player2score: winnerScore,
+                winnerId: player2Id
+            };
+        } else {//player 1 is the winner
+            scoreData = {
+                player1score: winnerScore,
+                player2score: loserScore["points"],
+                winnerId: player1Id
+            };
+        }
+        return scoreData;
     }
-    console.log("score data");
-    console.log(scoreData);
-    return scoreData;
-  }
-  //todo NEED to do an else if for if button presser lsot, but that will come with layoffs.
+
 }
 
 //TODO above methods involves communication with client and database
-
-//todo PROBABLY when you return melds, you also return whether player can knock,gin,big big.
-
-//todo not going to make this function involve database things, will have a seperate function which calls this one.
-// was tired and made it super jank.  knocker, ginner, superGin will be boolean
-//   WILL need to calculate score before method call and also pass in what action was taken.
-//    also need to do layoffs before this method call.
 
 //for determining the score based on action and the deadwood value between the two players.
 function scoring(totalDeadwood, knocker, ginner, bigGin, undercut) {
@@ -438,7 +479,18 @@ function sorted(listToSort) {
     }
   });
 
-  return newlySorted;
+
+    let newlySorted = sortArray(listToSort, function (a, b) {
+        if ((a % 13) - (b % 13) === 0) {
+            //same face value but different suite
+            return a - b;
+        } else {
+            return (a % 13) - (b % 13);
+        }
+    });
+
+    return newlySorted;
+
 }
 
 function formMelds(theHand) {
@@ -698,7 +750,9 @@ function deadWoodCalculator(theHand) {
   return counter;
 }
 
-//todo MAY need another copy to deal with layoffs.... though possible not, just need to pass in player A's deadwood and player B's runs
+
+
+
 function deadWoodToRuns(changedHand, runsTemp) {
   let currentRuns = sortArray(runsTemp, function(a, b) {
     return a - b;
