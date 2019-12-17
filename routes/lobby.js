@@ -18,7 +18,7 @@ router.get("/getMessages", isLoggedIn, function(request, response) {
 });
 
 router.get("/getRooms", isLoggedIn, function(request, response) {
-  db.any("SELECT * FROM rooms WHERE room_id $= 0")
+  db.any("SELECT * FROM rooms WHERE room_id != 0")
     .then(function(data) {
       response.json(data);
     })
