@@ -55,11 +55,25 @@ router.post("/:id/knock", isLoggedIn, function(request, response) {
     ]).then(results => {
       let playerIdOfButtonPusherPerson = results["player_id"];
 
-      console.log(hostPlayerId);
+      // io.to(roomId).emit("showHands", hands);
+      let scoreData;
+      (async function() {
+        scoreData = await serverSide.doLayOffsAndScore(
+          hostPlayerId,
+          guestPlayerId,
+          playerIdOfButtonPusherPerson,
+          roomId,
+          "knock"
+        );
+        console.log(scoreData);
+        let scores = [];
+        scores.push(scoreData["player1score"], scoreData["player2score"]);
 
-      console.log(guestPlayerId);
-
-      console.log(playerIdOfButtonPusherPerson);
+        //io emmit to update score
+        io.to(roomId).emit("updateScores", scores);
+      })().catch(error => {
+        console.log(error);
+      });
     });
   });
 });
@@ -68,12 +82,6 @@ router.post("/:id/bigGin", isLoggedIn, function(request, response) {
   const roomId = request.params["id"];
   const userId = request.user.id;
   let io = request.app.get("io");
-
-  //testing delete room
-
-  // (async function() {
-  //   await serverSide.deleteRoom(roomId);
-  // })();
 
   db.one("SELECT * FROM rooms WHERE room_id = $1", [roomId]).then(results => {
     let hostPlayerId = results["host_id"];
@@ -86,14 +94,7 @@ router.post("/:id/bigGin", isLoggedIn, function(request, response) {
       .then(results => {
         let playerIdOfButtonPusherPerson = results["player_id"];
 
-        console.log(hostPlayerId);
-
-        console.log(guestPlayerId);
-
-        console.log(playerIdOfButtonPusherPerson);
-
-        //show the hands
-
+        // io.to(roomId).emit("showHands", hands);
         //need to figure out if the user is a guest or host in their game
         db.one("SELECT * FROM players WHERE user_id = $1 AND room_id = $2", [
           userId,
@@ -117,6 +118,29 @@ router.post("/:id/bigGin", isLoggedIn, function(request, response) {
               hands.push(opponentHand);
 
               io.to(roomId).emit("showHands", hands);
+
+              (async function() {
+                let scoreData;
+                scoreData = await serverSide.doLayOffsAndScore(
+                  hostPlayerId,
+                  guestPlayerId,
+                  playerIdOfButtonPusherPerson,
+                  roomId,
+                  "big gin"
+                );
+
+                console.log(scoreData);
+                let scores = [];
+                scores.push(
+                  scoreData["player1score"],
+                  scoreData["player2score"]
+                );
+
+                //io emmit to update score
+                io.to(roomId).emit("updateScores", scores);
+              })().catch(error => {
+                console.log(error);
+              });
             })();
           })
           .catch(error => {
@@ -144,11 +168,25 @@ router.post("/:id/gin", isLoggedIn, function(request, response) {
     ]).then(results => {
       let playerIdOfButtonPusherPerson = results["player_id"];
 
-      console.log(hostPlayerId);
+      (async function() {
+        let scoreData;
+        scoreData = await serverSide.doLayOffsAndScore(
+          hostPlayerId,
+          guestPlayerId,
+          playerIdOfButtonPusherPerson,
+          roomId,
+          "gin"
+        );
 
-      console.log(guestPlayerId);
+        console.log(scoreData);
+        let scores = [];
+        scores.push(scoreData["player1score"], scoreData["player2score"]);
 
-      console.log(playerIdOfButtonPusherPerson);
+        //io emmit to update score
+        io.to(roomId).emit("updateScores", scores);
+      })().catch(error => {
+        console.log(error);
+      });
 
       // io.to(roomId).emit("updateScores", 10);
     });
@@ -315,6 +353,15 @@ router.post("/:id/deal", isLoggedIn, function(request, response) {
       console.log(error);
     });
   response.json("");
+});
+
+router.post("/:id/endGame", isLoggedIn, function(request, response) {
+  const roomId = request.params["id"];
+  (async function() {
+    await serverSide.deleteRoom(roomId);
+  })();
+
+  response.redirect("/lobby");
 });
 
 router.get("/:id/getHost", isLoggedIn, function(request, response) {

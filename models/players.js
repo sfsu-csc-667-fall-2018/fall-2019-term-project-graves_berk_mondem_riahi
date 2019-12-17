@@ -15,6 +15,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       type: DataTypes.INTEGER
     },
+    points: {
+      allowNull: false,
+      type: DataTypes.INTEGER,
+      defaultValue: 0
+    }
   }, {
     timestamps: false
   });

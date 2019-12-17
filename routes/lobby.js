@@ -66,6 +66,7 @@ router.post("/createRoom", function(request, response) {
       hash = (hash << 5) - hash + chr;
       hash |= 0; // convert to 32 bit int because that's what postgres can store
     }
+    hash = Math.abs(hash);
   }
   db.any(
     `INSERT INTO rooms (room_id,room_name,password) VALUES ('${hash}','${request.body.roomName}','${request.body.roomPassword}')`

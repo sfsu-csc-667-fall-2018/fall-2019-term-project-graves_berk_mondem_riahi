@@ -1,15 +1,7 @@
 const db = require("../routes/db/connection");
 const sortArray = require("array-sort"); //needed so can sort array in generateRandomDeck.
 
-
-
 async function getHand(playerId, roomId) {
-  /*
-    let theHand = sortArray(thePlayerHand, function (a, b) {
-        return a - b;
-    });
-
-    */
   let holder = [];
 
   await db
@@ -23,79 +15,65 @@ async function getHand(playerId, roomId) {
       }
     });
 
-  //don't need to sort the hand for method call but due need it sorted to return it to client.
-  console.log("111 IN getHand  " + holder);
+  //console.log("111 IN getHand  " + holder);
   holder = sorted(holder);
   ///console.log("222 IN getHand  " + holder);
   return holder;
 }
 
-async function getTopDiscard(roomId){
-  let cardId
+async function getTopDiscard(roomId) {
+  let cardId;
 
   await db
-      .tx(async t => {
-        //seems this code will run async to rest of code in this method.
-        let results = await t.one(
-            "SELECT * FROM discards WHERE discard_id = (SELECT MAX(discard_id) FROM discards WHERE room_id = $1)",
-            roomId
-        );
-        cardId = results["card_id"];
-
-      })
-      .catch(error => {
-        console.log("Error in drawFromDiscard " + error);
-      });
-
+    .tx(async t => {
+      //seems this code will run async to rest of code in this method.
+      let results = await t.one(
+        "SELECT * FROM discards WHERE discard_id = (SELECT MAX(discard_id) FROM discards WHERE room_id = $1)",
+        roomId
+      );
+      cardId = results["card_id"];
+    })
+    .catch(error => {
+      console.log("Error in drawFromDiscard " + error);
+    });
 
   return cardId;
 }
 
-
-async function checkDiscard(roomId){
-  let cardId
+async function checkDiscard(roomId) {
+  let cardId;
 
   await db
-      .tx(async t => {
-        //seems this code will run async to rest of code in this method.
-        let results = await t.one(
-            "SELECT * FROM discards WHERE discard_id = (SELECT MAX(discard_id) FROM discards WHERE room_id = $1)",
-            roomId
-        );
-        cardId = results["card_id"];
+    .tx(async t => {
+      //seems this code will run async to rest of code in this method.
+      let results = await t.one(
+        "SELECT * FROM discards WHERE discard_id = (SELECT MAX(discard_id) FROM discards WHERE room_id = $1)",
+        roomId
+      );
+      cardId = results["card_id"];
+    })
+    .catch(error => {
+      console.log("Error in drawFromDiscard " + error);
+    });
 
-      })
-      .catch(error => {
-        console.log("Error in drawFromDiscard " + error);
-      });
-
-  if(cardId != undefined){
+  if (cardId != undefined) {
     return true;
   }
 
   return false;
 }
 
-//todo PROBABLY when you return melds, you also return whether player can knock,gin,big big.
-
 async function getMeldData(playerId, roomId) {
   let playerHand = await getHand(playerId, roomId);
   ///console.log("IN getMeldData  " + playerHand);
 
   let meldData = formMelds(playerHand);
+
   ///console.log("we finished calculating melds");
   return meldData; //not returning playerHand in this method, need to call getHand for that.
 }
 
-//todo NOTE, updated this so doesn't return hand anymore.
 async function drawFromDeck(playerId, roomId) {
-  //let holder = [];
-  //todo NEED THIS await before db.tx OTHERWISE this function will return before database stuff is done WHICH
-  //   don't want SINCE OTHERWISE would need to setup more async calls to have grabbing hand data from dbd wait
-  //    until this database stuff is done (unsure if would be easy or hard but didn't want to do that right now.
-
-  //   todo  await essentially seems to pause code INSIDE async function, rest of code continues to run
-  //         so if don't want function to return until have this done, need await.
   await db
     .tx(async t => {
       //seems this code will run async to rest of code in this method.
@@ -116,34 +94,9 @@ async function drawFromDeck(playerId, roomId) {
     .catch(error => {
       console.log("Error in drawFromDeck " + error);
     });
-
-  /*
-  //Now need to grab all cards in playersHand
-  //todo probably a more elegant way but couldn't find it.
-  await db
-    .any(
-      "SELECT card_id FROM handcards WHERE player_id = $1 AND room_id = $2",
-      [playerId, roomId]
-    )
-    .then(results => {
-      for (let index = 0; index < results.length; index++) {
-        holder.push(results[index]["card_id"]);
-      }
-    });
-
-   */
-  //return holder;
 }
 
-//todo NEED TO THINK where in code will retrieve top discard when want to display it, not draw it.
-//   don't think should do it here since this is for grabbing top discard and putting it in players hands.
-//    though maybe in game.js when in router for draw from discard, could also call method to
-//    get top discard after drawing so can display it for both players maybe???
-
-//todo NOTE, updated this so doesn't return hand anymore.
 async function drawFromDiscard(playerId, roomId) {
-  //let holder = [];
-
   await db
     .tx(async t => {
       //seems this code will run async to rest of code in this method.
@@ -167,30 +120,9 @@ async function drawFromDiscard(playerId, roomId) {
     .catch(error => {
       console.log("Error in drawFromDiscard " + error);
     });
-
-  /*
-  //Now need to grab all cards in playersHand
-  //todo probably a more elegant way but couldn't find it.
-  await db
-    .any(
-      "SELECT card_id FROM handcards WHERE player_id = $1 AND room_id = $2",
-      [playerId, roomId]
-    )
-    .then(results => {
-      for (let index = 0; index < results.length; index++) {
-        holder.push(results[index]["card_id"]);
-      }
-    });
-  return holder;
-
-   */
 }
 
-//todo NOTE, updated this so doesn't return hand anymore.
 async function removeCard(playerId, roomId, cardId) {
-
-  //let holder = [];
-
   await db
     .tx(async t => {
       //seems this code will run async to rest of code in this method.
@@ -207,35 +139,11 @@ async function removeCard(playerId, roomId, cardId) {
     .catch(error => {
       console.log("Error in removeCard " + error);
     });
-
-  /*
-  //Now need to grab all cards in playersHand
-  //todo probably a more elegant way but couldn't find it.
-  await db
-    .any(
-      "SELECT card_id FROM handcards WHERE player_id = $1 AND room_id = $2",
-      [playerId, roomId]
-    )
-    .then(results => {
-      for (let index = 0; index < results.length; index++) {
-        holder.push(results[index]["card_id"]);
-      }
-    });
-
-  return holder;
-
-   */
 }
 
 async function deal10Cards(playerId, roomId) {
   let holder = [];
-  //console.log("fnny");
-  //todo NEED THIS await before db.tx OTHERWISE this function will return before database stuff is done WHICH
-  //   don't want SINCE OTHERWISE would need to setup more async calls to have grabbing hand data from dbd wait
-  //    until this database stuff is done (unsure if would be easy or hard but didn't want to do that right now.
 
-  //   todo  await essentially seems to pause code INSIDE async function, rest of code continues to run
-  //         so if don't want function to return until have this done, need await.
   for (let index = 0; index < 10; index++) {
     await db
       .tx(async t => {
@@ -244,8 +152,6 @@ async function deal10Cards(playerId, roomId) {
           "SELECT * FROM decks WHERE deck_id = (SELECT MIN(deck_id) FROM decks WHERE room_id = $1)",
           roomId
         );
-
-        //console.log("HAHAHAHAHAHAH");
 
         let deckId = results["deck_id"];
         let cardId = results["card_id"];
@@ -263,88 +169,318 @@ async function deal10Cards(playerId, roomId) {
       });
   }
 
+  holder = sorted(holder);
   return holder;
-  //todo NEED TO SORT HOLDER before return it, doing that later.
 }
 
-
-async function deckToDiscard(roomId){
+async function deckToDiscard(roomId) {
   await db
-      .tx(async t => {
-        //seems this code will run async to rest of code in this method.
-        let results = await t.one(
-            "SELECT * FROM decks WHERE deck_id = (SELECT MIN(deck_id) FROM decks WHERE room_id = $1)",
-            roomId
-        );
+    .tx(async t => {
+      //seems this code will run async to rest of code in this method.
+      let results = await t.one(
+        "SELECT * FROM decks WHERE deck_id = (SELECT MIN(deck_id) FROM decks WHERE room_id = $1)",
+        roomId
+      );
 
-        //console.log("HAHAHAHAHAHAH");
+      let deckId = results["deck_id"];
+      let cardId = results["card_id"];
 
-        let deckId = results["deck_id"];
-        let cardId = results["card_id"];
+      await t.none("INSERT INTO discards(room_id,card_id) VALUES($1, $2)", [
+        roomId,
+        cardId
+      ]);
 
-        await t.none("INSERT INTO discards(room_id,card_id) VALUES($1, $2)", [
-          roomId,
-          cardId
-        ]);
-
-        return await t.result("DELETE FROM decks WHERE deck_id = $1", deckId);
-        //have to return a value
-      })
-      .catch(error => {
-        console.log("Error in deckToDiscard " + error);
-      });
+      return await t.result("DELETE FROM decks WHERE deck_id = $1", deckId);
+      //have to return a value
+    })
+    .catch(error => {
+      console.log("Error in deckToDiscard " + error);
+    });
 }
 
+async function deleteRoom(roomId) {
+  await db.tx(async t => {
+    let deckCardsDeleted = await t.result(
+      "DELETE FROM decks WHERE room_id = $1",
+      roomId
+    );
+    console.log("Number of deck cards deleted " + deckCardsDeleted.rowCount);
+    let discardCardsDeleted = await t.result(
+      "DELETE FROM discards WHERE room_id = $1",
+      roomId
+    );
+    console.log(
+      "Number of discard cards deleted " + discardCardsDeleted.rowCount
+    );
+    let playerHandCardsDeleted = await t.result(
+      "DELETE FROM handcards WHERE room_id = $1",
+      roomId
+    ); //would delete both players hand.
+    console.log(
+      "Number of hand cards deleted " + playerHandCardsDeleted.rowCount
+    );
 
+    //todo going to assume don't need to change playerId in rooms for now, though would just be two different sql statements
 
-//todo note, acitonPerformed will be value 1-3. 1 is knock, 2 is gin, 3 is big gin.
-//  will also send back score, not going to implemnt displaying new runs
-function doLayOffsAndScore(player1Id,player2Id,buttonPresserId,roomId,actionPerformed){
-    
+    let playersDeleted = await t.result(
+      "DELETE FROM players WHERE room_id = $1",
+      roomId
+    ); //should delete two if both players are in.
+    console.log("Number of players deleted " + playersDeleted.rowCount);
+    let roomsDeleted = await t.result(
+      "DELETE FROM rooms WHERE room_id = $1",
+      roomId
+    );
+    console.log(
+      "Number of rooms deleted is  " +
+        roomsDeleted.rowCount +
+        " . It should be 1"
+    );
+
+    //since we dropped individual chatrooms for each room so can focus more on game, don't need this.
+    //let messagesDeleted = await t.result("DELETE FROM messages WHERE room_id = $1", roomId);
+    //console.log("Number of messages deleted is " + messagesDeleted.rowCount);
+  });
 }
 
+//todo note, actionPerformed will be value  knock,gin,  big gin.
+//  will also send back score, not going to implement displaying new runs
+async function doLayOffsAndScore(
+  player1Id,
+  player2Id,
+  buttonPresserId,
+  roomId,
+  actionPerformed
+) {
+  let player1MeldData = await getMeldData(player1Id, roomId);
+  let player2MeldData = await getMeldData(player2Id, roomId);
 
-
-
-//TODO above methods involves communication with client and database
-
-//todo PROBABLY when you return melds, you also return whether player can knock,gin,big big.
-
-//todo not going to make this function involve database things, will have a seperate function which calls this one.
-// was tired and made it super jank.  knocker, ginner, superGin will be boolean
-//   WILL need to calculate score before method call and also pass in what action was taken.
-//    also need to do layoffs before this method call.
-
-//for determining the score based on action and the deadwood value between the two players.
-function scoring(totalDeadwood, knocker, ginner, superGin, undercut){
-
-  if(knocker){
-    if(undercut){
-      return 25 + totalDeadwood;
+  //determines whether the player who press an action button can actually perform action.
+  if (player1Id == buttonPresserId) {
+    if (actionPerformed.localeCompare("knock")) {
+      if (!player1MeldData.canKnock) {
+        console.log("Player " + buttonPresserId + " not allowed to knock");
+        return;
+      }
+    } else if (actionPerformed.localeCompare("gin")) {
+      if (!player1MeldData.canGin) {
+        console.log("Player " + buttonPresserId + "  not allowed to gin");
+      }
+    } else if (!actionPerformed.localeCompare("big gin")) {
+      if (!player1MeldData.canBigGin) {
+        console.log("Player " + buttonPresserId + "  not allowed to big gin");
+      }
     }
-    return totalDeadwood
-  }else if(ginner){
-    return 25 + totalDeadwood;
-  }else if(superGin){
-    return  31 + totalDeadwood;
+  } else if (player2Id == buttonPresserId) {
+    if (actionPerformed.localeCompare("knock")) {
+      if (!player2MeldData.canKnock) {
+        console.log("Player " + buttonPresserId + " not allowed to knock");
+        return;
+      }
+    } else if (actionPerformed.localeCompare("gin")) {
+      if (!player2MeldData.canGin) {
+        console.log("Player " + buttonPresserId + "  not allowed to gin");
+      }
+    } else if (!actionPerformed.localeCompare("big gin")) {
+      if (!player2MeldData.canBigGin) {
+        console.log("Player " + buttonPresserId + "  not allowed to big gin");
+      }
+    }
+  } else {
+    console.log("Error in doLayOffsAndScore");
+    console.log(
+      "Player1 " +
+        player1Id +
+        "  Player2  " +
+        player2Id +
+        "   button presser  " +
+        buttonPresserId
+    );
+    return;
+  }
+
+  //now since we determine if button presser can perform action, now time to do possible layoffs and handling score.
+  let totalScore = 0;
+  let buttonPresserWon = true;
+  if (actionPerformed.localeCompare("gin")) {
+    let cumulativeDeadwood = Math.abs(
+      player1MeldData.deadwoodValue - player2MeldData.deadwoodValue
+    );
+    totalScore += scoring(cumulativeDeadwood, false, true, false, false);
+  } else if (actionPerformed.localeCompare("big gin")) {
+    let cumulativeDeadwood = Math.abs(
+      player1MeldData.deadwoodValue - player2MeldData.deadwoodValue
+    );
+    totalScore += scoring(cumulativeDeadwood, false, false, true, false);
+  } else if (actionPerformed.localeCompare("knock")) {
+    //todo note, this is where winner could not be the one who pressed button.
+
+    if (player1Id == buttonPresserId) {
+      //player 1 knocked
+      let player2Deadwood = player2MeldData.deadwood.slice(0);
+      let player1Runs = player1MeldData.runs.slice(0);
+      let player1Sets = player1MeldData.sets.slice(0);
+
+      deadWoodToRuns(player2Deadwood, player1Runs);
+      deadWoodToSets(player2Deadwood, player1Sets);
+
+      let cumulativeDeadwood =
+        deadWoodCalculator(player2Deadwood) - player1MeldData.deadwoodValue;
+
+      if (cumulativeDeadwood <= 0) {
+        //undercut happened.
+        buttonPresserWon = false;
+        totalScore += scoring(cumulativeDeadwood, true, false, false, true);
+      } else {
+        totalScore += scoring(cumulativeDeadwood, true, false, false, false);
+      }
+    } else {
+      //player 2 knocked
+      let player1Deadwood = player1MeldData.deadwood.slice(0);
+      let player2Runs = player2MeldData.runs.slice(0);
+      let player2Sets = player2MeldData.sets.slice(0);
+
+      deadWoodToRuns(player1Deadwood, player2Runs);
+      deadWoodToSets(player1Deadwood, player2Sets);
+
+      let cumulativeDeadwood =
+        deadWoodCalculator(player1Deadwood) - player2MeldData.deadwoodValue;
+
+      if (cumulativeDeadwood <= 0) {
+        //undercut happened.
+        buttonPresserWon = false;
+        totalScore += scoring(cumulativeDeadwood, true, false, false, true);
+      } else {
+        totalScore += scoring(cumulativeDeadwood, true, false, false, false);
+      }
+    }
+  }
+
+  let loserScore = 0;
+  let winnerScore = 0;
+
+  if (buttonPresserWon) {
+    await db.tx(async t => {
+      winnerScore = await t.one(
+        "SELECT points FROM players WHERE player_id = $1",
+        buttonPresserId
+      );
+      winnerScore = winnerScore["points"];
+      winnerScore += totalScore;
+      await t.none("UPDATE players SET points = $1 WHERE player_id = $2", [
+        winnerScore,
+        buttonPresserId
+      ]); //todo IT IS UPDATING WINNERS SCORE.
+
+      if (player1Id != buttonPresserId) {
+        loserScore = await t.one(
+          "SELECT points FROM players WHERE player_id = $1",
+          player1Id
+        );
+      } else {
+        loserScore = await t.one(
+          "SELECT points FROM players WHERE player_id = $1",
+          player2Id
+        );
+      }
+    });
+    console.log("score data asdasd");
+    let scoreData;
+    if (player1Id != buttonPresserId) {
+      //player 1 is the loser since button presser won.
+      scoreData = {
+        player1score: loserScore["points"],
+        player2score: winnerScore,
+        winnerId: player2Id
+      };
+    } else {
+      //player 1 is the winner
+      scoreData = {
+        player1score: winnerScore,
+        player2score: loserScore["points"],
+        winnerId: player1Id
+      };
+    }
+
+    console.log("score data");
+    console.log(scoreData);
+    return scoreData;
+  } else {
+    //a undercut happened so button presser isn't the winner
+
+    let winnerId;
+    if (player1Id != buttonPresserId) {
+      winnerId = player1Id;
+    } else {
+      winnerId = player2Id;
+    }
+
+    await db.tx(async t => {
+      winnerScore = await t.one(
+        "SELECT points FROM players WHERE player_id = $1",
+        winnerId
+      );
+      winnerScore = winnerScore["points"];
+      winnerScore += totalScore;
+      await t.none("UPDATE players SET points = $1 WHERE player_id = $2", [
+        winnerScore,
+        winnerId
+      ]); //todo IT IS UPDATING WINNERS SCORE.
+
+      if (player1Id != winnerId) {
+        loserScore = await t.one(
+          "SELECT points FROM players WHERE player_id = $1",
+          player1Id
+        );
+      } else {
+        loserScore = await t.one(
+          "SELECT points FROM players WHERE player_id = $1",
+          player2Id
+        );
+      }
+    });
+    console.log("score data asdasd");
+    let scoreData;
+    if (player1Id != winnerId) {
+      //player 1 is the loser since button presser won.
+      scoreData = {
+        player1score: loserScore["points"],
+        player2score: winnerScore,
+        winnerId: player2Id
+      };
+    } else {
+      //player 1 is the winner
+      scoreData = {
+        player1score: winnerScore,
+        player2score: loserScore["points"],
+        winnerId: player1Id
+      };
+    }
+    console.log(scoreData);
+    return scoreData;
   }
 }
 
+//TODO above methods involves communication with client and database
+
+//for determining the score based on action and the deadwood value between the two players.
+function scoring(totalDeadwood, knocker, ginner, bigGin, undercut) {
+  if (knocker) {
+    if (undercut) {
+      return 25 + totalDeadwood;
+    }
+    return totalDeadwood;
+  } else if (ginner) {
+    return 25 + totalDeadwood;
+  } else if (bigGin) {
+    return 31 + totalDeadwood;
+  }
+}
 
 function sorted(listToSort) {
-  /* //code that won't work in node.js
-      listToSort.sort(function (a, b) {
-          if ((a % 13) - (b % 13) === 0) {//same face value but different suite  //todo check on since wanted ===
-              return a - b;
-          } else {
-              return (a % 13) - (b % 13);
-          }
-      });
-
-       */
   let newlySorted = sortArray(listToSort, function(a, b) {
     if ((a % 13) - (b % 13) === 0) {
-      //same face value but different suite  //todo check on since wanted ===
+      //same face value but different suite
       return a - b;
     } else {
       return (a % 13) - (b % 13);
@@ -354,10 +490,6 @@ function sorted(listToSort) {
   return newlySorted;
 }
 
-//todo NOTE, thinking not going to do any database transactions in here, so players hand would need to be passed into here.
-// if should grab players hand in here, won't be that big of a change I feel.
-
-//todo Note: this is sort of my cheap way of allowing variables that are
 function formMelds(theHand) {
   let sets = []; //exist here so other player can get them after meld creation during scoring
   let runs = []; //exist here so other player can get them after meld creation during scoring
@@ -367,10 +499,10 @@ function formMelds(theHand) {
   let deadWoodCardCount = 1337; //exist here so other player can get them after meld creation during scoring
   // ALSO exist for meld recursion
 
-  console.log("STARTING meld calculations");
-  //let beevus = theHand;
+  let sizeOfHand = theHand.length;
 
-  //let baffled = theHand.slice(0);
+  console.log("STARTING meld calculations");
+
   meldRecursion(theHand.slice(0), [], [], []);
 
   function meldRecursion(changedHand, theRuns, theSets, skippedCards) {
@@ -397,11 +529,9 @@ function formMelds(theHand) {
       return;
     }
 
-    //sorted(tempHand);// todo 12-12  will need to re-assign tempHands. no worries since due to what i due at start of method, don't care about modifying
-    // todo   PREVIOUS VALUE. so its good to just re--assigned tempHand ---------------
     tempHand = sorted(tempHand);
 
-    //Have to search for conflcit card. Going from right to left (higher value to lower)
+    //Have to search for conflict card. Going from right to left (higher value to lower)
     for (let index = tempHand.length - 1; index > -1; index--) {
       let cardValue = tempHand[index];
       if (ignoreCards.includes(cardValue)) {
@@ -418,7 +548,6 @@ function formMelds(theHand) {
       updateMeldsCheck(tempHand, tempRuns, tempSets);
       return;
     }
-    //todo NOTE decided to create blocks for each action so unneeded data isn't forced to be around, thus taking up memory
 
     {
       let handForDoBySet = tempHand.slice(0);
@@ -466,8 +595,6 @@ function formMelds(theHand) {
   }
 
   function updateMeldsCheck(tempHand, tempRuns, tempSets) {
-    // todo  12-12 create a new variable like do in meldRecursion, based on where this function is used
-    //   no reason to modify original values since they are discarded after this function call
     let updatedTempRuns = deadWoodToRuns(tempHand, tempRuns);
     //  it will have new values in it. Don't need it for sets since can modify array that was passed in.
     deadWoodToSets(tempHand, tempSets); //don't sort in here
@@ -477,17 +604,10 @@ function formMelds(theHand) {
       let sortedTempRuns = sortArray(updatedTempRuns, function(a, b) {
         return a - b;
       });
-      /*
-                tempRuns.sort(function (a, b) {
-                    return a - b
-                });//todo 12-12  must update tempRuns with new array sorting approach due to node.js being the way it is.-------------------------
 
-                 */
       tempSets = sorted(tempSets);
       tempHand = sorted(tempHand);
-      //alert("HERE WE ARE");
-      ////alert(sortedTempRuns);
-      ////alert(tempSets);
+
       runs = runsTo2D(sortedTempRuns).slice(0);
       sets = setsTo2D(tempSets).slice(0);
       smallestDeadwoodValue = deadWoodCount;
@@ -501,12 +621,7 @@ function formMelds(theHand) {
       let sortedTempRuns = sortArray(updatedTempRuns, function(a, b) {
         return a - b;
       });
-      /*
-                tempRuns.sort(function (a, b) {
-                    return a - b
-                });//todo 12-12  must update tempRuns with new array sorting approach due to node.js being the way it is.-------------------------
 
-                 */
       tempSets = sorted(tempSets);
       tempHand = sorted(tempHand);
       runs = runsTo2D(sortedTempRuns).slice(0);
@@ -517,14 +632,29 @@ function formMelds(theHand) {
     }
   }
 
-  //todo didn't include players current hand since that should be done somewhere else I feel, like in game.js
+  let canKnock = false;
+  let canGin = false;
+  let canBigGin = false;
 
-  //todo  ALSO CHECK if player can knock, gin, big gin and return values to client.
+  if (deadwoodList.length == 0 && sizeOfHand == 11) {
+    canBigGin = true;
+  } else if (deadwoodList.length == 0 && sizeOfHand == 10) {
+    //todo for now not doing setup where server discards card for player when they hit
+    // knock or gin button
+    canGin = true;
+  } else if (smallestDeadwoodValue <= 10 && sizeOfHand == 10) {
+    //player needs to discard before
+    canKnock = true;
+  }
+
   let meldData = {
     runs: runs,
     sets: sets,
     deadwood: deadwoodList,
-    deadwoodValue: smallestDeadwoodValue
+    deadwoodValue: smallestDeadwoodValue,
+    canKnock: canKnock,
+    canGin: canGin,
+    canBigGin: canBigGin
   };
 
   return meldData;
@@ -604,7 +734,6 @@ function isInRun(changedHand, cardId) {
   return false;
 }
 
-//todo maybe could be "improved" using javascript reduce
 function deadWoodCalculator(theHand) {
   let counter = 0;
   for (let value of theHand) {
@@ -618,12 +747,7 @@ function deadWoodCalculator(theHand) {
   return counter;
 }
 
-
-
-//todo MAY need another copy to deal with layoffs.... though possible not, just need to pass in player A's deadwood and player B's runs
 function deadWoodToRuns(changedHand, runsTemp) {
-
-
   let currentRuns = sortArray(runsTemp, function(a, b) {
     return a - b;
   });
@@ -673,8 +797,8 @@ function deadWoodToRuns(changedHand, runsTemp) {
       ) {
         //checks if card that fits left side of current run is in changedHand.
         let foundCard = currentRuns[indexLeftCardOfRun] - 1;
-        currentRuns.splice(indexLeftCardOfRun, 0, foundCard); //TODO MAKE SURE THIS WORKS
-        changedHand.splice(changedHand.indexOf(foundCard), 1); //TODO CHECK IF THIS WORKS
+        currentRuns.splice(indexLeftCardOfRun, 0, foundCard);
+        changedHand.splice(changedHand.indexOf(foundCard), 1);
         //leftCardOfRun would remain the value it started as since a new card is being put in that spot.
         //we do however need to update indexRightCardOfRun
         indexRightCardOfRun++;
@@ -702,7 +826,7 @@ function deadWoodToRuns(changedHand, runsTemp) {
         } else {
           currentRuns.splice(indexRightCardOfRun + 1, 0, foundCard);
         }
-        changedHand.splice(changedHand.indexOf(foundCard), 1); //TODO CHECK IF THIS WORKS
+        changedHand.splice(changedHand.indexOf(foundCard), 1);
         indexRightCardOfRun++;
       } else {
         indexLeftCardOfRun = indexRightCardOfRun + 1;
@@ -731,7 +855,7 @@ function deadWoodToSets(changedHand, setsTemp) {
   }
 }
 
-//todo this RELIES ON theArray being sorted in my suite ordering format, or else it won't work. theArray has to be sorted before this method.
+//this RELIES ON theArray being sorted in my suite ordering format, or else it won't work. theArray has to be sorted before this method.
 // When sending clients runs and sets, they will be in form of a 2D array, so need to convert 1D array been using during meld formations to a organized 2D
 function setsTo2D(theArray) {
   let new2DArray = [[]];
@@ -752,7 +876,7 @@ function setsTo2D(theArray) {
   return new2DArray;
 }
 
-//todo this RELIES ON theArray being sorted, or else it won't work. theArray must be sorted before this method.
+//this RELIES ON theArray being sorted, or else it won't work. theArray must be sorted before this method.
 // When sending clients runs and sets, they will be in form of a 2D array, so need to convert 1D array been using during meld formations to a organized 2D
 function runsTo2D(theArray) {
   let new2DArray = [[]];
@@ -777,7 +901,6 @@ function runsTo2D(theArray) {
   }
   return new2DArray;
 }
-
 
 // Creates a 3-4 size set with cardValue. If have a 4 set and 2+ conflict cards are in it,
 // will reduce set size to 3 and return true representing need for 4 set action to occur.
@@ -841,7 +964,7 @@ function do4Set(changedHand, theSets, cardValue) {
 
   for (let value of holder) {
     theSets.push(value);
-    changedHand.splice(changedHand.indexOf(value), 1); //todo CHECK TO MAKE SURE THIS WORKS.
+    changedHand.splice(changedHand.indexOf(value), 1);
   }
 }
 
@@ -999,7 +1122,7 @@ function cleaningSets(changedHand, theSets) {
   for (let value of handForIterating) {
     if (!ignoreCards.includes(value % 13)) {
       theSets.push(value);
-      changedHand.splice(changedHand.indexOf(value), 1); //TODO CHECK TO SEE IF WORKS
+      changedHand.splice(changedHand.indexOf(value), 1);
     }
   }
 }
@@ -1012,17 +1135,6 @@ function cleaningSets(changedHand, theSets) {
 function cleaningRuns(changedHand, theRuns) {
   let handForIterating = changedHand.slice(0); //NEED this since can't alter a list your iterating through without consequences
   let ignoreCards = [];
-
-  //todo MAJOR NOTE, just realized, I actually don't need theRuns sorted SINCE  I sort them in deadWoodToRuns and meld recursion check anyway.
-  //     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  /*
-      theRuns.sort(function (a, b) {//todo  12-12  NEED to reconfigure method so return theRuns SINCE don't have an array sort that modifies original array
-          // todo  and you need this sorted for this method BUT you also need to change original array. SO best solution curently is
-          //  to return the outcome of theRuns and replace tempruns with new value.
-          return a - b
-      });//Need list to be ordered 0-51 to most efficiently perform this methods purpose.
-
-       */
 
   for (let value of handForIterating) {
     if (isInRun(changedHand, value) && !isInSet(changedHand, value)) {
@@ -1156,5 +1268,7 @@ module.exports = {
   getMeldData,
   getHand,
   deckToDiscard,
-  getTopDiscard
+  getTopDiscard,
+  deleteRoom,
+  doLayOffsAndScore
 };
